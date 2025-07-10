@@ -1,11 +1,16 @@
-import { Module } from "@nestjs/common";
-import { CvsController } from "@/interfaces/http/cv/cvs.controller";
-import { MinioService } from "@/infrastructure/s3/minio.service";
-import { GptModule } from "@/infrastructure/gpt/gpt.module";
+import { Module } from '@nestjs/common';
+import { CvsController } from '@/interfaces/http/cv/cvs.controller';
+import { MinioService } from '@/infrastructure/s3/minio.service';
+import { GptModule } from '@/infrastructure/gpt/gpt.module';
+import { CreateUserUseCase } from '@/application/user/use-case/create-user.use-case';
+import { IUserRepository } from '@/domain/user/interfaces/user.repository.interface';
+import { UserRepository } from '@/infrastructure/persistence/repositories/user.repository';
+import { ExtractCvContentUseCase } from '@/application/cv/use-case/extract-cv-content.use-case';
+import { SaveCvUseCase } from '@/application/cv/use-case/save-cv.use-case';
 
 @Module({
   controllers: [CvsController],
-  providers: [MinioService],
+  providers: [ExtractCvContentUseCase, SaveCvUseCase, MinioService],
   imports: [GptModule],
 })
 export class CvsModule {}

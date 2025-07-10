@@ -8,7 +8,7 @@ export class CreateUserUseCase {
   constructor(@Inject(IUserRepository) private repo: IUserRepository) {}
 
   async execute(dto: CreateUserDto) {
-    const user = new UserDomainEntity(dto.name, dto.email);
+    const user = dto.createUserDomainEntity();
     await this.repo.save(user);
   }
 }

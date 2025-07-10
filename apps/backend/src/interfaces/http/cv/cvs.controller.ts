@@ -10,8 +10,8 @@ import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { ExtractCvDataDto } from '@/application/cv/dto/request/extract-cv-data.dto';
 import { UploadFileDto } from '@/application/cv/dto/request/upload-file.dto';
 import { UploadFileResponseDto } from '@/application/cv/dto/response/upload-file-response.dto';
-import { ExtractCvContentUseCase } from '@/application/cv/use-cases/extract-cv-content.use-case';
-import { SaveCvUseCase } from '@/application/cv/use-cases/save-cv.use-case';
+import { ExtractCvContentUseCase } from '@/application/cv/use-case/extract-cv-content.use-case';
+import { SaveCvUseCase } from '@/application/cv/use-case/save-cv.use-case';
 
 @Controller('cvs')
 export class CvsController {
@@ -37,7 +37,7 @@ export class CvsController {
 
   @Post('extract')
   @ApiBody({ type: ExtractCvDataDto })
-  async ask(@Body() dto: ExtractCvDataDto) {
+  async extractCvData(@Body() dto: ExtractCvDataDto) {
     return await this.extractCvContentUseCase.extractData(dto);
   }
 }
