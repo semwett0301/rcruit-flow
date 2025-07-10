@@ -1,6 +1,6 @@
-import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
-import { GptService } from "./gpt.service";
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { GptService } from './gpt.service';
 
 @Module({
   imports: [ConfigModule], // чтобы @nestjs/config был доступен

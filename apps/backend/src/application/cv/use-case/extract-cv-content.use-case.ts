@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ExtractCvDataDto } from '../dto/request/extract-cv-data.dto';
 import { extractTextFromPdf } from '@/shared/utils/extractTextFromPdf';
 import { MinioService } from '@/infrastructure/s3/minio.service';
 import { GptService } from '@/infrastructure/gpt/gpt.service';
@@ -8,6 +7,7 @@ import {
   cvDataExtractionSystemPrompt,
   cvDataExtractionUserPrompt,
 } from '../prompts/cv-data-extraction-user.prompt';
+import { ExtractCvDataDto } from '@repo/dto';
 
 @Injectable()
 export class ExtractCvContentUseCase {

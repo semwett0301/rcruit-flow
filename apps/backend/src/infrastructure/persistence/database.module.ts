@@ -1,7 +1,7 @@
-import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { UserOrmEntity } from "./entities/user.orm.entity"; // adjust path as needed
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UserOrmEntity } from './entities/user.orm.entity'; // adjust path as needed
 
 @Module({
   imports: [
@@ -13,12 +13,12 @@ import { UserOrmEntity } from "./entities/user.orm.entity"; // adjust path as ne
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {
-          type: "postgres",
-          host: configService.get<string>("DB_HOST"),
-          port: configService.get<number>("POSTGRES_PORT"),
-          username: configService.get<string>("POSTGRES_USER"),
-          password: configService.get<string>("POSTGRES_PASSWORD"),
-          database: configService.get<string>("POSTGRES_DB"),
+          type: 'postgres',
+          host: configService.get<string>('DB_HOST'),
+          port: configService.get<number>('POSTGRES_PORT'),
+          username: configService.get<string>('POSTGRES_USER'),
+          password: configService.get<string>('POSTGRES_PASSWORD'),
+          database: configService.get<string>('POSTGRES_DB'),
           entities: [UserOrmEntity],
           synchronize: true,
         };

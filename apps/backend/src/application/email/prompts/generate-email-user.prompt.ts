@@ -1,4 +1,4 @@
-import { CandidateFormDto } from '@/application/email/dto/request/email-candidate-form.dto';
+import { CandidateFormDto } from '@repo/dto';
 
 interface GenerateEmailPromptParams {
   dto: CandidateFormDto;

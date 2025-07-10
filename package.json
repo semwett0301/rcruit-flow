@@ -6,7 +6,9 @@
   "author": "",
   "license": "UNLICENSED",
   "scripts": {
-    "dev": "turbo watch dev lint",
+    "dev": "turbo dev",
+    "lint": "turbo watch lint",
+    "check": "turbo watch check",
     "build": "turbo run build",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },

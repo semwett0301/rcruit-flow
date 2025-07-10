@@ -7,11 +7,13 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
-import { ExtractCvDataDto } from '@/application/cv/dto/request/extract-cv-data.dto';
-import { UploadFileDto } from '@/application/cv/dto/request/upload-file.dto';
-import { UploadFileResponseDto } from '@/application/cv/dto/response/upload-file-response.dto';
 import { ExtractCvContentUseCase } from '@/application/cv/use-case/extract-cv-content.use-case';
 import { SaveCvUseCase } from '@/application/cv/use-case/save-cv.use-case';
+import {
+  ExtractCvDataDto,
+  UploadFileDto,
+  UploadFileResponseDto,
+} from '@repo/dto';
 
 @Controller('cvs')
 export class CvsController {

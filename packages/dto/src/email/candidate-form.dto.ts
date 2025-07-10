@@ -12,9 +12,8 @@ import {
   Min,
   ValidateIf,
 } from 'class-validator';
-import { TravelModeEnum } from '@/application/email/enum/travelMode.enum';
-import { SalaryPeriod } from '@/application/email/enum/salaryPeriod.enum';
-import { DegreeDto } from './email-degree.dto';
+import { DegreeDto } from './degree.dto';
+import { SalaryPeriod, TravelModeEnum } from '../enum';
 
 export class CandidateFormDto {
   @ApiProperty()
