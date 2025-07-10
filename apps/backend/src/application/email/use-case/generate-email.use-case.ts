@@ -6,6 +6,7 @@ import {
 } from '@/application/email/prompts/generate-email-user.prompt';
 import type { ChatCompletionMessageParam } from 'openai/resources/index';
 import { CandidateFormDto } from '@repo/dto';
+import * as fs from 'node:fs';
 
 @Injectable()
 export class GenerateEmailUseCase {
@@ -18,6 +19,19 @@ export class GenerateEmailUseCase {
       seniority: this.#getSeniority(dto.yearsOfExperience),
       salaryLine: this.#getSalaryLine(dto.salaryPeriod, dto.grossSalary),
       travelClause: this.#getTravelClause(dto.travelMode, dto.minutesOfRoad),
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const fs = require('fs');
+
+    const filePath = 'output.txt';
+
+    fs.writeFile(filePath, userPrompt, 'utf8', (err) => {
+      if (err) {
+        console.error('Error writing file:', err);
+        return;
+      }
+      console.log('File has been saved successfully!');
     });
 
     const gptMessages: ChatCompletionMessageParam[] = [
