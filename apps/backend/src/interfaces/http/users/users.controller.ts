@@ -1,8 +1,8 @@
-import { Body, Controller, Post } from "@nestjs/common";
-import { CreateUserDto } from "@/application/user/dto/create-user.dto";
-import { CreateUserUseCase } from "@/application/user/use-cases/create-user.use-case";
+import { Body, Controller, Post } from '@nestjs/common';
+import { CreateUserDto } from '@/application/user/dto/request/create-user.dto';
+import { CreateUserUseCase } from '@/application/user/use-cases/create-user.use-case';
 
-@Controller("users")
+@Controller('users')
 export class UsersController {
   constructor(private readonly createUser: CreateUserUseCase) {}
 

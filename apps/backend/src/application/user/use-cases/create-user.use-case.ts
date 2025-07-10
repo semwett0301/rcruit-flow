@@ -1,7 +1,7 @@
-import { Injectable, Inject } from "@nestjs/common";
-import { CreateUserDto } from "../dto/create-user.dto";
-import { IUserRepository } from "@/domain/user/interfaces/user.repository.interface";
-import { UserDomainEntity } from "@/domain/user/enities/user.domain.entity";
+import { Injectable, Inject } from '@nestjs/common';
+import { CreateUserDto } from '../dto/request/create-user.dto';
+import { IUserRepository } from '@/domain/user/interfaces/user.repository.interface';
+import { UserDomainEntity } from '@/domain/user/enities/user.domain.entity';
 
 @Injectable()
 export class CreateUserUseCase {

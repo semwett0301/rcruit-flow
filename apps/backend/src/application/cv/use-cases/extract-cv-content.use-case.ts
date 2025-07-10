@@ -1,0 +1,45 @@
+import { Injectable } from '@nestjs/common';
+import { ExtractCvDataDto } from '../dto/request/extract-cv-data.dto';
+import { extractTextFromPdf } from '@/shared/utils/extractTextFromPdf';
+import { MinioService } from '@/infrastructure/s3/minio.service';
+import { GptService } from '@/infrastructure/gpt/gpt.service';
+import { parseGptJsonSafe } from '@/shared/utils/parseGptJsonSave';
+import {
+  cvDataExtractionSystemPrompt,
+  cvDataExtractionUserPrompt,
+} from '../prompts/cv-data-extraction-user.prompt';
+
+@Injectable()
+export class ExtractCvContentUseCase {
+  constructor(
+    private readonly minioService: MinioService,
+    private readonly gpt: GptService,
+  ) {}
+
+  async extractData(dto: ExtractCvDataDto) {
+    const cvText = await this.#extractText(dto.fileId);
+    const gptResult = await this.#extractDataFromGpt(cvText);
+
+    return parseGptJsonSafe(gptResult);
+  }
+
+  async #extractText(fileId: string) {
+    const file = await this.minioService.getFile('my-bucket', fileId);
+    return await extractTextFromPdf(file);
+  }
+
+  async #extractDataFromGpt(text: string) {
+    return await this.gpt.chat(
+      [
+        {
+          role: 'system',
+          content: cvDataExtractionSystemPrompt,
+        },
+        { role: 'user', content: cvDataExtractionUserPrompt(text) },
+      ],
+      {
+        temperature: 0,
+      },
+    );
+  }
+}
