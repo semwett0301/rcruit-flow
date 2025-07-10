@@ -15,11 +15,6 @@
     "sourceMap": true,
     "strictNullChecks": false,
     "strictBindCallApply": false,
-    "baseUrl": "./src",
-    "outDir": "./dist",
-    "paths": {
-      "@/*": ["./*"]
-    },
-    "exclude": ["node_modules", "dist"]
+
   }
 }

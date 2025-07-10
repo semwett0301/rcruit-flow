@@ -5,13 +5,13 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { MinioService } from '@/infrastructure/s3/minio.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 // import { GptService } from /"@/infrastructure/gpt/gpt.service";
 import { ApiBody, ApiConsumes, ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { extractTextFromPdf } from '@/shared/utils/extractTextFromPdf';
 import { GptService } from '@/infrastructure/gpt/gpt.service';
+import { MinioService } from '@/infrastructure/s3/minio.service';
 
 function parseGptJsonSafe(raw: string): any {
   try {
