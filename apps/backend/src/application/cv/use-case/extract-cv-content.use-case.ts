@@ -24,7 +24,7 @@ export class ExtractCvContentUseCase {
   }
 
   async #extractText(fileId: string) {
-    const file = await this.minioService.getFile('my-bucket', fileId);
+    const file = await this.minioService.getFile(fileId);
     return await extractTextFromPdf(file);
   }
 

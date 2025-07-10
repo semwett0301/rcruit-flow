@@ -42,7 +42,7 @@ export class MinioService {
         .promise();
       return object.Body as Buffer;
     } catch (err) {
-      throw new Error(`Ошибка при получении файла: ${err.message}`);
+      throw new Error(`Error in extraction: ${err.message}`);
     }
   }
 }

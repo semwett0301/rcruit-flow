@@ -129,11 +129,6 @@ export class CandidateFormDto {
   @IsInt()
   hoursAWeek: 8 | 16 | 24 | 32 | 40;
 
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  targetName: string;
-
   @ValidateIf((o) => !o.jobDescriptionFile)
   @ApiPropertyOptional()
   @IsOptional()
