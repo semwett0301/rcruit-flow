@@ -11,10 +11,15 @@
     "moduleResolution": "Node10",
     "noFallthroughCasesInSwitch": false,
     "noImplicitAny": false,
-    "removeComments": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "strictNullChecks": false,
-    "strictBindCallApply": false
+    "strictBindCallApply": false,
+    "baseUrl": "./src",
+    "outDir": "./dist",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "exclude": ["node_modules", "dist"]
   }
 }

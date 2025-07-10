@@ -1,5 +1,4 @@
 /** @type {import("prettier").Config} */
 module.exports = {
-    singleQuote: true,
-    trailingComma: "all"
+    ...require('@repo/eslint-config/prettier-base'),
 };

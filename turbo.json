@@ -13,12 +13,11 @@
         "^build"
       ],
       "outputs": [
-        ".next/**",
-        "!.next/cache/**"
+        "dist/**"
       ]
     },
-    "lint": {},
-    "test": {},
-    "test:e2e": {}
+    "lint": {
+      "dependsOn": ["^lint"]
+    }
   }
 }
