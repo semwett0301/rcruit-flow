@@ -37,7 +37,7 @@ RUN turbo run build --filter=backend
 # Stage 3: Install production-only deps
 FROM base AS prod-deps
 WORKDIR /app
-COPY --from=builder /app/deps .
+COPY --from=builder /app .
 
 RUN pnpm install --prod --frozen-lockfile
 
