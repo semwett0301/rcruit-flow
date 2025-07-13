@@ -23,13 +23,15 @@
   },
   "dependencies": {
     "@nestjs/mapped-types": "*",
-    "class-validator": "^0.14.2",
+    "@nestjs/swagger": "^6.0.0",
     "class-transformer": "^0.5.1",
-    "@nestjs/swagger": "^6.0.0"
+    "class-validator": "^0.14.2"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@types/express": "^4.17.23",
+    "@types/multer": "^1.4.13",
     "@types/node": "^20.3.1",
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.2",

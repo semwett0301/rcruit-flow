@@ -1,32 +1,28 @@
-# Use Node.js LTS Alpine image
-FROM node:18-alpine
-
-# Install pnpm globally
-RUN npm install -g pnpm
-
-# Set working directory
+# ---- Base Node image ----
+FROM node:18-alpine AS base
 WORKDIR /app
 
-# Copy package.json and pnpm-lock.yaml (if available)
-COPY package.json pnpm-lock.yaml* ./
+# ---- Install pnpm ----
+RUN npm install -g pnpm@10.13.1
 
-# Install dependencies
+# ---- Copy only the pnpm files and install dependencies ----
+FROM base AS deps
+WORKDIR /app
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
+COPY packages ./packages
+COPY apps/backend ./apps/backend
+
 RUN pnpm install --frozen-lockfile
 
-# Copy source code and environment file
-COPY . .
-COPY .env .env
+# ---- Build the app with Turborepo ----
+RUN pnpm turbo run build --filter=backend
 
-# Build the application
-RUN pnpm run build
+# ---- Production image ----
+FROM base AS prod
+WORKDIR /app
 
-# Remove source code and dev dependencies after build
-RUN rm -rf src/ test/ && \
-    pnpm prune --prod && \
-    pnpm store prune
+# Copy only the built backend app and its node_modules
+COPY --from=deps /app/apps/backend/dist ./dist
 
-# Expose port (defaults to 3000, override with docker run -p)
 EXPOSE 3000
-
-# Start the application
 CMD ["node", "dist/main"]

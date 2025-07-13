@@ -1,6 +1,7 @@
 {
   "extends": "@repo/typescript-config/nestjs.json",
   "compilerOptions": {
+    "types": ["node", "express", "multer"],
     "allowJs": true,
     "esModuleInterop": true,
     "incremental": false,

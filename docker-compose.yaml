@@ -1,39 +1,26 @@
 version: '3.8'
 
 services:
-  nestjs-app:
-    container_name: nestjs-app
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "${PORT}:3000"
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-      - minio
-
   postgres:
     image: postgres:15
     container_name: postgres
     restart: always
     env_file:
-      - .env
+      - apps/backend/.env
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "5432:5432"
 
   minio:
     image: minio/minio
     container_name: minio
     command: server /data --console-address ":9001"
     ports:
-      - "${MINIO_API_PORT}:9000"
-      - "${MINIO_CONSOLE_PORT}:9001"
+      - "9000:9000"
+      - "9001:9001"
     env_file:
-      - .env
+      - apps/backend/.env
     volumes:
       - minio-data:/data
 
