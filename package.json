@@ -7,7 +7,6 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "turbo dev",
-    "dev:docker": "export $(grep -v '^#' apps/backend/.env | xargs) && docker compose up -d --build",
     "lint": "turbo watch lint",
     "check": "turbo watch check",
     "build": "turbo run build",

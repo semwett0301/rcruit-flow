@@ -1,28 +1,56 @@
-# ---- Base Node image ----
-FROM node:18-alpine AS base
+# Stage 0: Base image with pnpm & turbo
+FROM node:20-alpine AS base
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+RUN corepack enable \
+     && corepack prepare pnpm@latest --activate \
+     && pnpm install -g turbo
+
+
+# Stage 1: Prune workspace for `backend`
+FROM base AS pruner
 WORKDIR /app
 
-# ---- Install pnpm ----
-RUN npm install -g pnpm@10.13.1
+COPY . .
 
-# ---- Copy only the pnpm files and install dependencies ----
-FROM base AS deps
+RUN turbo prune --scope=backend --docker
+
+# Stage 2: Install full deps + build
+FROM base AS builder
 WORKDIR /app
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
-COPY packages ./packages
-COPY apps/backend ./apps/backend
+# Copy only pruned JSON workspace (package.json, lockfile)
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=pruner /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
+# Install all dependencies
 RUN pnpm install --frozen-lockfile
 
-# ---- Build the app with Turborepo ----
-RUN pnpm turbo run build --filter=backend
+# Copy full source of backend & its deps
+COPY --from=pruner /app/out/full/ .
 
-# ---- Production image ----
-FROM base AS prod
+# Build via turborepo (this runs build in dto then backend)
+RUN turbo run build --filter=backend
+
+# Stage 3: Install production-only deps
+FROM base AS prod-deps
+WORKDIR /app
+COPY --from=builder /app/deps .
+
+RUN pnpm install --prod --frozen-lockfile
+
+# Stage 4: Final runtime image
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Copy only the built backend app and its node_modules
-COPY --from=deps /app/apps/backend/dist ./dist
+# Copy prod deps and build output
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=builder /app/apps/backend/dist ./dist
 
-EXPOSE 3000
-CMD ["node", "dist/main"]
+# TODO find a way to do that automatially
+# Copy internal package compiled into node_modules
+COPY --from=builder /app/packages/dto/dist ./node_modules/@repo/dto
+
+CMD ["node", "dist/main.js"]
