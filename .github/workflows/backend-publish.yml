@@ -3,7 +3,6 @@ name: Build and Push to Docker Hub
 on:
   push:
     paths-ignore:
-      - '.minio-console/**'
       - 'demonstration/**'
 
 jobs:
