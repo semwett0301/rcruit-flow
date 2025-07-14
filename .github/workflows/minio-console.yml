@@ -1,0 +1,39 @@
+name: MINIO Nginx for console upload
+
+on:
+  push:
+    paths:
+      - '.minio-console/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout code
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image with Nginx
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./.minio-console/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.NGINX_IMAGE_NAME }}:${{ secrets.NGINX_IMAGE_VERSION }}
+
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: build
+#    steps:
+#      - name: Trigger Render deploy
+#        uses: JorgeLNJunior/render-deploy@v1.4.5
+#        with:
+#          service_id: ${{ secrets.NGINX_RENDER_SERVICE_ID }}
+#          api_key: ${{ secrets.NGINX_RENDER_API_KEY }}
+#          wait_deploy: true
+#          github_token: ''
