@@ -2,7 +2,9 @@ name: Build and Push to Docker Hub
 
 on:
   push:
-    branches: [ main ]
+    paths-ignore:
+      - '.minio-console/**'
+      - 'demonstration/**'
 
 jobs:
   lint:
