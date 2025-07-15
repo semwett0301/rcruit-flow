@@ -1,38 +1,39 @@
 name: Build and Push to Docker Hub
 
 on:
+  workflow_run:
+    workflows: [ "Lint And Check" ]
+    types:
+      - completed
   push:
     paths-ignore:
       - 'demonstration/**'
+      - 'apps/frontend/**'
 
 jobs:
-  lint:
+  check-if-build-should-run:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-
+    outputs:
+      should_build: ${{ steps.filter.outputs.only_ignored == 'false' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Check if only ignored files were changed
+        id: filter
+        uses: dorny/paths-filter@v3
         with:
-          node-version: 18
-          cache: ''
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.13.1
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Run lint with Turbo
-        run: pnpm turbo run lint
+          filters: |
+            only_ignored:
+              - 'demonstration/**'
+              - 'apps/frontend/**'
+          base: ${{ github.event.workflow_run.head_commit.id }}
 
   build-and-push-backend:
     runs-on: ubuntu-latest
-    needs: lint
+    needs: check-if-build-should-run
+    if: ${{ needs.check-if-build-should-run.outputs.should_build == 'true' }}
 
     steps:
       - name: Checkout code

@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "files": [
-    "library.js",
     "nest.js",
     "prettier-base.js",
     "react-internal.js"
   ],
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
     "@vercel/style-guide": "^5.2.0",

@@ -1,0 +1,12 @@
+{
+  "extends": "@repo/typescript-config/react-library.json",
+  "include": ["src", "webpack.config.ts", "vitest.config.ts"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "paths": {
+      "*": ["./src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}
