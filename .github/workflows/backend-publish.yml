@@ -5,10 +5,6 @@ on:
     workflows: [ "Lint And Check" ]
     types:
       - completed
-  push:
-    paths-ignore:
-      - 'demonstration/**'
-      - 'apps/frontend/**'
 
 jobs:
   check-if-build-should-run:

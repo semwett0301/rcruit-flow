@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  lint:
+  lint-and-check:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,3 +27,6 @@ jobs:
 
       - name: Run lint
         run: pnpm turbo run lint
+
+      - name: Run type check
+        run: pnpm turbo run check
