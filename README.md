@@ -12,6 +12,7 @@ This project includes a backend service, a PostgreSQL database, and S3-compatibl
 - **Services Deployed**:
     - **Backend API**
     - **PostgreSQL Database**
+    - **CDN Frontend**
 - **Management**: You can monitor deployment status, logs, and environment variables directly through the [Render Dashboard](https://dashboard.render.com/).
 
 ---
