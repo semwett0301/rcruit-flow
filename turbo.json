@@ -21,6 +21,10 @@
     },
     "lint": {
     },
-    "check": {}
+    "check": {
+      "dependsOn": [
+        "build"
+      ]
+    }
   }
 }
