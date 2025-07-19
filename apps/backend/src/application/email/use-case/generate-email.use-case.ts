@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { GptService } from '@/infrastructure/gpt/gpt.service';
+import { GptService } from 'infrastructure/gpt/gpt.service';
 import {
   generateEmailSystemPrompt,
   generateEmailUserPrompt,
-} from '@/application/email/prompts/generate-email-user.prompt';
+} from 'application/email/prompts/generate-email-user.prompt';
 import type { ChatCompletionMessageParam } from 'openai/resources/index';
 import { CandidateFormDto } from '@repo/dto';
 

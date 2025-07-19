@@ -7,7 +7,9 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["PORT"]
+      "env": [
+        "PORT"
+      ]
     },
     "build": {
       "dependsOn": [
@@ -18,10 +20,6 @@
       ]
     },
     "lint": {
-      "dependsOn": [
-        "build",
-        "^lint"
-      ]
     },
     "check": {}
   }

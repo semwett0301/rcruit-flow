@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { extractTextFromPdf } from '@/shared/utils/extractTextFromPdf';
-import { MinioService } from '@/infrastructure/s3/minio.service';
-import { GptService } from '@/infrastructure/gpt/gpt.service';
-import { parseGptJsonSafe } from '@/shared/utils/parseGptJsonSave';
+import { extractTextFromPdf } from 'shared/utils/extractTextFromPdf';
+import { MinioService } from 'infrastructure/s3/minio.service';
+import { GptService } from 'infrastructure/gpt/gpt.service';
+import { parseGptJsonSafe } from 'shared/utils/parseGptJsonSave';
 import {
   cvDataExtractionSystemPrompt,
   cvDataExtractionUserPrompt,

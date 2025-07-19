@@ -1,4 +1,4 @@
-import { StringId } from '@/shared/value-objects/string-id.vo';
+import { StringId } from 'shared/value-objects/string-id.vo';
 import { CreateUserDto } from '@repo/dto';
 
 export class UserDomainEntity {

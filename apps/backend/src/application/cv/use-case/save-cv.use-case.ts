@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MinioService } from '@/infrastructure/s3/minio.service';
+import { MinioService } from 'infrastructure/s3/minio.service';
 
 @Injectable()
 export class SaveCvUseCase {
