@@ -8,8 +8,8 @@ import {
   Min,
   ValidateIf,
 } from 'class-validator';
-import { DegreeDto } from '../email';
 import { Type } from 'class-transformer';
+import { DegreeDto } from './degree.dto';
 
 export class ExtractCvDataResultDto {
   @ApiProperty()

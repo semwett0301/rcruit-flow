@@ -13,7 +13,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { SalaryPeriod, TravelModeEnum } from '../enum';
-import { ExtractCvDataResultDto } from '../cv';
+import { ExtractCvDataResultDto } from '../cv/exctract-cv-data-result.dto';
 
 export class CandidateFormDto extends ExtractCvDataResultDto {
   @ApiProperty({ description: 'Is candidate unemployed?' })
