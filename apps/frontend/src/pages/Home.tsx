@@ -19,6 +19,7 @@ const Home: React.FC = () => {
           Next step
         </Button>
         <Button variant="outline">Press</Button>
+        <Button>1</Button>
         <Button disabled>Press</Button>
       </div>
     </div>

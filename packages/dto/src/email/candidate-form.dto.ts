@@ -14,39 +14,12 @@ import {
 } from 'class-validator';
 import { DegreeDto } from './degree.dto';
 import { SalaryPeriod, TravelModeEnum } from '../enum';
+import { ExtractCvDataResultDto } from '../cv/exctract-cv-data-result.dto';
 
-export class CandidateFormDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  candidateName: string;
-
+export class CandidateFormDto extends ExtractCvDataResultDto {
   @ApiProperty({ description: 'Is candidate unemployed?' })
   @IsBoolean()
   employmentStatus: boolean;
-
-  @ValidateIf((o) => !o.employmentStatus)
-  @IsString()
-  @IsNotEmpty()
-  @ApiPropertyOptional()
-  currentEmployer?: string;
-
-  @ValidateIf((o) => !o.employmentStatus)
-  @IsString()
-  @IsNotEmpty()
-  @ApiPropertyOptional()
-  currentPosition?: string;
-
-  @ApiProperty({ minimum: 18 })
-  @Type(() => Number)
-  @IsInt()
-  @Min(18)
-  age: number;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  location: string;
 
   @ApiProperty()
   @IsString()
@@ -58,29 +31,9 @@ export class CandidateFormDto {
   @IsNotEmpty()
   contactName: string;
 
-  @ApiProperty({ type: [String] })
-  @IsArray()
-  @ArrayMinSize(1)
-  hardSkills: string[];
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  experienceDescription: string;
-
-  @ApiProperty({ minimum: 0 })
-  @Type(() => Number)
-  @IsInt()
-  @Min(0)
-  yearsOfExperience: number;
-
   @ApiProperty({ description: 'Is candidate ungraduated?' })
   @IsBoolean()
   graduationStatus: boolean; // true = ungraduated
-
-  @ValidateIf((o) => !o.graduationStatus)
-  @ApiPropertyOptional({ type: DegreeDto })
-  degree?: DegreeDto;
 
   @ApiProperty({ type: [String] })
   @IsArray()

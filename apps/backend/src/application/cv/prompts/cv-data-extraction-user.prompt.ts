@@ -14,7 +14,7 @@ Extract the following information from the CV below:
 Return your answer as a JSON object in this format:
 
 {
-  "name": "...",
+  "candidateName": "...",
   "currentEmployer": "...",
   "currentPosition": "...",
   "age": ...,

@@ -6,11 +6,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiResponse } from '@nestjs/swagger';
 import { ExtractCvContentUseCase } from 'application/cv/use-case/extract-cv-content.use-case';
 import { SaveCvUseCase } from 'application/cv/use-case/save-cv.use-case';
 import {
   ExtractCvDataDto,
+  ExtractCvDataResultDto,
   UploadFileDto,
   UploadFileResponseDto,
 } from '@repo/dto';
@@ -39,7 +40,10 @@ export class CvsController {
 
   @Post('extract')
   @ApiBody({ type: ExtractCvDataDto })
-  async extractCvData(@Body() dto: ExtractCvDataDto) {
+  @ApiResponse({ type: ExtractCvDataResultDto })
+  async extractCvData(
+    @Body() dto: ExtractCvDataDto,
+  ): Promise<ExtractCvDataResultDto> {
     return await this.extractCvContentUseCase.extractData(dto);
   }
 }

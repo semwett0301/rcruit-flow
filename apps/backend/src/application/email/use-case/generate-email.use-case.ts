@@ -5,13 +5,13 @@ import {
   generateEmailUserPrompt,
 } from 'application/email/prompts/generate-email-user.prompt';
 import type { ChatCompletionMessageParam } from 'openai/resources/index';
-import { CandidateFormDto } from '@repo/dto';
+import { CandidateFormDto, EmailResponseDto } from '@repo/dto';
 
 @Injectable()
 export class GenerateEmailUseCase {
   constructor(private readonly gpt: GptService) {}
 
-  async generate(dto: CandidateFormDto) {
+  async generate(dto: CandidateFormDto): Promise<EmailResponseDto> {
     const userPrompt = generateEmailUserPrompt({
       dto,
       firstName: this.#getFirstName(dto.candidateName),
