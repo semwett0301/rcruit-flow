@@ -1,3 +1,5 @@
+import { DegreeLevel } from '@repo/dto';
+
 export const cvDataExtractionUserPrompt = (cvText: string) => `
 Extract the following information from the CV below:
 
@@ -9,9 +11,14 @@ Extract the following information from the CV below:
 6. Hard skills - match and list only the predefined technical skills present in the CV (e.g., React, Kotlin, PostgreSQL, etc.).
 7. Experience description - summarize the candidate's experience in the software/tech industry.
 8. Years of experience - total number of years of relevant professional experience.
-9. Degree - a short summary of academic degrees with field of study.
+9. degree – return a JSON object matching the following structure:
 
-Return your answer as a JSON object in this format:
+{
+  level: "${Object.values(DegreeLevel).join(' | ')}",
+  program: string // name of the program that the candidate studied on
+}
+
+Return your answer as a JSON object in this format (this is just example of the structure):
 
 {
   "candidateName": "...",
@@ -22,7 +29,10 @@ Return your answer as a JSON object in this format:
   "hardSkills": ["...", "..."],
   "experienceDescription": "...",
   "yearsOfExperience": ...,
-  "degree": "..."
+  "degree": {
+    "level": "Master",
+    "program": "Computer Science"
+  }
 }
 
 CV content:

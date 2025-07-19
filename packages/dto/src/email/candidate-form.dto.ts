@@ -12,9 +12,8 @@ import {
   Min,
   ValidateIf,
 } from 'class-validator';
-import { DegreeDto } from './degree.dto';
 import { SalaryPeriod, TravelModeEnum } from '../enum';
-import { ExtractCvDataResultDto } from '../cv/exctract-cv-data-result.dto';
+import { ExtractCvDataResultDto } from '../cv';
 
 export class CandidateFormDto extends ExtractCvDataResultDto {
   @ApiProperty({ description: 'Is candidate unemployed?' })
