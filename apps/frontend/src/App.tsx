@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import AppRouter from './router';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -6,7 +6,6 @@ import styled from 'styled-components';
 
 import LoadingOverlay from 'react-loading-overlay-ts';
 import { useAxiosLoader } from 'hooks/useAxiosLoader';
-import { useUsersCreate } from 'queries/api/users/usersCreate';
 
 const LoadingWrapper = styled(LoadingOverlay)`
   height: 100%;
@@ -15,15 +14,6 @@ const LoadingWrapper = styled(LoadingOverlay)`
 
 const App: React.FC = () => {
   const hasRequest = useAxiosLoader();
-  const { mutate } = useUsersCreate();
-
-  useEffect(() => {
-    console.log('start');
-    mutate({
-      name: 'Pisa',
-      email: 'pisa@gmail.com',
-    });
-  }, []);
 
   return (
     <LoadingWrapper active={hasRequest} spinner>

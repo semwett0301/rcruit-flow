@@ -1,8 +1,9 @@
 import React from 'react';
-import { Button } from 'ui/Button';
+import { Button } from 'components/Button';
 import { ChevronRightIcon, Cross1Icon } from '@radix-ui/react-icons';
-import { SquaredButton } from 'ui/SquareButton';
-// import { FileUpload } from 'ui/FileUpload';
+import { SquaredButton } from 'components/SquareButton';
+import { FileUpload } from 'components/FileUpload';
+// import { FileUpload } from 'components/FileUpload';
 
 const Home = () => {
   return (
@@ -10,7 +11,7 @@ const Home = () => {
       style={{
         width: '100%',
         height: '100%',
-        backgroundColor: '#1943AD',
+        backgroundColor: 'black',
       }}
     >
       <div>
@@ -30,7 +31,9 @@ const Home = () => {
           <Cross1Icon />
         </SquaredButton>
       </div>
-      <div>{/*<FileUpload />*/}</div>
+      <div>
+        <FileUpload />
+      </div>
     </div>
   );
 };

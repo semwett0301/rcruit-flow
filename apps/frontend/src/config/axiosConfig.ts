@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import { toast } from 'react-toastify';
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
-console.log(import.meta.env.VITE_API_URL);
 axios.defaults.headers.common = {
   Accept: 'application/json',
   'Content-Type': 'application/json',
@@ -11,3 +11,14 @@ axios.defaults.headers.common = {
 };
 axios.defaults.withCredentials = false;
 axios.defaults.responseType = 'json';
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    if (error.response) {
+      toast.error(error.message);
+    }
+
+    return Promise.reject(error);
+  },
+);
