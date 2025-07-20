@@ -5,6 +5,7 @@ import { SquaredButton } from 'components/SquareButton';
 import { FileUpload } from 'components/FileUpload';
 import { Checkbox } from 'components/Checkbox';
 import { Switch } from 'components/Switch';
+import { TextSwitch } from 'components/TextSwitch';
 // import { FileUpload } from 'components/FileUpload';
 
 const Home = () => {
@@ -43,6 +44,25 @@ const Home = () => {
       </div>
       <div style={{ marginTop: '20px' }}>
         <Switch
+          value={enValue}
+          onSwitch={(value) => {
+            setEnValue(value);
+          }}
+          options={[
+            {
+              label: 'EN',
+              value: 'EN',
+            },
+            {
+              label: 'NL',
+              value: 'NL',
+            },
+          ]}
+        />
+      </div>
+
+      <div style={{ marginTop: '20px' }}>
+        <TextSwitch
           value={enValue}
           onSwitch={(value) => {
             setEnValue(value);

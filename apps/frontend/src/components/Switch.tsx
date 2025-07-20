@@ -1,18 +1,7 @@
 import styled from 'styled-components';
 import { HiddenCheckbox } from 'components/Checkbox';
-import { HTMLAttributes } from 'react';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
-
-export interface SwitchOption {
-  label: string;
-  value: string;
-}
-
-export interface SwitchProps extends HTMLAttributes<HTMLDivElement> {
-  options: [SwitchOption, SwitchOption];
-  value?: string;
-  onSwitch?: (value: string) => void;
-}
+import { SwitchProps } from 'types/ui/SwitchOption';
 
 const SwitchWrapper = styled.label`
   display: flex;

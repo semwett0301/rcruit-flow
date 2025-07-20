@@ -90,6 +90,9 @@ importers:
 
   apps/frontend:
     dependencies:
+      '@404pagez/react':
+        specifier: ^0.1.1
+        version: 0.1.1(react@18.3.1)
       '@ebay/nice-modal-react':
         specifier: ^1.2.13
         version: 1.2.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -306,6 +309,11 @@ importers:
   packages/typescript-config: {}
 
 packages:
+
+  '@404pagez/react@0.1.1':
+    resolution: {integrity: sha512-U5gvnUfmjKf0U6lWMhzJxY89sc99xJD+eoA2EZM6h1k4rCAuPy+ugrF1l63ZUqdNks2BoY9AfZffwwpYWdhXgA==}
+    peerDependencies:
+      react: '>=17.0.2 <19.0.0'
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -5203,6 +5211,10 @@ packages:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
 snapshots:
+
+  '@404pagez/react@0.1.1(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
 
   '@alloc/quick-lru@5.2.0': {}
 
