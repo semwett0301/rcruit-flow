@@ -13,12 +13,18 @@ export default defineConfig({
       overlay: { initialIsOpen: false },
     }),
     react(),
+
     svgr({
+      include: '**/*.svg?component',
       svgrOptions: { plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'] },
     }),
   ],
   server: {
     open: Boolean(process.env.VITE_API_PROXY),
     port: 3000,
+  },
+  assetsInclude: ['**/*.svg', '**/*.png'],
+  build: {
+    assetsInlineLimit: 0,
   },
 });

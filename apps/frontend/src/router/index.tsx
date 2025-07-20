@@ -1,16 +1,16 @@
 import React from 'react';
 import { BrowserRouter, useRoutes } from 'react-router-dom';
-import Home from 'pages/Home';
-import NotFound from 'pages/NotFound';
+import { IntroductionPage } from 'pages/IntroductionPage';
+import { NotFoundPage } from 'pages/NotFoundPage';
 
 const routes = [
   {
     path: '/',
-    element: <Home />,
+    element: <IntroductionPage />,
   },
   {
     path: '*',
-    element: <NotFound />,
+    element: <NotFoundPage />,
   },
 ];
 

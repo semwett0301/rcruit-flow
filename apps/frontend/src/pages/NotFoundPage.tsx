@@ -11,12 +11,10 @@ const NotFoundWrapper = styled.div`
   align-items: center;
 `;
 
-const NotFound: React.FC = () => {
+export const NotFoundPage: React.FC = () => {
   return (
     <NotFoundWrapper>
       <Cat404 size={50} isButton={false} />
     </NotFoundWrapper>
   );
 };
-
-export default NotFound;
