@@ -3,6 +3,7 @@ import { Button } from 'components/Button';
 import { ChevronRightIcon, Cross1Icon } from '@radix-ui/react-icons';
 import { SquaredButton } from 'components/SquareButton';
 import { FileUpload } from 'components/FileUpload';
+import { Checkbox } from 'components/Checkbox';
 // import { FileUpload } from 'components/FileUpload';
 
 const Home = () => {
@@ -33,6 +34,9 @@ const Home = () => {
       </div>
       <div>
         <FileUpload />
+      </div>
+      <div>
+        <Checkbox label="dasd" />
       </div>
     </div>
   );

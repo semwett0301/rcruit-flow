@@ -166,8 +166,16 @@ const StatusFileName = styled.span`
   `}
 `;
 
-const HiddenInput = styled.input`
-  display: none;
+const HiddenInput = styled.input.attrs({ type: 'file' })`
+  clip: rect(0 0 0 0); // Just to be sure
+
+  height: 1px;
+  width: 1px;
+
+  padding: 0;
+  margin: -1px;
+
+  position: absolute;
 `;
 
 const StatusBodyContainer = styled.div`
@@ -318,7 +326,6 @@ export const FileUpload = ({
       </UploadArea>
       <HiddenInput
         ref={fileInputRef}
-        type="file"
         accept={acceptedTypes.join(',')}
         onChange={handleInputChange}
       />
