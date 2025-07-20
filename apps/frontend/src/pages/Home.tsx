@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from 'ui/Button';
 import { ChevronRightIcon, Cross1Icon } from '@radix-ui/react-icons';
 import { SquaredButton } from 'ui/SquareButton';
+// import { FileUpload } from 'ui/FileUpload';
 
 const Home = () => {
   return (
@@ -29,6 +30,7 @@ const Home = () => {
           <Cross1Icon />
         </SquaredButton>
       </div>
+      <div>{/*<FileUpload />*/}</div>
     </div>
   );
 };
