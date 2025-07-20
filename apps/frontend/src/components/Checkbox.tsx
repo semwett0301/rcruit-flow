@@ -9,7 +9,7 @@ export interface CheckboxProps {
   onCheck?: (isChecked: boolean) => void;
 }
 
-const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
+export const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
   clip: rect(0 0 0 0); // Just to be sure
 
   height: 1px;

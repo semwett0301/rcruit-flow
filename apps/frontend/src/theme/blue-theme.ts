@@ -54,5 +54,6 @@ export const blueTheme: Theme = {
     xs: '4px',
     s: '8px',
     m: '12px',
+    xxl: '50px',
   },
 };

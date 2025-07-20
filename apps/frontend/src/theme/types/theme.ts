@@ -6,7 +6,7 @@ export type FontKey =
   | 'button';
 
 export type SpacingKey = 'xs' | 's' | 'm' | 'l' | 'xl';
-export type RadiusKey = 'xs' | 's' | 'm';
+export type RadiusKey = 'xs' | 's' | 'm' | 'xxl';
 
 type ColorKey =
   | 'brightBlue'
