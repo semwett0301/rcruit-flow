@@ -1,16 +1,16 @@
-import React from 'react';
 import styled, { css } from 'styled-components';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 
 export type ButtonVariant = 'primary' | 'outline' | 'disabled';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
 }
 
-export const baseButton = css`
+const baseButton = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -18,7 +18,7 @@ export const baseButton = css`
   gap: ${({ theme }) => theme.spacing.xs};
   ${({ theme }) => extractFontPreset('button')(theme)}
 
-  border-radius: ${({ theme }) => theme.radius.m};
+  border-radius: ${({ theme }) => theme.radius.s};
   padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.s}`};
 
   height: 40px;
@@ -30,7 +30,7 @@ export const baseButton = css`
   color: ${({ theme }) => theme.colors.white};
 `;
 
-const variantStyles = {
+const variantStyles: Record<ButtonVariant, ReturnType<typeof css>> = {
   primary: css`
     background-color: ${({ theme }) => theme.colors.brightBlue};
 
@@ -85,13 +85,13 @@ const StyledButton = styled.button<{ $variant: ButtonVariant }>`
   ${({ $variant }) => variantStyles[$variant]}
 `;
 
-export const Button: React.FC<ButtonProps> = ({
+export const Button = ({
   children,
   variant = 'primary',
   leftIcon,
   rightIcon,
   ...props
-}) => (
+}: ButtonProps) => (
   <StyledButton
     $variant={props.disabled ? 'disabled' : variant}
     disabled={props.disabled}

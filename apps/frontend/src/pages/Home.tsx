@@ -1,8 +1,9 @@
 import React from 'react';
 import { Button } from 'ui/Button';
-import { ChevronRightIcon } from '@radix-ui/react-icons';
+import { ChevronRightIcon, Cross1Icon } from '@radix-ui/react-icons';
+import { SquaredButton } from 'ui/SquareButton';
 
-const Home: React.FC = () => {
+const Home = () => {
   return (
     <div
       style={{
@@ -21,6 +22,12 @@ const Home: React.FC = () => {
         <Button variant="outline">Press</Button>
         <Button>1</Button>
         <Button disabled>Press</Button>
+      </div>
+      <div style={{ marginTop: '10px' }}>
+        <SquaredButton>1</SquaredButton>
+        <SquaredButton variant="outline" size="xs">
+          <Cross1Icon />
+        </SquaredButton>
       </div>
     </div>
   );
