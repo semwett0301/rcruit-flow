@@ -38,7 +38,6 @@ interface StyledUploadAreaProps {
 
 const UploadContainer = styled.div`
   width: 100%;
-  max-width: 506px;
 
   height: 300px;
 `;

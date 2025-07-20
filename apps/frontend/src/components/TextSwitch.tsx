@@ -9,7 +9,7 @@ const SwitchWrapper = styled.div`
 
   width: 100%;
 
-  padding: 10px;
+  padding: 9px;
 
   background: linear-gradient(
     to bottom right,
