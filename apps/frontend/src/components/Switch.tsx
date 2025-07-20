@@ -19,6 +19,8 @@ const SwitchWrapper = styled.label`
   align-items: center;
   width: fit-content;
   gap: ${({ theme }) => theme.spacing.xs};
+
+  user-select: none;
 `;
 
 const Label = styled.span<{ active: boolean }>`
@@ -43,6 +45,7 @@ const Track = styled.div`
   height: 25px;
 
   border-radius: ${({ theme }) => theme.radius.xxl};
+  border: 1px solid ${({ theme }) => theme.colors.lighterBlue};
 
   background: linear-gradient(
     135deg,
@@ -53,7 +56,7 @@ const Track = styled.div`
 
 const Thumb = styled.span`
   position: absolute;
-  top: 5px;
+  top: 4px;
   left: 5px;
 
   width: 15px;
@@ -69,7 +72,7 @@ const Thumb = styled.span`
   );
 
   ${HiddenCheckbox}:checked + ${Track} & {
-    transform: translateX(20px);
+    transform: translateX(18px);
   }
 
   transition: transform 0.2s ease;
