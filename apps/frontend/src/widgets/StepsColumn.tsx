@@ -2,9 +2,10 @@ import styled, { css } from 'styled-components';
 import { SquaredButton } from 'ui/SquareButton';
 
 export type StepDescription = {
-  label: string;
+  label: string | number;
   current: boolean;
   disabled: boolean;
+  onClick: () => void;
 };
 
 interface StepsRowProps {
@@ -37,9 +38,10 @@ const StepWrapper = styled.div<{ $current: boolean }>`
 export const StepsColumn = ({ steps }: StepsRowProps) => {
   return (
     <StepsWrapper>
-      {steps.map(({ label, current, disabled }) => (
+      {steps.map(({ label, current, disabled, onClick }) => (
         <StepWrapper $current={current} key={label}>
           <SquaredButton
+            onClick={onClick}
             variant={current ? 'primary' : 'outline'}
             disabled={disabled}
           >

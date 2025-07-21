@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { ReactNode, useState } from 'react';
 import { FlowGridContainer } from 'containers/FlowGridContainer';
 import styled from 'styled-components';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { Button } from 'ui/Button';
-import { LoopIcon, ChevronRightIcon } from '@radix-ui/react-icons';
-import { StepDescription, StepsColumn } from 'widgets/StepsColumn';
+import { ChevronRightIcon, LoopIcon } from '@radix-ui/react-icons';
+import { StepsColumn } from 'widgets/StepsColumn';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -54,51 +54,95 @@ const MainContentWrapper = styled.div`
   );
 `;
 
-const steps: StepDescription[] = [
-  {
-    label: '1',
-    current: false,
-    disabled: false,
-  },
-  {
-    label: '2',
-    current: true,
-    disabled: false,
-  },
-  {
-    label: '3',
-    current: false,
-    disabled: true,
-  },
-  {
-    label: '4',
-    current: false,
-    disabled: true,
-  },
-];
+type FlowStepConfig = {
+  key: number;
+  title: string;
+  onNext: () => void;
+  BodyComponent: ReactNode;
+};
 
 export const IntroductionPage = () => {
+  const [currentStep, setCurrentStep] =
+    useState<(typeof flowSteps)[number]['key']>(1);
+
+  const flowSteps = [
+    {
+      key: 1,
+      title: 'CV upload',
+      onNext: () => {},
+      BodyComponent: <div />,
+    },
+    {
+      key: 2,
+      title: 'Candidate Information',
+      onNext: () => {
+        console.log('Proceed to Step 2');
+      },
+      BodyComponent: <div />,
+    },
+    {
+      key: 3,
+      title: 'Job Description',
+      onNext: () => {
+        console.log('Proceed to Step 2');
+      },
+      BodyComponent: <div />,
+    },
+    {
+      key: 4,
+      title: 'Email Generation',
+      onNext: () => {
+        console.log('Proceed to Step 2');
+      },
+      BodyComponent: <div />,
+    },
+  ] as const satisfies readonly [FlowStepConfig, ...FlowStepConfig[]];
+
+  const currentConfigIdx = flowSteps.findIndex((el) => el.key === currentStep);
+  const currentConfig = flowSteps[currentConfigIdx] as FlowStepConfig;
+
+  const onNext = () => {
+    if (currentConfigIdx + 1 < flowSteps.length) {
+      setCurrentStep(flowSteps[currentConfigIdx + 1]!.key);
+    }
+
+    currentConfig.onNext();
+  };
+
   return (
     <FlowGridContainer
       BottomComponent={
         <BottomBarWrapper>
-          <Button>
-            Next step <ChevronRightIcon />
-          </Button>
+          {currentStep !== flowSteps.at(-1)!.key && (
+            <Button onClick={onNext}>
+              Next step <ChevronRightIcon />
+            </Button>
+          )}
         </BottomBarWrapper>
       }
       TopComponent={
         <TopBarWrapper>
-          <StepName>CV upload</StepName>
+          <StepName>{currentConfig.title}</StepName>
           <Button variant="outline">
             Reset <LoopIcon />
           </Button>
         </TopBarWrapper>
       }
-      LeftComponent={<StepsColumn steps={steps} />}
+      LeftComponent={
+        <StepsColumn
+          steps={flowSteps.map((el) => ({
+            onClick: () => {
+              setCurrentStep(el.key);
+            },
+            disabled: currentStep < el.key,
+            current: currentStep == el.key,
+            label: el.key,
+          }))}
+        />
+      }
       MainComponent={
         <GradientBorder>
-          <MainContentWrapper />
+          <MainContentWrapper>{currentConfig.BodyComponent}</MainContentWrapper>
         </GradientBorder>
       }
     ></FlowGridContainer>
