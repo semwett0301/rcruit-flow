@@ -18,6 +18,7 @@ const GridContainer = styled.div`
   column-gap: 60px;
   row-gap: 40px;
 
+  max-width: 100%;
   height: 100%;
 `;
 
@@ -36,11 +37,55 @@ const TopBar = styled.div`
 const MainContent = styled.div`
   grid-row: 2;
   grid-column: 2;
+
+  min-height: 100%;
 `;
 
 const BottomBar = styled.div`
   grid-row: 3;
   grid-column: 2;
+`;
+
+const GradientBorder = styled.div`
+  width: 100%;
+  height: 100%;
+
+  padding: 1px;
+
+  border-radius: ${({ theme }) => theme.radius.s};
+  background: linear-gradient(
+    to bottom,
+    rgba(221, 226, 235, 0.4),
+    rgba(21, 87, 255, 0.4)
+  );
+`;
+
+const MainContentWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+
+  max-height: 100%;
+  max-width: 100%;
+
+  padding: ${({ theme }) => theme.spacing.m};
+
+  border-radius: ${({ theme }) => theme.radius.s};
+
+  overflow-y: scroll;
+  overflow-x: hidden;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  background: linear-gradient(
+    to bottom,
+    rgba(28, 37, 62, 1),
+    rgba(7, 16, 35, 1)
+  );
 `;
 
 export const FlowGridContainer = ({
@@ -54,7 +99,11 @@ export const FlowGridContainer = ({
       <StepsColumn>{LeftComponent}</StepsColumn>
 
       <TopBar>{TopComponent}</TopBar>
-      <MainContent>{MainComponent}</MainContent>
+      <MainContent>
+        <GradientBorder>
+          <MainContentWrapper>{MainComponent}</MainContentWrapper>
+        </GradientBorder>
+      </MainContent>
       <BottomBar>{BottomComponent}</BottomBar>
     </GridContainer>
   );

@@ -7,6 +7,7 @@ import { ChevronRightIcon, LoopIcon } from '@radix-ui/react-icons';
 import { StepsColumn } from 'widgets/StepsColumn';
 import { CvUploadForm, CvUploadFormState } from 'forms/CvUploadForm';
 import { useCvsExtract } from 'queries/api/cvs/cvsExtract';
+import { CandidateForm, CandidateFormState } from 'forms/CandidateForm';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -29,35 +30,6 @@ const StepName = styled.span`
   color: ${({ theme }) => theme.colors.white}
 `;
 
-const GradientBorder = styled.div`
-  width: 100%;
-  height: 100%;
-
-  padding: 1px;
-
-  border-radius: ${({ theme }) => theme.radius.s};
-  background: linear-gradient(
-    to bottom,
-    rgba(221, 226, 235, 0.4),
-    rgba(21, 87, 255, 0.4)
-  );
-`;
-
-const MainContentWrapper = styled.div`
-  width: 100%;
-  height: 100%;
-
-  padding: ${({ theme }) => theme.spacing.s};
-
-  border-radius: ${({ theme }) => theme.radius.s};
-
-  background: linear-gradient(
-    to bottom,
-    rgba(28, 37, 62, 1),
-    rgba(7, 16, 35, 1)
-  );
-`;
-
 type StepKey = 1 | 2 | 3 | 4;
 
 type FlowStepConfig = {
@@ -73,6 +45,7 @@ type GlobalFormState = {
 
 interface IntroductionFormState extends GlobalFormState {
   1?: CvUploadFormState;
+  2?: CandidateFormState;
 }
 
 export const IntroductionPage = () => {
@@ -96,7 +69,17 @@ export const IntroductionPage = () => {
             },
             {
               onSuccess: (result) => {
-                console.log(result.data);
+                setIntroductionFormState({
+                  ...introductionFormState,
+                  2: {
+                    ...introductionFormState[2],
+                    ...result.data,
+                    unemployed:
+                      !result.data.currentEmployer ||
+                      !result.data.currentPosition,
+                  },
+                });
+
                 setCurrentStep(2);
               },
             },
@@ -125,7 +108,12 @@ export const IntroductionPage = () => {
       onNext: () => {
         console.log('Proceed to Step 2');
       },
-      BodyComponent: <div />,
+      BodyComponent: (
+        <CandidateForm
+          defaultValues={introductionFormState[2]}
+          onSubmit={() => {}}
+        />
+      ),
     },
     {
       key: 3,
@@ -180,17 +168,13 @@ export const IntroductionPage = () => {
             onClick: () => {
               setCurrentStep(el.key);
             },
-            disabled: currentStep < el.key,
+            disabled: !introductionFormState[el.key] && el.key !== currentStep,
             current: currentStep == el.key,
             label: el.key,
           }))}
         />
       }
-      MainComponent={
-        <GradientBorder>
-          <MainContentWrapper>{currentConfig.BodyComponent}</MainContentWrapper>
-        </GradientBorder>
-      }
+      MainComponent={currentConfig.BodyComponent}
     ></FlowGridContainer>
   );
 };
