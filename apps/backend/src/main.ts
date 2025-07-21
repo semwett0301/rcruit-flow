@@ -19,6 +19,8 @@ async function start() {
     .map((o) => o.trim())
     .filter((o) => o);
 
+  console.log(origins);
+
   app.enableCors({
     origin: origins,
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
