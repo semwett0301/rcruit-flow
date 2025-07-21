@@ -1,4 +1,5 @@
 import { createGlobalStyle } from 'styled-components';
+import { extractFontPreset } from 'theme/utils/extractFontPreset';
 
 // Global styles that reset browser defaults and set full-screen layout
 export const GlobalStyle = createGlobalStyle`
@@ -7,6 +8,9 @@ export const GlobalStyle = createGlobalStyle`
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        
+        ${({ theme }) => extractFontPreset('regular')(theme)}
+        color: ${({ theme }) => theme.colors.lighterBlue};
     }
 
     *::before,

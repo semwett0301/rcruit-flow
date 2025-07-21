@@ -2,14 +2,14 @@ import { Theme } from 'theme/types/theme';
 
 export const blueTheme: Theme = {
   colors: {
-    blackBlue: 'rgba(25, 28, 34, 1)',
-    brightBlue: 'rgba(21, 87, 255, 1)',
-    darkerBlue: 'rgba(25, 67, 173, 1)',
-    lighterBlue: 'rgba(221, 226, 235, 1)',
-    white: 'rgba(253, 254, 255, 1)',
-    backgroundBlue: 'rgba(30, 36, 50, 1)',
-    red: 'rgba(173, 25, 25, 1)',
-    green: 'rgba(35, 173, 25, 1)',
+    blackBlue: '#191C22', // rgba(25, 28, 34, 1)
+    brightBlue: '#1557FF', // rgba(21, 87, 255, 1)
+    darkerBlue: '#1943AD', // rgba(25, 67, 173, 1)
+    lighterBlue: '#DDE2EB', // rgba(221, 226, 235, 1)
+    white: '#FDFEFF', // rgba(253, 254, 255, 1)
+    backgroundBlue: '#1E2432', // rgba(30, 36, 50, 1)
+    red: '#AD1919', // rgba(173, 25, 25, 1)
+    green: '#23AD19', // rgba(35, 173, 25, 1)
   },
   fontStyles: {
     firstHeading: {

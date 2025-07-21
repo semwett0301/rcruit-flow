@@ -4,12 +4,17 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { useAxiosLoader } from 'hooks/useAxiosLoader';
 import { LoadingWrapper } from 'containers/LoadingContainer';
+import { NavbarContainer } from 'containers/NavbarContainer';
+import { Navbar } from 'widgets/Navbar';
 
 const App: React.FC = () => {
   const hasRequest = useAxiosLoader();
 
   return (
     <LoadingWrapper active={hasRequest} spinner>
+      <NavbarContainer>
+        <Navbar />
+      </NavbarContainer>
       <AppRouter />
     </LoadingWrapper>
   );

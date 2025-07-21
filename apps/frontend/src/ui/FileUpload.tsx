@@ -12,7 +12,7 @@ import {
   CrossCircledIcon,
   UploadIcon,
 } from '@radix-ui/react-icons';
-import { Button } from 'components/Button';
+import { Button } from 'ui/Button';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { useCvsSave } from 'queries/api/cvs/cvsSave';
 

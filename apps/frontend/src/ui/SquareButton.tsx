@@ -1,8 +1,8 @@
 import styled, { css } from 'styled-components';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
-import { Button, ButtonProps } from 'components/Button';
+import { Button, ButtonProps } from 'ui/Button';
 
-export type SquareButtonSize = 'xs' | 'l';
+export type SquareButtonSize = 'xs' | 's' | 'l';
 
 export interface SquareButtonProps extends ButtonProps {
   size?: SquareButtonSize;
@@ -15,6 +15,8 @@ export const baseSquareButton = css`
 
   ${({ theme }) => extractFontPreset('secondHeading')(theme)};
 
+  border-radius: ${({ theme }) => theme.radius.xs};
+
   padding: 0;
 `;
 
@@ -22,6 +24,10 @@ const sizeStyles: Record<SquareButtonSize, ReturnType<typeof css>> = {
   xs: css`
     height: 20px;
     width: 20px;
+  `,
+  s: css`
+    height: 30px;
+    width: 30px;
   `,
   l: css`
     height: 60px;

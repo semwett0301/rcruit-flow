@@ -6,6 +6,7 @@ export type ButtonVariant = 'primary' | 'outline' | 'disabled';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
+  fullWidth?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
 }
@@ -21,13 +22,20 @@ const baseButton = css`
   border-radius: ${({ theme }) => theme.radius.s};
   padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.s}`};
 
+  width: fit-content;
   height: 40px;
 
   cursor: pointer;
 
   border: 1px solid ${({ theme }) => theme.colors.white};
+  *,
+  & {
+    color: ${({ theme }) => theme.colors.white};
+  }
+`;
 
-  color: ${({ theme }) => theme.colors.white};
+const fullWidthStyles = css`
+  width: 100%;
 `;
 
 const variantStyles: Record<ButtonVariant, ReturnType<typeof css>> = {
@@ -53,13 +61,21 @@ const variantStyles: Record<ButtonVariant, ReturnType<typeof css>> = {
 
     @media (hover: hover) and (pointer: fine) {
       &:hover {
-        color: ${({ theme }) => theme.colors.blackBlue};
+        *,
+        & {
+          color: ${({ theme }) => theme.colors.blackBlue};
+        }
+
         background-color: ${({ theme }) => theme.colors.white};
       }
     }
 
     &:active {
-      color: ${({ theme }) => theme.colors.backgroundBlue};
+      *,
+      & {
+        color: ${({ theme }) => theme.colors.backgroundBlue};
+      }
+
       background-color: ${({ theme }) => theme.colors.lighterBlue};
     }
   `,
@@ -72,21 +88,29 @@ const variantStyles: Record<ButtonVariant, ReturnType<typeof css>> = {
       rgba(25, 67, 173, 0.7)
     );
 
-    color: color-mix(
-      in srgb,
-      ${({ theme }) => theme.colors.white} 60%,
-      transparent
-    );
+    *,
+    & {
+      color: color-mix(
+        in srgb,
+        ${({ theme }) => theme.colors.white} 60%,
+        transparent
+      );
+    }
   `,
 };
 
-const StyledButton = styled.button<{ $variant: ButtonVariant }>`
+const StyledButton = styled.button<{
+  $variant: ButtonVariant;
+  $fullWidth: boolean;
+}>`
   ${baseButton}
+  ${({ $fullWidth }) => $fullWidth && fullWidthStyles}
   ${({ $variant }) => variantStyles[$variant]}
 `;
 
 export const Button = ({
   children,
+  fullWidth = false,
   variant = 'primary',
   leftIcon,
   rightIcon,
@@ -94,6 +118,7 @@ export const Button = ({
 }: ButtonProps) => (
   <StyledButton
     $variant={props.disabled ? 'disabled' : variant}
+    $fullWidth={fullWidth}
     disabled={props.disabled}
     {...props}
   >
