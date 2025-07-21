@@ -3,6 +3,7 @@ import {
   DragEvent,
   MouseEventHandler,
   ReactNode,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -14,14 +15,15 @@ import {
 } from '@radix-ui/react-icons';
 import { Button } from 'ui/Button';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
-import { useCvsSave } from 'queries/api/cvs/cvsSave';
 
 export type UploadState = 'default' | 'success' | 'error';
 
 interface FileUploadProps {
-  onFileSelect?: (fileId?: string) => void;
+  onFileSelect?: (file: File) => void;
   onFileRemove?: () => void;
+  uploadState?: UploadState;
   acceptedTypes?: string[];
+  defaultFile?: File;
 }
 
 interface StatusDisplayProps {
@@ -207,30 +209,18 @@ const StatusDisplay = ({
 export const FileUpload = ({
   onFileSelect,
   onFileRemove,
+  defaultFile,
+  uploadState = 'default',
   acceptedTypes = ['.pdf'],
 }: FileUploadProps) => {
-  const [uploadState, setUploadState] = useState<UploadState>('default');
-
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { mutate: saveCv } = useCvsSave();
-
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
-
-    saveCv(file, {
-      onSuccess: (result) => {
-        const fileId = result?.key;
-        onFileSelect?.(fileId);
-        setUploadState('success');
-      },
-      onError: () => {
-        setUploadState('error');
-      },
-    });
+    onFileSelect?.(file);
   };
 
   const handleFileDelete = () => {
@@ -240,8 +230,6 @@ export const FileUpload = ({
     setSelectedFile(null);
 
     onFileRemove?.();
-
-    setUploadState('default');
   };
 
   const handleInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -309,6 +297,12 @@ export const FileUpload = ({
         );
     }
   };
+
+  useEffect(() => {
+    if (defaultFile) {
+      setSelectedFile(defaultFile);
+    }
+  }, [defaultFile]);
 
   return (
     <UploadContainer>

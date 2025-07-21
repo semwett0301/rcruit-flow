@@ -12,11 +12,11 @@ const SwitchWrapper = styled.label`
   user-select: none;
 `;
 
-const Label = styled.span<{ active: boolean }>`
+const Label = styled.span<{ $active: boolean }>`
   ${({ theme }) => extractFontPreset('thirdHeading')(theme)};
 
-  color: ${({ theme, active }) =>
-    active
+  color: ${({ theme, $active }) =>
+    $active
       ? theme.colors.lighterBlue
       : `color-mix(
       in srgb,
@@ -77,13 +77,13 @@ export function Switch({ options, value, onSwitch }: SwitchProps) {
 
   return (
     <SwitchWrapper>
-      <Label active={!isOn}>{offOption.label}</Label>
+      <Label $active={!isOn}>{offOption.label}</Label>
 
       <HiddenCheckbox checked={isOn} onChange={handleToggle} />
       <Track>
         <Thumb />
       </Track>
-      <Label active={isOn}>{onOption.label}</Label>
+      <Label $active={isOn}>{onOption.label}</Label>
     </SwitchWrapper>
   );
 }

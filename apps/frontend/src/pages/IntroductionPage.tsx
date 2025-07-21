@@ -5,6 +5,8 @@ import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { Button } from 'ui/Button';
 import { ChevronRightIcon, LoopIcon } from '@radix-ui/react-icons';
 import { StepsColumn } from 'widgets/StepsColumn';
+import { CvUploadForm, CvUploadFormState } from 'forms/CvUploadForm';
+import { useCvsExtract } from 'queries/api/cvs/cvsExtract';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -45,6 +47,8 @@ const MainContentWrapper = styled.div`
   width: 100%;
   height: 100%;
 
+  padding: ${({ theme }) => theme.spacing.s};
+
   border-radius: ${({ theme }) => theme.radius.s};
 
   background: linear-gradient(
@@ -54,23 +58,66 @@ const MainContentWrapper = styled.div`
   );
 `;
 
+type StepKey = 1 | 2 | 3 | 4;
+
 type FlowStepConfig = {
-  key: number;
+  key: StepKey;
   title: string;
   onNext: () => void;
   BodyComponent: ReactNode;
 };
 
-export const IntroductionPage = () => {
-  const [currentStep, setCurrentStep] =
-    useState<(typeof flowSteps)[number]['key']>(1);
+type GlobalFormState = {
+  [key in StepKey]?: object;
+};
 
-  const flowSteps = [
+interface IntroductionFormState extends GlobalFormState {
+  1?: CvUploadFormState;
+}
+
+export const IntroductionPage = () => {
+  const [currentStep, setCurrentStep] = useState<StepKey>(1);
+  const [introductionFormState, setIntroductionFormState] =
+    useState<IntroductionFormState>({});
+
+  const { mutate: cvsExtract } = useCvsExtract();
+
+  const flowSteps: [FlowStepConfig, ...FlowStepConfig[]] = [
     {
       key: 1,
       title: 'CV upload',
-      onNext: () => {},
-      BodyComponent: <div />,
+      onNext: () => {
+        const fileId = introductionFormState[1]?.fileId;
+
+        if (fileId) {
+          cvsExtract(
+            {
+              fileId,
+            },
+            {
+              onSuccess: (result) => {
+                console.log(result.data);
+                setCurrentStep(2);
+              },
+            },
+          );
+        } else {
+          throw Error('Impossible behaviour');
+        }
+      },
+      BodyComponent: (
+        <CvUploadForm
+          defaultValue={introductionFormState[1]}
+          onSubmit={(state) =>
+            state
+              ? setIntroductionFormState({
+                  ...introductionFormState,
+                  1: state,
+                })
+              : setIntroductionFormState({})
+          }
+        />
+      ),
     },
     {
       key: 2,
@@ -96,25 +143,24 @@ export const IntroductionPage = () => {
       },
       BodyComponent: <div />,
     },
-  ] as const satisfies readonly [FlowStepConfig, ...FlowStepConfig[]];
+  ];
 
   const currentConfigIdx = flowSteps.findIndex((el) => el.key === currentStep);
-  const currentConfig = flowSteps[currentConfigIdx] as FlowStepConfig;
+  const currentConfig = flowSteps[currentConfigIdx];
 
-  const onNext = () => {
-    if (currentConfigIdx + 1 < flowSteps.length) {
-      setCurrentStep(flowSteps[currentConfigIdx + 1]!.key);
-    }
-
-    currentConfig.onNext();
-  };
+  if (!currentConfig) {
+    return null;
+  }
 
   return (
     <FlowGridContainer
       BottomComponent={
         <BottomBarWrapper>
           {currentStep !== flowSteps.at(-1)!.key && (
-            <Button onClick={onNext}>
+            <Button
+              disabled={!introductionFormState[currentConfig.key]}
+              onClick={currentConfig.onNext}
+            >
               Next step <ChevronRightIcon />
             </Button>
           )}

@@ -145,7 +145,7 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       react-hook-form:
-        specifier: ^7.53.0
+        specifier: ^7.60.0
         version: 7.60.0(react@18.3.1)
       react-loading-overlay-ts:
         specifier: 2.0.2
