@@ -8,6 +8,8 @@ export const LoadingWrapper = styled(LoadingOverlay)`
   height: 100%;
   width: 100%;
 
+  display: flex;
+
   background-image:
     url(${BackgroundSpiral}), url(${BackgroundSpiral}), url(${BackgroundBlur}),
     url(${BackgroundImageNoise});

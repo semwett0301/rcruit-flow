@@ -6,6 +6,7 @@ import { useAxiosLoader } from 'hooks/useAxiosLoader';
 import { LoadingWrapper } from 'containers/LoadingContainer';
 import { NavbarContainer } from 'containers/NavbarContainer';
 import { Navbar } from 'widgets/Navbar';
+import { ContentContainer } from 'containers/ContentContainer';
 
 const App: React.FC = () => {
   const hasRequest = useAxiosLoader();
@@ -15,7 +16,9 @@ const App: React.FC = () => {
       <NavbarContainer>
         <Navbar />
       </NavbarContainer>
-      <AppRouter />
+      <ContentContainer>
+        <AppRouter />
+      </ContentContainer>
     </LoadingWrapper>
   );
 };

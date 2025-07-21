@@ -15,7 +15,7 @@ export const baseSquareButton = css`
 
   ${({ theme }) => extractFontPreset('secondHeading')(theme)};
 
-  border-radius: ${({ theme }) => theme.radius.xs};
+  border-radius: ${({ theme }) => theme.radius.s};
 
   padding: 0;
 `;

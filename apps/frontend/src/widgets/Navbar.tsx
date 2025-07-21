@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { Button } from 'ui/Button';
 import { Switch } from 'ui/Switch';
@@ -7,8 +7,8 @@ import { SwitchOption } from 'types/ui/SwitchOption';
 import LogoIcon from 'assets/images/logo.svg?component';
 import { SquaredButton } from 'ui/SquareButton';
 import {
-  ChevronLeftIcon,
   AvatarIcon,
+  ChevronLeftIcon,
   EnvelopeOpenIcon,
   FileIcon,
 } from '@radix-ui/react-icons';
