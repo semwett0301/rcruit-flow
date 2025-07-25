@@ -30,10 +30,15 @@ const StepName = styled.span`
   color: ${({ theme }) => theme.colors.white}
 `;
 
-type StepKey = 1 | 2 | 3 | 4;
+type StepKey =
+  | 'cv_upload'
+  | 'candidate_information'
+  | 'job_description'
+  | 'email_generation';
 
 type FlowStepConfig = {
   key: StepKey;
+  step: number;
   title: string;
   onNext: () => void;
   BodyComponent: ReactNode;
@@ -44,12 +49,12 @@ type GlobalFormState = {
 };
 
 interface IntroductionFormState extends GlobalFormState {
-  1?: CvUploadFormState;
-  2?: CandidateFormState;
+  cv_upload?: CvUploadFormState;
+  candidate_information?: CandidateFormState;
 }
 
 export const IntroductionPage = () => {
-  const [currentStep, setCurrentStep] = useState<StepKey>(1);
+  const [currentStep, setCurrentStep] = useState<StepKey>('cv_upload');
   const [introductionFormState, setIntroductionFormState] =
     useState<IntroductionFormState>({});
 
@@ -57,10 +62,11 @@ export const IntroductionPage = () => {
 
   const flowSteps: [FlowStepConfig, ...FlowStepConfig[]] = [
     {
-      key: 1,
+      key: 'cv_upload',
+      step: 1,
       title: 'CV upload',
       onNext: () => {
-        const fileId = introductionFormState[1]?.fileId;
+        const fileId = introductionFormState.cv_upload?.fileId;
 
         if (fileId) {
           cvsExtract(
@@ -71,8 +77,8 @@ export const IntroductionPage = () => {
               onSuccess: (result) => {
                 setIntroductionFormState({
                   ...introductionFormState,
-                  2: {
-                    ...introductionFormState[2],
+                  candidate_information: {
+                    ...introductionFormState.candidate_information,
                     ...result.data,
                     unemployed:
                       !result.data.currentEmployer ||
@@ -80,7 +86,7 @@ export const IntroductionPage = () => {
                   },
                 });
 
-                setCurrentStep(2);
+                setCurrentStep('candidate_information');
               },
             },
           );
@@ -90,12 +96,12 @@ export const IntroductionPage = () => {
       },
       BodyComponent: (
         <CvUploadForm
-          defaultValue={introductionFormState[1]}
+          defaultValue={introductionFormState.cv_upload}
           onSubmit={(state) =>
             state
               ? setIntroductionFormState({
                   ...introductionFormState,
-                  1: state,
+                  cv_upload: state,
                 })
               : setIntroductionFormState({})
           }
@@ -103,20 +109,22 @@ export const IntroductionPage = () => {
       ),
     },
     {
-      key: 2,
+      key: 'candidate_information',
+      step: 2,
       title: 'Candidate Information',
       onNext: () => {
         console.log('Proceed to Step 2');
       },
       BodyComponent: (
         <CandidateForm
-          defaultValues={introductionFormState[2]}
+          defaultValues={introductionFormState.candidate_information}
           onSubmit={() => {}}
         />
       ),
     },
     {
-      key: 3,
+      key: 'job_description',
+      step: 3,
       title: 'Job Description',
       onNext: () => {
         console.log('Proceed to Step 2');
@@ -124,7 +132,8 @@ export const IntroductionPage = () => {
       BodyComponent: <div />,
     },
     {
-      key: 4,
+      key: 'email_generation',
+      step: 4,
       title: 'Email Generation',
       onNext: () => {
         console.log('Proceed to Step 2');
@@ -170,7 +179,7 @@ export const IntroductionPage = () => {
             },
             disabled: !introductionFormState[el.key] && el.key !== currentStep,
             current: currentStep == el.key,
-            label: el.key,
+            label: el.step,
           }))}
         />
       }

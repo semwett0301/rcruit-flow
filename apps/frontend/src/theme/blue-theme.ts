@@ -36,6 +36,12 @@ export const blueTheme: Theme = {
       fontSize: '12px',
       lineHeight: '1em',
     },
+    regularBold: {
+      fontFamily: "'Inter', sans-serif",
+      fontWeight: 700,
+      fontSize: '12px',
+      lineHeight: '1em',
+    },
     button: {
       fontFamily: "'Inter', sans-serif",
       fontWeight: 700,

@@ -20,9 +20,7 @@ const Label = styled.label`
 
   margin-bottom: ${({ theme }) => theme.spacing.xs};
   color: ${({ theme }) => theme.colors.white};
-  ${({ theme }) => extractFontPreset('regular')(theme)};
-
-  font-weight: 700;
+  ${({ theme }) => extractFontPreset('regularBold')(theme)};
 `;
 
 const FormRow = styled.div`

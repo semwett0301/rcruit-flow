@@ -3,6 +3,7 @@ export type FontKey =
   | 'secondHeading'
   | 'thirdHeading'
   | 'regular'
+  | 'regularBold'
   | 'button';
 
 export type SpacingKey = 'xs' | 's' | 'm' | 'l' | 'xl' | 'xxl';
