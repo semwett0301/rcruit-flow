@@ -10,7 +10,6 @@ export const GlobalStyle = createGlobalStyle`
         box-sizing: border-box;
         
         ${({ theme }) => extractFontPreset('regular')(theme)}
-        color: ${({ theme }) => theme.colors.lighterBlue};
     }
 
     *::before,
@@ -66,11 +65,6 @@ export const GlobalStyle = createGlobalStyle`
     #root {
         height: 100%;
         width: 100%;
-    }
-
-    /* Remove list styling */
-    ol, ul {
-        list-style: none;
     }
 
     /* Remove quotes from blockquotes */

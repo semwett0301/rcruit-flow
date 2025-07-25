@@ -63,4 +63,8 @@ export const blueTheme: Theme = {
     m: '12px',
     xxl: '50px',
   },
+  zIndex: {
+    regular: 0,
+    tooltip: 10,
+  },
 };

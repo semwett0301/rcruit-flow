@@ -19,6 +19,8 @@ type ColorKey =
   | 'red'
   | 'green';
 
+export type ZIndexKey = 'regular' | 'tooltip';
+
 export interface FontStyle {
   fontFamily: string;
   fontWeight: number;
@@ -31,4 +33,5 @@ export interface Theme {
   colors: Record<ColorKey, string>;
   spacing: Record<SpacingKey, string>;
   radius: Record<RadiusKey, string>;
+  zIndex: Record<ZIndexKey, number>;
 }

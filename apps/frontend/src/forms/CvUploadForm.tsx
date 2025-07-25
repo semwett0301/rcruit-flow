@@ -4,6 +4,7 @@ import { FileUpload, UploadState } from 'ui/FileUpload';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { useCvsSave } from 'queries/api/cvs/cvsSave';
+import { CvUploadTooltip } from 'widgets/CvUploadTooltip';
 
 const FormWrapper = styled.div`
   display: flex;
@@ -36,6 +37,18 @@ const InfoText = styled.div`
 
 const InfoIconWrapper = styled.div`
   cursor: pointer;
+
+  transition: color 0.2s ease;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: color-mix(
+        in srgb,
+        ${({ theme }) => theme.colors.lighterBlue} 40%,
+        transparent
+      );
+    }
+  }
 `;
 
 interface CvUploadFormProps {
@@ -84,9 +97,11 @@ export const CvUploadForm = ({ onSubmit, defaultValue }: CvUploadFormProps) => {
           file from your device. Ensure your document is in PDF format for a
           smooth submission process.
         </InfoText>
-        <InfoIconWrapper>
-          <InfoCircledIcon width={24} height={24} />
-        </InfoIconWrapper>
+        <CvUploadTooltip>
+          <InfoIconWrapper>
+            <InfoCircledIcon width={24} height={24} />
+          </InfoIconWrapper>
+        </CvUploadTooltip>
       </TopBar>
       <FileUpload
         uploadState={uploadState}
