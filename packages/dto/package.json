@@ -16,8 +16,8 @@
   },
   "scripts": {
     "lint": "eslint \"src/**/*.ts\" --fix",
-    "check": "tsc",
-    "build": "vite build"
+    "build": "vite build",
+    "dev": "pnpm build"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
