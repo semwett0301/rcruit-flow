@@ -1,5 +1,5 @@
 import { StringId } from 'shared/value-objects/string-id.vo';
-import { CreateUserDto } from '@repo/dto';
+import { CreateUserRequest } from '@repo/dto';
 
 export class UserDomainEntity {
   constructor(
@@ -16,7 +16,7 @@ export class UserDomainEntity {
     return this._email;
   }
 
-  static fromCreateUserDto(dto: CreateUserDto): UserDomainEntity {
+  static fromCreateUserDto(dto: CreateUserRequest): UserDomainEntity {
     return new UserDomainEntity(dto.name, dto.email);
   }
 }

@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBody, ApiResponse } from '@nestjs/swagger';
 import { GenerateEmailUseCase } from 'application/email/use-case/generate-email.use-case';
-import { CandidateFormDto, EmailResponseDto } from '@repo/dto';
+import { CandidateFormDto, EmailResponseDto } from './emails.dto';
 
 @Controller('emails')
 export class EmailsController {

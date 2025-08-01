@@ -1,11 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { CandidateFormDto, EmailResponseDto } from '@repo/dto';
+import { EmailResponse, CandidateForm } from '@repo/dto';
 
 export const EMAILS_GENERATE_ENDPOINT = 'emails/generate';
 
-const emailsGenerateApi = async (body: CandidateFormDto) => {
-  await axios.post<EmailResponseDto>(EMAILS_GENERATE_ENDPOINT, body);
+const emailsGenerateApi = async (body: CandidateForm) => {
+  await axios.post<EmailResponse>(EMAILS_GENERATE_ENDPOINT, body);
 };
 
 export const useEmailsGenerate = () =>

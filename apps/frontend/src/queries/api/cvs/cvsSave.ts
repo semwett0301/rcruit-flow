@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { UploadFileResponseDto } from '@repo/dto';
+import { UploadFileDtoResponse } from '@repo/dto';
 
 export const CVS_SAVE_ENDPOINT = 'cvs/save';
 
@@ -8,7 +8,7 @@ const cvsSaveApi = async (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await axios.post<UploadFileResponseDto>(
+  const response = await axios.post<UploadFileDtoResponse>(
     CVS_SAVE_ENDPOINT,
     formData,
     {

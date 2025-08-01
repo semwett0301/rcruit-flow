@@ -7,7 +7,11 @@ import { ChevronRightIcon, LoopIcon } from '@radix-ui/react-icons';
 import { StepsColumn } from 'widgets/StepsColumn';
 import { CvUploadForm, CvUploadFormState } from 'forms/CvUploadForm';
 import { useCvsExtract } from 'queries/api/cvs/cvsExtract';
-import { CandidateForm, CandidateFormState } from 'forms/CandidateForm';
+import {
+  CandidateForm,
+  candidateFormDefaultValues,
+  CandidateFormState,
+} from 'forms/CandidateForm';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -54,7 +58,9 @@ interface IntroductionFormState extends GlobalFormState {
 }
 
 export const IntroductionPage = () => {
-  const [currentStep, setCurrentStep] = useState<StepKey>('cv_upload');
+  const [currentStep, setCurrentStep] = useState<StepKey>(
+    'candidate_information',
+  );
   const [introductionFormState, setIntroductionFormState] =
     useState<IntroductionFormState>({});
 
@@ -78,6 +84,7 @@ export const IntroductionPage = () => {
                 setIntroductionFormState({
                   ...introductionFormState,
                   candidate_information: {
+                    ...candidateFormDefaultValues,
                     ...introductionFormState.candidate_information,
                     ...result.data,
                     unemployed:

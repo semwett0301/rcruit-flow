@@ -1,7 +1,7 @@
-import { CandidateFormDto } from '@repo/dto';
+import { CandidateForm } from '@repo/dto';
 
 interface GenerateEmailPromptParams {
-  dto: CandidateFormDto;
+  dto: CandidateForm;
   firstName: string;
   seniority: string;
   salaryLine: string;

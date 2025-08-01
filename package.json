@@ -10,7 +10,8 @@
     "lint": "turbo watch lint",
     "check": "turbo watch check",
     "build": "turbo run build",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "clean": "find . \\( -name node_modules -o -name dist -o -name .turbo \\) -type d -prune -exec rm -rf '{}' + && rm -f pnpm-lock.yaml && pnpm store prune"
   },
   "devDependencies": {
     "turbo": "^2.5.4"

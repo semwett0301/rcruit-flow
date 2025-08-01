@@ -1,11 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { ExtractCvDataDto, ExtractCvDataResultDto } from '@repo/dto';
+import { ExtractCvDataRequest, ExtractCvDataResult } from '@repo/dto';
 
 export const CVS_EXTRACT_ENDPOINT = 'cvs/extract';
 
-const cvsExctractApi = async (body: ExtractCvDataDto) => {
-  return await axios.post<ExtractCvDataResultDto>(CVS_EXTRACT_ENDPOINT, body);
+const cvsExctractApi = async (body: ExtractCvDataRequest) => {
+  return await axios.post<ExtractCvDataResult>(CVS_EXTRACT_ENDPOINT, body);
 };
 
 export const useCvsExtract = () =>

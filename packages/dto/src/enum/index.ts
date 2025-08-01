@@ -1,3 +1,3 @@
-export * from './degreeLevel.enum';
-export * from './salaryPeriod.enum';
-export * from './travelMode.enum';
+export { DegreeLevel } from './degreeLevel.enum';
+export { SalaryPeriod } from './salaryPeriod.enum';
+export { TravelModeEnum } from './travelMode.enum';

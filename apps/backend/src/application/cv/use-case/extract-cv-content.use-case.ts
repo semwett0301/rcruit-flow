@@ -7,7 +7,7 @@ import {
   cvDataExtractionSystemPrompt,
   cvDataExtractionUserPrompt,
 } from '../prompts/cv-data-extraction-user.prompt';
-import { ExtractCvDataDto, ExtractCvDataResultDto } from '@repo/dto';
+import { ExtractCvDataRequest, ExtractCvDataResult } from '@repo/dto';
 
 @Injectable()
 export class ExtractCvContentUseCase {
@@ -16,11 +16,11 @@ export class ExtractCvContentUseCase {
     private readonly gpt: GptService,
   ) {}
 
-  async extractData(dto: ExtractCvDataDto): Promise<ExtractCvDataResultDto> {
+  async extractData(dto: ExtractCvDataRequest): Promise<ExtractCvDataResult> {
     const cvText = await this.#extractText(dto.fileId);
     const gptResult = await this.#extractDataFromGpt(cvText);
 
-    return parseGptJsonSafe<ExtractCvDataResultDto>(gptResult);
+    return parseGptJsonSafe<ExtractCvDataResult>(gptResult);
   }
 
   async #extractText(fileId: string) {

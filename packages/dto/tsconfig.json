@@ -1,13 +1,20 @@
 {
-  "extends": "@repo/typescript-config/nestjs.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "types": ["node", "express", "multer"],
-    "allowJs": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
     "esModuleInterop": true,
-    "incremental": false,
-    "baseUrl": "src",
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
     "outDir": "dist",
+    "rootDir": "src",
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+  "exclude": ["dist", "node_modules"]
 }

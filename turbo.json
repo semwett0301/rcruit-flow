@@ -22,9 +22,6 @@
     "lint": {
     },
     "check": {
-      "dependsOn": [
-        "@repo/dto#build"
-      ]
     }
   }
 }

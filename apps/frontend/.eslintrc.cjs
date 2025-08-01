@@ -2,7 +2,7 @@
 module.exports = {
   extends: ['@repo/eslint-config/react-internal.js'],
   parserOptions: {
-    project: 'tsconfig.json',
+    project: './tsconfig.json',
     tsconfigRootDir: __dirname,
     sourceType: 'module',
   },

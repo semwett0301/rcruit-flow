@@ -14,7 +14,7 @@ import {
   ExtractCvDataResultDto,
   UploadFileDto,
   UploadFileResponseDto,
-} from '@repo/dto';
+} from './cvs.dto';
 
 @Controller('cvs')
 export class CvsController {
