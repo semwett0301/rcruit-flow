@@ -5,20 +5,19 @@
   "type": "module",
   "license": "MIT",
   "description": "Shared data transfer objects and types",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     }
   },
   "scripts": {
     "lint": "eslint \"src/**/*.ts\" --fix",
     "check": "tsc",
-    "build": "vite build",
-    "dev": "pnpm build"
+    "build": "vite build"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
