@@ -61,18 +61,20 @@ const GradientBorder = styled.div`
 `;
 
 const MainContentWrapper = styled.div`
-  width: 100%;
-  height: 100%;
+  position: relative;
 
-  max-height: 100%;
+  width: 100%;
   max-width: 100%;
+
+  height: 100%;
+  max-height: 100%;
 
   padding: ${({ theme }) => theme.spacing.m};
 
   border-radius: ${({ theme }) => theme.radius.s};
 
-  overflow-y: scroll;
   overflow-x: hidden;
+  overflow-y: scroll;
 
   scrollbar-width: none;
   -ms-overflow-style: none;

@@ -143,7 +143,7 @@ export const CandidateForm = forwardRef<
   }));
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form noValidate onSubmit={handleSubmit(onSubmit)}>
       <Section>
         <SectionTitle>Personal Information</SectionTitle>
         <FormRow>
