@@ -5,7 +5,13 @@ import { Input } from 'ui/Input';
 import { Checkbox } from 'ui/Checkbox';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { Select } from 'ui/Select';
-import { Degree, DegreeLevel, SalaryPeriod } from '@repo/dto';
+import {
+  Degree,
+  DegreeLevel,
+  SalaryPeriod,
+  WEEK_HOURS,
+  WeekHours,
+} from '@repo/dto';
 import { Textarea } from 'ui/Textarea';
 import { Switch } from 'ui/Switch';
 import { SwitchOption } from 'types/ui/SwitchOption';
@@ -29,11 +35,17 @@ export type CandidateFormState = {
   ambitions?: string;
   salaryPeriod: SalaryPeriod;
   grossSalary: number;
+  hoursAWeek: WeekHours;
 };
 
 interface CandidateFormProps {
   defaultValues?: Partial<CandidateFormState>;
   onSubmit: SubmitHandler<CandidateFormState>;
+}
+
+interface FormColProps {
+  $width?: number;
+  $gap?: number;
 }
 
 const Section = styled.section`
@@ -60,15 +72,26 @@ const FormRow = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing.s};
 `;
 
-const FormCol = styled.div<{ $width?: number }>`
+export const FormCol = styled.div<FormColProps>`
+  display: flex;
+  flex-direction: column;
+
   ${({ $width }) =>
-    $width
+    $width !== undefined
       ? css`
+          flex: 0 0 auto;
           width: min(${$width}px, 100%);
         `
       : css`
-          flex: 1;
+          flex: 1 1 0;
+          width: 100%;
         `};
+
+  ${({ $gap }) =>
+    !!$gap &&
+    css`
+      gap: ${$gap}px;
+    `}
 `;
 
 export const candidateFormDefaultValues: CandidateFormState = {
@@ -85,6 +108,7 @@ export const candidateFormDefaultValues: CandidateFormState = {
   targetRole: '',
   salaryPeriod: SalaryPeriod.YEAR,
   grossSalary: 0,
+  hoursAWeek: 8,
 };
 
 const salaryPeriodValues = Object.values(SalaryPeriod);
@@ -317,7 +341,7 @@ export const CandidateForm = forwardRef<
             render={({ field: { value, onChange }, fieldState }) => {
               return (
                 <FormCol $width={200}>
-                  <Select
+                  <Select<DegreeLevel>
                     selectedValues={value ? [value] : []}
                     onSelect={(selectedValue) => {
                       onChange(selectedValue[0]);
@@ -385,7 +409,7 @@ export const CandidateForm = forwardRef<
       <Section>
         <SectionTitle>Salary Information</SectionTitle>
         <FormRow>
-          <FormCol>
+          <FormCol $gap={20} $width={170}>
             <Label htmlFor="salaryPeriod">Salary period*</Label>
             <Controller
               name="salaryPeriod"
@@ -400,7 +424,7 @@ export const CandidateForm = forwardRef<
             />
           </FormCol>
           <FormCol>
-            <Label htmlFor="grossSalary">Gross salary</Label>
+            <Label htmlFor="grossSalary">Gross salary*</Label>
             <Controller
               name="grossSalary"
               control={control}
@@ -420,6 +444,34 @@ export const CandidateForm = forwardRef<
                   error={fieldState.error?.message}
                 />
               )}
+            />
+          </FormCol>
+          <FormCol>
+            <Label htmlFor="grossSalary">Hours per week*</Label>
+            <Controller
+              name="hoursAWeek"
+              control={control}
+              rules={{
+                required: {
+                  value: !ungraduated,
+                  message: 'Select degree level',
+                },
+              }}
+              render={({ field: { value, onChange }, fieldState }) => {
+                return (
+                  <Select<WeekHours>
+                    selectedValues={value ? [value] : []}
+                    onSelect={(selectedValue) => {
+                      onChange(selectedValue[0]);
+                    }}
+                    options={WEEK_HOURS.map((el) => ({
+                      label: `${el}`,
+                      value: el,
+                    }))}
+                    error={fieldState.error?.message}
+                  />
+                );
+              }}
             />
           </FormCol>
         </FormRow>

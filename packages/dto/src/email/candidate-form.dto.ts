@@ -1,5 +1,6 @@
 import { SalaryPeriod, TravelModeEnum } from '../enum';
 import { ExtractCvDataResult } from '../cv/exctract-cv-data-result.dto';
+import { WeekHours } from '../enum/weekHours';
 
 export interface CandidateForm extends ExtractCvDataResult {
   employmentStatus: boolean;
@@ -16,7 +17,7 @@ export interface CandidateForm extends ExtractCvDataResult {
 
   grossSalary: number;
   salaryPeriod: SalaryPeriod;
-  hoursAWeek: 8 | 16 | 24 | 32 | 40;
+  hoursAWeek: WeekHours;
 
   jobDescriptionText?: string;
   jobDescriptionFile?: Express.Multer.File;

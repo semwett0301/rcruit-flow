@@ -4,12 +4,12 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { CheckIcon } from '@radix-ui/react-icons';
 
-export type SelectOption<T extends string> = {
+export type SelectOption<T extends string | number> = {
   label: string;
   value: T;
 };
 
-export interface SelectProps<T extends string> {
+export interface SelectProps<T extends string | number> {
   options: SelectOption<T>[];
   placeholder?: string;
   onSelect?: (value: T[]) => void;
@@ -187,95 +187,95 @@ const ErrorMessage = styled.div`
   `}
 `;
 
-export const Select = forwardRef<HTMLDivElement, SelectProps<string>>(
-  <T extends string>(
-    {
-      options,
-      onSelect,
-      error,
-      disabled = false,
-      selectedValues = [],
-      placeholder = 'Select',
-      multiple = false,
-    }: SelectProps<T>,
-    ref: React.Ref<HTMLDivElement>,
-  ) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [selected, setSelected] = useState<T[]>(selectedValues);
+function SelectInner<T extends string | number>(
+  {
+    options,
+    onSelect,
+    error,
+    disabled = false,
+    selectedValues = [],
+    placeholder = 'Select',
+    multiple = false,
+  }: SelectProps<T>,
+  ref: React.Ref<HTMLDivElement>,
+) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selected, setSelected] = useState<T[]>(selectedValues);
 
-    const toggleOpen = () => setIsOpen(!isOpen && !disabled);
+  const toggleOpen = () => setIsOpen(!isOpen && !disabled);
 
-    const correctMultipleSelectedList = (option: T) => {
-      if (!selected.includes(option)) {
-        setSelected([...selected, option]);
-      } else {
-        setSelected(selected.filter((el) => el !== option));
-      }
-    };
+  const correctMultipleSelectedList = (option: T) => {
+    if (!selected.includes(option)) {
+      setSelected([...selected, option]);
+    } else {
+      setSelected(selected.filter((el) => el !== option));
+    }
+  };
 
-    const correctSingleSelectedList = (option: T) => {
-      if (!selected.includes(option)) {
-        setSelected([option]);
-      } else {
-        setSelected([]);
-      }
-    };
+  const correctSingleSelectedList = (option: T) => {
+    if (!selected.includes(option)) {
+      setSelected([option]);
+    } else {
+      setSelected([]);
+    }
+  };
 
-    const handleSelect = (option: T) => {
-      if (!multiple) {
-        correctSingleSelectedList(option);
-        setIsOpen(false);
-      } else {
-        correctMultipleSelectedList(option);
-      }
-    };
-
-    const handleClearAll = () => setSelected([]);
-
-    const isAnyChosen = selected.length > 0;
-
-    useEffect(() => {
-      onSelect?.(selected);
-    }, [JSON.stringify(selected)]);
-
-    useEffect(() => {
+  const handleSelect = (option: T) => {
+    if (!multiple) {
+      correctSingleSelectedList(option);
       setIsOpen(false);
-    }, [disabled]);
+    } else {
+      correctMultipleSelectedList(option);
+    }
+  };
 
-    return (
-      <SelectContainer $isDisabled={disabled} ref={ref}>
-        <SelectHeader $isError={!!error} $isOpen={isOpen} onClick={toggleOpen}>
-          <HeaderLine $isError={!!error} $isAnyChosen={isAnyChosen}>
-            {selected.length > 0 ? selected.join(', ') : placeholder}
-          </HeaderLine>
-          {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-        </SelectHeader>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
+  const handleClearAll = () => setSelected([]);
 
-        {isOpen && (
-          <Dropdown $isAnyChosen={isAnyChosen && multiple}>
-            {selected.length > 0 && multiple && (
-              <ClearAll onClick={handleClearAll}>
-                Clear all ({selected.length})
-              </ClearAll>
-            )}
-            {options.map((opt) => (
-              <Option
-                $isChosen={selected.includes(opt.value)}
-                key={opt.value}
-                onClick={() => handleSelect(opt.value)}
-              >
-                <span>{opt.label}</span>
-                {selected.includes(opt.value) && (
-                  <CheckIcon width={16} height={16} />
-                )}
-              </Option>
-            ))}
-          </Dropdown>
-        )}
-      </SelectContainer>
-    );
-  },
-);
+  const isAnyChosen = selected.length > 0;
 
-Select.displayName = 'Select';
+  useEffect(() => {
+    onSelect?.(selected);
+  }, [JSON.stringify(selected)]);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [disabled]);
+
+  return (
+    <SelectContainer $isDisabled={disabled} ref={ref}>
+      <SelectHeader $isError={!!error} $isOpen={isOpen} onClick={toggleOpen}>
+        <HeaderLine $isError={!!error} $isAnyChosen={isAnyChosen}>
+          {selected.length > 0 ? selected.join(', ') : placeholder}
+        </HeaderLine>
+        {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+      </SelectHeader>
+      {error && <ErrorMessage>{error}</ErrorMessage>}
+
+      {isOpen && (
+        <Dropdown $isAnyChosen={isAnyChosen && multiple}>
+          {selected.length > 0 && multiple && (
+            <ClearAll onClick={handleClearAll}>
+              Clear all ({selected.length})
+            </ClearAll>
+          )}
+          {options.map((opt) => (
+            <Option
+              $isChosen={selected.includes(opt.value)}
+              key={opt.value}
+              onClick={() => handleSelect(opt.value)}
+            >
+              <span>{opt.label}</span>
+              {selected.includes(opt.value) && (
+                <CheckIcon width={16} height={16} />
+              )}
+            </Option>
+          ))}
+        </Dropdown>
+      )}
+    </SelectContainer>
+  );
+}
+
+export const Select = forwardRef(SelectInner) as <T extends string | number>(
+  props: SelectProps<T> & { ref?: React.Ref<HTMLDivElement> },
+) => ReturnType<typeof SelectInner>;
