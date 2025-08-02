@@ -6,7 +6,7 @@ export interface SwitchOption {
 }
 
 export interface SwitchProps extends HTMLAttributes<HTMLDivElement> {
-  options: [SwitchOption, SwitchOption];
+  options: readonly [SwitchOption, SwitchOption];
   value?: string;
   onSwitch?: (value: string) => void;
 }

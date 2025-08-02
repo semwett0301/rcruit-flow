@@ -5,8 +5,10 @@ import { Input } from 'ui/Input';
 import { Checkbox } from 'ui/Checkbox';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { Select } from 'ui/Select';
-import { Degree, DegreeLevel } from '@repo/dto';
+import { Degree, DegreeLevel, SalaryPeriod } from '@repo/dto';
 import { Textarea } from 'ui/Textarea';
+import { Switch } from 'ui/Switch';
+import { SwitchOption } from 'types/ui/SwitchOption';
 
 export type CandidateFormHandles = {
   submitForm: () => void;
@@ -25,6 +27,8 @@ export type CandidateFormState = {
   degree?: Partial<Degree>;
   targetRole: string;
   ambitions?: string;
+  salaryPeriod: SalaryPeriod;
+  grossSalary: number;
 };
 
 interface CandidateFormProps {
@@ -76,10 +80,25 @@ export const candidateFormDefaultValues: CandidateFormState = {
   currentEmployer: '',
   currentPosition: '',
   experienceDescription: '',
-  yearsOfExperience: 1,
+  yearsOfExperience: 0,
   degree: undefined,
   targetRole: '',
+  salaryPeriod: SalaryPeriod.YEAR,
+  grossSalary: 0,
 };
+
+const salaryPeriodValues = Object.values(SalaryPeriod);
+
+if (salaryPeriodValues.length !== 2) {
+  throw new Error(
+    `Expected exactly 2 SalaryPeriod values, got ${salaryPeriodValues.length}`,
+  );
+}
+
+const salarySwitchOptions = salaryPeriodValues.map((el) => ({
+  label: el,
+  value: el,
+})) as [SwitchOption, SwitchOption];
 
 export const CandidateForm = forwardRef<
   CandidateFormHandles,
@@ -128,12 +147,16 @@ export const CandidateForm = forwardRef<
               control={control}
               rules={{
                 required: 'Age is required',
+                min: {
+                  value: 1,
+                  message: "Age can't be less than 1",
+                },
               }}
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
                   type="number"
-                  min={0}
+                  min={1}
                   placeholder="Age"
                   error={fieldState.error?.message}
                 />
@@ -164,9 +187,8 @@ export const CandidateForm = forwardRef<
             <Controller
               name="unemployed"
               control={control}
-              render={({ field: { onChange, value, ...rest } }) => (
+              render={({ field: { onChange, value } }) => (
                 <Checkbox
-                  {...rest}
                   checked={value}
                   onCheck={onChange}
                   label="Unemployed"
@@ -273,9 +295,8 @@ export const CandidateForm = forwardRef<
           <Controller
             name="ungraduated"
             control={control}
-            render={({ field: { onChange, value, ...rest } }) => (
+            render={({ field: { onChange, value } }) => (
               <Checkbox
-                {...rest}
                 checked={value}
                 onCheck={onChange}
                 label="Ungraduated"
@@ -360,6 +381,48 @@ export const CandidateForm = forwardRef<
             );
           }}
         />
+      </Section>
+      <Section>
+        <SectionTitle>Salary Information</SectionTitle>
+        <FormRow>
+          <FormCol>
+            <Label htmlFor="salaryPeriod">Salary period*</Label>
+            <Controller
+              name="salaryPeriod"
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <Switch
+                  value={value}
+                  onSwitch={onChange}
+                  options={salarySwitchOptions}
+                />
+              )}
+            />
+          </FormCol>
+          <FormCol>
+            <Label htmlFor="grossSalary">Gross salary</Label>
+            <Controller
+              name="grossSalary"
+              control={control}
+              rules={{
+                required: 'Gross salary is required',
+                min: {
+                  value: 0,
+                  message: "Gross salary can't be negative",
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  min={0}
+                  placeholder="Gross salary"
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+          </FormCol>
+        </FormRow>
       </Section>
       <Section>
         <SectionTitle>Ambitions</SectionTitle>

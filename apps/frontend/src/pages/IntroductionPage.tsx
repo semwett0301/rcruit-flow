@@ -185,7 +185,7 @@ export const IntroductionPage = () => {
       TopComponent={
         <TopBarWrapper>
           <StepName>{currentConfig.title}</StepName>
-          <Button variant="outline">
+          <Button variant="outline" disabled>
             Reset <LoopIcon />
           </Button>
         </TopBarWrapper>

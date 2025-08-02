@@ -1,4 +1,4 @@
 export enum SalaryPeriod {
-  YEAR = 'year',
-  MONTH = 'month',
+  YEAR = 'Year',
+  MONTH = 'Month',
 }
