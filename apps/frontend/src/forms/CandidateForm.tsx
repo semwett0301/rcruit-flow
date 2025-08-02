@@ -263,12 +263,6 @@ export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
             <Controller
               name="ungraduated"
               control={control}
-              rules={{
-                required: {
-                  value: !ungraduated,
-                  message: 'Select degree level',
-                },
-              }}
               render={({ field: { onChange, value, ...rest } }) => (
                 <Checkbox
                   {...rest}
@@ -279,53 +273,59 @@ export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
               )}
             />
           </FormRow>
-          <Controller
-            name="degree"
-            control={control}
-            rules={{
-              required: {
-                value: !ungraduated,
-                message: 'Name of the program is required',
-              },
-            }}
-            render={({ field: { value, onChange } }) => {
-              return (
-                <>
-                  <FormRow>
-                    <FormCol $width={200}>
-                      <Select
-                        selectedValues={value?.level ? [value.level] : []}
-                        onSelect={(selectedValue) => {
-                          onChange({
-                            ...value,
-                            level: selectedValue[0],
-                          });
-                        }}
-                        options={Object.values(DegreeLevel).map((el) => ({
-                          label: el,
-                          value: el,
-                        }))}
-                        disabled={ungraduated}
-                      />
-                    </FormCol>
-                    <FormCol>
-                      <Input
-                        value={value?.program}
-                        onChange={(e) => {
-                          onChange({
-                            ...value,
-                            program: e.target.value,
-                          });
-                        }}
-                        placeholder="Name of the program"
-                        disabled={ungraduated}
-                      />
-                    </FormCol>
-                  </FormRow>
-                </>
-              );
-            }}
-          />
+          <FormRow>
+            <Controller
+              name="degree.level"
+              control={control}
+              rules={{
+                required: {
+                  value: !ungraduated,
+                  message: 'Select degree level',
+                },
+              }}
+              render={({ field: { value, onChange } }) => {
+                return (
+                  <FormCol $width={200}>
+                    <Select
+                      selectedValues={value ? [value] : []}
+                      onSelect={(selectedValue) => {
+                        onChange(selectedValue[0] ?? value);
+                      }}
+                      options={Object.values(DegreeLevel).map((el) => ({
+                        label: el,
+                        value: el,
+                      }))}
+                      disabled={ungraduated}
+                    />
+                  </FormCol>
+                );
+              }}
+            />
+            <Controller
+              name="degree.program"
+              control={control}
+              rules={{
+                required: {
+                  value: !ungraduated,
+                  message: 'Name of the program is required',
+                },
+              }}
+              render={({ field: { value, onChange } }) => {
+                return (
+                  <FormCol>
+                    <Input
+                      value={value}
+                      onChange={(e) => {
+                        onChange(e.target.value);
+                      }}
+                      placeholder="Name of the program"
+                      disabled={ungraduated}
+                    />
+                  </FormCol>
+                );
+              }}
+            />
+          </FormRow>
         </Section>
         <Section>
           <SectionTitle>Target role*</SectionTitle>
