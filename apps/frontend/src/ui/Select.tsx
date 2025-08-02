@@ -21,6 +21,7 @@ export interface SelectProps<T extends string> {
 
 interface SelectDropdownProps {
   $isAnyChosen: boolean;
+  $isError?: boolean;
 }
 
 interface SelectOptionProps {
@@ -172,13 +173,9 @@ const HeaderLine = styled.div<SelectDropdownProps>`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  ${({ $isAnyChosen, theme }) => css`
-    color: ${!$isAnyChosen &&
-    `color-mix(
-        in srgb,
-        ${theme.colors.lighterBlue} 40%,
-        transparent
-      );`};
+  ${({ $isAnyChosen, $isError, theme }) => css`
+    opacity: ${$isAnyChosen ? 1 : 0.4};
+    color: ${$isError ? theme.colors.red : theme.colors.lighterBlue};
   `}
 `;
 
@@ -248,7 +245,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps<string>>(
     return (
       <SelectContainer $isDisabled={disabled} ref={ref}>
         <SelectHeader $isError={!!error} $isOpen={isOpen} onClick={toggleOpen}>
-          <HeaderLine $isAnyChosen={isAnyChosen}>
+          <HeaderLine $isError={!!error} $isAnyChosen={isAnyChosen}>
             {selected.length > 0 ? selected.join(', ') : placeholder}
           </HeaderLine>
           {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
