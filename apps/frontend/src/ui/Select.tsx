@@ -16,6 +16,7 @@ export interface SelectProps<T extends string> {
   selectedValues?: T[];
   multiple?: boolean;
   disabled?: boolean;
+  error?: string;
 }
 
 interface SelectDropdownProps {
@@ -28,6 +29,7 @@ interface SelectOptionProps {
 
 interface SelectHeaderProps {
   $isOpen: boolean;
+  $isError: boolean;
 }
 
 interface ContainerInterface {
@@ -66,13 +68,23 @@ const SelectHeader = styled.div<SelectHeaderProps>`
 
   background: transparent;
 
-  ${({ theme, $isOpen }) => css`
-    padding: ${theme.spacing.s};
-    border-radius: ${theme.radius.s};
+  ${({ theme, $isOpen, $isError }) => css`
+        padding: ${theme.spacing.s};
+        border-radius: ${theme.radius.s};
 
-    border: 0.5px solid ${theme.colors.lighterBlue};
-    outline: ${$isOpen ? `0.5px solid ${theme.colors.lighterBlue}` : 'none'};
-  `}
+        border: 0.5px solid ${theme.colors.lighterBlue};
+        outline: ${$isOpen ? `0.5px solid ${theme.colors.lighterBlue}` : 'none'};
+
+        ${
+          $isError &&
+          css`
+            color: ${theme.colors.red};
+            border-color: ${theme.colors.red};
+            outline-color: ${theme.colors.red};
+          `
+        }
+    }
+    `}
 `;
 
 const Dropdown = styled.div<SelectDropdownProps>`
@@ -170,11 +182,20 @@ const HeaderLine = styled.div<SelectDropdownProps>`
   `}
 `;
 
+const ErrorMessage = styled.div`
+  ${({ theme }) => css`
+    ${extractFontPreset('regular')(theme)};
+    color: ${theme.colors.red};
+    margin-top: ${theme.spacing.xs};
+  `}
+`;
+
 export const Select = forwardRef<HTMLDivElement, SelectProps<string>>(
   <T extends string>(
     {
       options,
       onSelect,
+      error,
       disabled = false,
       selectedValues = [],
       placeholder = 'Select',
@@ -226,12 +247,13 @@ export const Select = forwardRef<HTMLDivElement, SelectProps<string>>(
 
     return (
       <SelectContainer $isDisabled={disabled} ref={ref}>
-        <SelectHeader $isOpen={isOpen} onClick={toggleOpen}>
+        <SelectHeader $isError={!!error} $isOpen={isOpen} onClick={toggleOpen}>
           <HeaderLine $isAnyChosen={isAnyChosen}>
             {selected.length > 0 ? selected.join(', ') : placeholder}
           </HeaderLine>
           {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </SelectHeader>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
 
         {isOpen && (
           <Dropdown $isAnyChosen={isAnyChosen && multiple}>

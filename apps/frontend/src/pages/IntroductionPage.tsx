@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useRef, useState } from 'react';
 import { FlowGridContainer } from 'containers/FlowGridContainer';
 import styled from 'styled-components';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
@@ -10,6 +10,7 @@ import { useCvsExtract } from 'queries/api/cvs/cvsExtract';
 import {
   CandidateForm,
   candidateFormDefaultValues,
+  CandidateFormHandles,
   CandidateFormState,
 } from 'forms/CandidateForm';
 
@@ -46,6 +47,7 @@ type FlowStepConfig = {
   title: string;
   onNext: () => void;
   BodyComponent: ReactNode;
+  enableNext?: boolean;
 };
 
 type GlobalFormState = {
@@ -66,6 +68,8 @@ export const IntroductionPage = () => {
     useState<IntroductionFormState>({});
 
   const { mutate: cvsExtract } = useCvsExtract();
+
+  const candidateFormRef = useRef<CandidateFormHandles>(null);
 
   const flowSteps: [FlowStepConfig, ...FlowStepConfig[]] = [
     {
@@ -122,14 +126,17 @@ export const IntroductionPage = () => {
       step: 2,
       title: 'Candidate Information',
       onNext: () => {
-        console.log('Proceed to Step 2');
+        console.log('Next');
+        candidateFormRef.current?.submitForm();
       },
       BodyComponent: (
         <CandidateForm
+          ref={candidateFormRef}
           defaultValues={introductionFormState.candidate_information}
           onSubmit={() => {}}
         />
       ),
+      enableNext: true,
     },
     {
       key: 'jobDescription',
@@ -164,7 +171,10 @@ export const IntroductionPage = () => {
         <BottomBarWrapper>
           {currentStep !== flowSteps.at(-1)!.key && (
             <Button
-              disabled={!introductionFormState[currentConfig.key]}
+              disabled={
+                !introductionFormState[currentConfig.key] &&
+                !currentConfig.enableNext
+              }
               onClick={currentConfig.onNext}
             >
               Next step <ChevronRightIcon />

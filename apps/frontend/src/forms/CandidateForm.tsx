@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import styled, { css } from 'styled-components';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { Input } from 'ui/Input';
@@ -7,6 +7,10 @@ import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { Select } from 'ui/Select';
 import { Degree, DegreeLevel } from '@repo/dto';
 import { Textarea } from 'ui/Textarea';
+
+export type CandidateFormHandles = {
+  submitForm: () => void;
+};
 
 export type CandidateFormState = {
   candidateName: string;
@@ -18,7 +22,7 @@ export type CandidateFormState = {
   currentPosition?: string;
   experienceDescription: string;
   yearsOfExperience: number;
-  degree?: Degree;
+  degree?: Partial<Degree>;
   targetRole: string;
   ambitions?: string;
 };
@@ -77,303 +81,309 @@ export const candidateFormDefaultValues: CandidateFormState = {
   targetRole: '',
 };
 
-export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
-  ({ defaultValues, onSubmit }, ref) => {
-    const { control, handleSubmit, watch } = useForm<CandidateFormState>({
-      defaultValues: {
-        ...candidateFormDefaultValues,
-        ...defaultValues,
-      },
-    });
+export const CandidateForm = forwardRef<
+  CandidateFormHandles,
+  CandidateFormProps
+>(({ defaultValues, onSubmit }, ref) => {
+  const { control, handleSubmit, watch } = useForm<CandidateFormState>({
+    defaultValues: {
+      ...candidateFormDefaultValues,
+      ...defaultValues,
+    },
+  });
 
-    const unemployed = watch('unemployed');
-    const ungraduated = watch('ungraduated');
+  const unemployed = watch('unemployed');
+  const ungraduated = watch('ungraduated');
 
-    return (
-      <form ref={ref} onSubmit={handleSubmit(onSubmit)}>
-        <Section>
-          <SectionTitle>Personal Information</SectionTitle>
-          <FormRow>
-            <FormCol>
-              <Label htmlFor="candidateName">Full Name*</Label>
-              <Controller
-                name="candidateName"
-                control={control}
-                rules={{
-                  required: 'Full name is required',
-                }}
-                render={({ field, fieldState }) => (
-                  <Input
-                    {...field}
-                    placeholder="Full name"
-                    error={fieldState.error?.message}
-                  />
-                )}
-              />
-            </FormCol>
-            <FormCol>
-              <Label htmlFor="age">Age*</Label>
-              <Controller
-                name="age"
-                control={control}
-                rules={{
-                  required: 'Age is required',
-                }}
-                render={({ field, fieldState }) => (
-                  <Input
-                    {...field}
-                    type="number"
-                    min={0}
-                    placeholder="Age"
-                    error={fieldState.error?.message}
-                  />
-                )}
-              />
-            </FormCol>
-          </FormRow>
-          <Label htmlFor="location">Location*</Label>
-          <Controller
-            name="location"
-            control={control}
-            rules={{
-              required: 'Location is required',
-            }}
-            render={({ field, fieldState }) => (
-              <Input
-                {...field}
-                placeholder="ex. London, United Kingdom"
-                error={fieldState.error?.message}
-              />
-            )}
-          />
-        </Section>
-        <Section>
-          <SectionTitle>Employment Information</SectionTitle>
-          <FormRow>
-            <FormCol>
-              <Controller
-                name="unemployed"
-                control={control}
-                render={({ field: { onChange, value, ...rest } }) => (
-                  <Checkbox
-                    {...rest}
-                    checked={value}
-                    onCheck={onChange}
-                    label="Unemployed"
-                  />
-                )}
-              />
-            </FormCol>
-          </FormRow>
-          <FormRow>
-            <FormCol>
-              <Label htmlFor="currentEmployer">Current employer*</Label>
-              <Controller
-                name="currentEmployer"
-                control={control}
-                rules={{
-                  required: {
-                    value: !unemployed,
-                    message: 'Current employer is required',
-                  },
-                }}
-                render={({ field, fieldState }) => (
-                  <Input
-                    {...field}
-                    placeholder="Current employer"
-                    error={fieldState.error?.message}
-                    disabled={unemployed}
-                  />
-                )}
-              />
-            </FormCol>
-            <FormCol>
-              <Label htmlFor="currentPosition">Current position*</Label>
-              <Controller
-                name="currentPosition"
-                control={control}
-                rules={{
-                  required: {
-                    value: !unemployed,
-                    message: 'Current position is required',
-                  },
-                }}
-                render={({ field, fieldState }) => (
-                  <Input
-                    {...field}
-                    placeholder="Current position"
-                    error={fieldState.error?.message}
-                    disabled={unemployed}
-                  />
-                )}
-              />
-            </FormCol>
-          </FormRow>
-        </Section>
-        <Section>
-          <SectionTitle>Work Experience</SectionTitle>
-          <FormRow>
-            <FormCol>
-              <Label htmlFor="experienceDescription">
-                Experience description*
-              </Label>
-              <Controller
-                name="experienceDescription"
-                control={control}
-                rules={{
-                  required: 'Experience description is required',
-                }}
-                render={({ field, fieldState }) => (
-                  <Input
-                    {...field}
-                    placeholder="Experience description"
-                    error={fieldState.error?.message}
-                  />
-                )}
-              />
-            </FormCol>
-            <FormCol $width={130}>
-              <Label htmlFor="yearsOfExperience">Years of experience*</Label>
-              <Controller
-                name="yearsOfExperience"
-                control={control}
-                rules={{
-                  required: 'Number of years is required',
-                  min: {
-                    value: 0,
-                    message: "Year of experience can't be negative",
-                  },
-                }}
-                render={({ field, fieldState }) => (
-                  <Input
-                    {...field}
-                    type="number"
-                    min={0}
-                    placeholder="Years"
-                    error={fieldState.error?.message}
-                  />
-                )}
-              />
-            </FormCol>
-          </FormRow>
-        </Section>
-        <Section>
-          <SectionTitle>Education Information*</SectionTitle>
-          <FormRow>
+  useImperativeHandle(ref, () => ({
+    submitForm: handleSubmit(onSubmit),
+  }));
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Section>
+        <SectionTitle>Personal Information</SectionTitle>
+        <FormRow>
+          <FormCol>
+            <Label htmlFor="candidateName">Full Name*</Label>
             <Controller
-              name="ungraduated"
+              name="candidateName"
+              control={control}
+              rules={{
+                required: 'Full name is required',
+              }}
+              render={({ field, fieldState }) => (
+                <Input
+                  {...field}
+                  placeholder="Full name"
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+          </FormCol>
+          <FormCol>
+            <Label htmlFor="age">Age*</Label>
+            <Controller
+              name="age"
+              control={control}
+              rules={{
+                required: 'Age is required',
+              }}
+              render={({ field, fieldState }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  min={0}
+                  placeholder="Age"
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+          </FormCol>
+        </FormRow>
+        <Label htmlFor="location">Location*</Label>
+        <Controller
+          name="location"
+          control={control}
+          rules={{
+            required: 'Location is required',
+          }}
+          render={({ field, fieldState }) => (
+            <Input
+              {...field}
+              placeholder="ex. London, United Kingdom"
+              error={fieldState.error?.message}
+            />
+          )}
+        />
+      </Section>
+      <Section>
+        <SectionTitle>Employment Information</SectionTitle>
+        <FormRow>
+          <FormCol>
+            <Controller
+              name="unemployed"
               control={control}
               render={({ field: { onChange, value, ...rest } }) => (
                 <Checkbox
                   {...rest}
                   checked={value}
                   onCheck={onChange}
-                  label="Ungraduated"
+                  label="Unemployed"
                 />
               )}
             />
-          </FormRow>
-          <FormRow>
+          </FormCol>
+        </FormRow>
+        <FormRow>
+          <FormCol>
+            <Label htmlFor="currentEmployer">Current employer*</Label>
             <Controller
-              name="degree.level"
+              name="currentEmployer"
               control={control}
               rules={{
                 required: {
-                  value: !ungraduated,
-                  message: 'Select degree level',
+                  value: !unemployed,
+                  message: 'Current employer is required',
                 },
               }}
-              render={({ field: { value, onChange } }) => {
-                return (
-                  <FormCol $width={200}>
-                    <Select
-                      selectedValues={value ? [value] : []}
-                      onSelect={(selectedValue) => {
-                        onChange(selectedValue[0] ?? value);
-                      }}
-                      options={Object.values(DegreeLevel).map((el) => ({
-                        label: el,
-                        value: el,
-                      }))}
-                      disabled={ungraduated}
-                    />
-                  </FormCol>
-                );
-              }}
+              render={({ field, fieldState }) => (
+                <Input
+                  {...field}
+                  placeholder="Current employer"
+                  error={fieldState.error?.message}
+                  disabled={unemployed}
+                />
+              )}
             />
+          </FormCol>
+          <FormCol>
+            <Label htmlFor="currentPosition">Current position*</Label>
             <Controller
-              name="degree.program"
+              name="currentPosition"
               control={control}
               rules={{
                 required: {
-                  value: !ungraduated,
-                  message: 'Name of the program is required',
+                  value: !unemployed,
+                  message: 'Current position is required',
                 },
               }}
-              render={({ field: { value, onChange } }) => {
-                return (
+              render={({ field, fieldState }) => (
+                <Input
+                  {...field}
+                  placeholder="Current position"
+                  error={fieldState.error?.message}
+                  disabled={unemployed}
+                />
+              )}
+            />
+          </FormCol>
+        </FormRow>
+      </Section>
+      <Section>
+        <SectionTitle>Work Experience</SectionTitle>
+        <FormRow>
+          <FormCol>
+            <Label htmlFor="experienceDescription">
+              Experience description*
+            </Label>
+            <Controller
+              name="experienceDescription"
+              control={control}
+              rules={{
+                required: 'Experience description is required',
+              }}
+              render={({ field, fieldState }) => (
+                <Input
+                  {...field}
+                  placeholder="Experience description"
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+          </FormCol>
+          <FormCol $width={130}>
+            <Label htmlFor="yearsOfExperience">Years of experience*</Label>
+            <Controller
+              name="yearsOfExperience"
+              control={control}
+              rules={{
+                required: 'Number of years is required',
+                min: {
+                  value: 0,
+                  message: "Year of experience can't be negative",
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  min={0}
+                  placeholder="Years"
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+          </FormCol>
+        </FormRow>
+      </Section>
+      <Section>
+        <SectionTitle>Education Information*</SectionTitle>
+        <FormRow>
+          <Controller
+            name="ungraduated"
+            control={control}
+            render={({ field: { onChange, value, ...rest } }) => (
+              <Checkbox
+                {...rest}
+                checked={value}
+                onCheck={onChange}
+                label="Ungraduated"
+              />
+            )}
+          />
+        </FormRow>
+        <FormRow>
+          <Controller
+            name="degree.level"
+            control={control}
+            rules={{
+              required: {
+                value: !ungraduated,
+                message: 'Select degree level',
+              },
+            }}
+            render={({ field: { value, onChange }, fieldState }) => {
+              return (
+                <FormCol $width={200}>
+                  <Select
+                    selectedValues={value ? [value] : []}
+                    onSelect={(selectedValue) => {
+                      onChange(selectedValue[0]);
+                    }}
+                    options={Object.values(DegreeLevel).map((el) => ({
+                      label: el,
+                      value: el,
+                    }))}
+                    error={fieldState.error?.message}
+                    disabled={ungraduated}
+                  />
+                </FormCol>
+              );
+            }}
+          />
+          <Controller
+            name="degree.program"
+            control={control}
+            rules={{
+              required: {
+                value: !ungraduated,
+                message: 'Name of the program is required',
+              },
+            }}
+            render={({ field, fieldState }) => {
+              return (
+                <FormCol>
+                  <Input
+                    {...field}
+                    error={fieldState.error?.message}
+                    placeholder="Name of the program"
+                    disabled={ungraduated}
+                  />
+                </FormCol>
+              );
+            }}
+          />
+        </FormRow>
+      </Section>
+      <Section>
+        <SectionTitle>Target role*</SectionTitle>
+        <Controller
+          name="targetRole"
+          control={control}
+          rules={{
+            required: 'Target role is required',
+          }}
+          render={({ field, fieldState }) => {
+            return (
+              <>
+                <FormRow>
                   <FormCol>
                     <Input
-                      value={value}
-                      onChange={(e) => {
-                        onChange(e.target.value);
-                      }}
-                      placeholder="Name of the program"
-                      disabled={ungraduated}
+                      error={fieldState.error?.message}
+                      {...field}
+                      placeholder="Target role"
                     />
                   </FormCol>
-                );
-              }}
-            />
-          </FormRow>
-        </Section>
-        <Section>
-          <SectionTitle>Target role*</SectionTitle>
-          <Controller
-            name="targetRole"
-            control={control}
-            render={({ field: { value, onChange } }) => {
-              return (
-                <>
-                  <FormRow>
-                    <FormCol>
-                      <Input
-                        value={value}
-                        onChange={onChange}
-                        placeholder="Target role"
-                      />
-                    </FormCol>
-                  </FormRow>
-                </>
-              );
-            }}
-          />
-        </Section>
-        <Section>
-          <SectionTitle>Ambitions</SectionTitle>
-          <Controller
-            name="ambitions"
-            control={control}
-            render={({ field: { value, onChange } }) => {
-              return (
-                <>
-                  <FormRow>
-                    <FormCol>
-                      <Textarea
-                        value={value}
-                        onChange={onChange}
-                        placeholder="The candidate's career ambitions..."
-                      />
-                    </FormCol>
-                  </FormRow>
-                </>
-              );
-            }}
-          />
-        </Section>
-      </form>
-    );
-  },
-);
+                </FormRow>
+              </>
+            );
+          }}
+        />
+      </Section>
+      <Section>
+        <SectionTitle>Ambitions</SectionTitle>
+        <Controller
+          name="ambitions"
+          control={control}
+          render={({ field }) => {
+            return (
+              <>
+                <FormRow>
+                  <FormCol>
+                    <Textarea
+                      {...field}
+                      placeholder="The candidate's career ambitions..."
+                    />
+                  </FormCol>
+                </FormRow>
+              </>
+            );
+          }}
+        />
+      </Section>
+    </form>
+  );
+});
 
 CandidateForm.displayName = 'CandidateForm';

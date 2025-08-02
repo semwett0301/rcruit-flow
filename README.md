@@ -25,3 +25,4 @@ This project includes a backend service, a PostgreSQL database, and S3-compatibl
 
 # TO DO
 - [ ] Fix `pnpm dev` when it runs for the first time (`@repo/dto` isn't visible) 
+- [ ] Fix `Select` error behaviour (text) 
