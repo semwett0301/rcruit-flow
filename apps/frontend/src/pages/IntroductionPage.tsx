@@ -35,10 +35,10 @@ const StepName = styled.span`
 `;
 
 type StepKey =
-  | 'cv_upload'
-  | 'candidate_information'
-  | 'job_description'
-  | 'email_generation';
+  | 'cvUpload'
+  | 'candidateInformation'
+  | 'jobDescription'
+  | 'emailGeneration';
 
 type FlowStepConfig = {
   key: StepKey;
@@ -59,8 +59,9 @@ interface IntroductionFormState extends GlobalFormState {
 
 export const IntroductionPage = () => {
   const [currentStep, setCurrentStep] = useState<StepKey>(
-    'candidate_information',
+    'candidateInformation',
   );
+
   const [introductionFormState, setIntroductionFormState] =
     useState<IntroductionFormState>({});
 
@@ -68,7 +69,7 @@ export const IntroductionPage = () => {
 
   const flowSteps: [FlowStepConfig, ...FlowStepConfig[]] = [
     {
-      key: 'cv_upload',
+      key: 'cvUpload',
       step: 1,
       title: 'CV upload',
       onNext: () => {
@@ -90,10 +91,11 @@ export const IntroductionPage = () => {
                     unemployed:
                       !result.data.currentEmployer ||
                       !result.data.currentPosition,
+                    ungraduated: !result.data.degree,
                   },
                 });
 
-                setCurrentStep('candidate_information');
+                setCurrentStep('candidateInformation');
               },
             },
           );
@@ -116,7 +118,7 @@ export const IntroductionPage = () => {
       ),
     },
     {
-      key: 'candidate_information',
+      key: 'candidateInformation',
       step: 2,
       title: 'Candidate Information',
       onNext: () => {
@@ -130,7 +132,7 @@ export const IntroductionPage = () => {
       ),
     },
     {
-      key: 'job_description',
+      key: 'jobDescription',
       step: 3,
       title: 'Job Description',
       onNext: () => {
@@ -139,7 +141,7 @@ export const IntroductionPage = () => {
       BodyComponent: <div />,
     },
     {
-      key: 'email_generation',
+      key: 'emailGeneration',
       step: 4,
       title: 'Email Generation',
       onNext: () => {

@@ -4,12 +4,9 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { Input } from 'ui/Input';
 import { Checkbox } from 'ui/Checkbox';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
-import { SquaredButton } from 'ui/SquareButton';
-
-import { Cross1Icon, PlusIcon } from '@radix-ui/react-icons';
 import { Select } from 'ui/Select';
-import { Button } from 'ui/Button';
 import { Degree, DegreeLevel } from '@repo/dto';
+import { Textarea } from 'ui/Textarea';
 
 export type CandidateFormState = {
   candidateName: string;
@@ -21,7 +18,9 @@ export type CandidateFormState = {
   currentPosition?: string;
   experienceDescription: string;
   yearsOfExperience: number;
-  degree: Array<Partial<Degree>>;
+  degree?: Degree;
+  targetRole: string;
+  ambitions?: string;
 };
 
 interface CandidateFormProps {
@@ -74,12 +73,8 @@ export const candidateFormDefaultValues: CandidateFormState = {
   currentPosition: '',
   experienceDescription: '',
   yearsOfExperience: 1,
-  degree: [
-    {
-      level: undefined,
-      program: undefined,
-    },
-  ],
+  degree: undefined,
+  targetRole: '',
 };
 
 export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
@@ -92,6 +87,7 @@ export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
     });
 
     const unemployed = watch('unemployed');
+    const ungraduated = watch('ungraduated');
 
     return (
       <form ref={ref} onSubmit={handleSubmit(onSubmit)}>
@@ -99,10 +95,13 @@ export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
           <SectionTitle>Personal Information</SectionTitle>
           <FormRow>
             <FormCol>
-              <Label htmlFor="candidateName">Full Name</Label>
+              <Label htmlFor="candidateName">Full Name*</Label>
               <Controller
                 name="candidateName"
                 control={control}
+                rules={{
+                  required: 'Full name is required',
+                }}
                 render={({ field, fieldState }) => (
                   <Input
                     {...field}
@@ -113,10 +112,13 @@ export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
               />
             </FormCol>
             <FormCol>
-              <Label htmlFor="age">Age</Label>
+              <Label htmlFor="age">Age*</Label>
               <Controller
                 name="age"
                 control={control}
+                rules={{
+                  required: 'Age is required',
+                }}
                 render={({ field, fieldState }) => (
                   <Input
                     {...field}
@@ -129,10 +131,13 @@ export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
               />
             </FormCol>
           </FormRow>
-          <Label htmlFor="location">Placement Location</Label>
+          <Label htmlFor="location">Location*</Label>
           <Controller
             name="location"
             control={control}
+            rules={{
+              required: 'Location is required',
+            }}
             render={({ field, fieldState }) => (
               <Input
                 {...field}
@@ -162,10 +167,16 @@ export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
           </FormRow>
           <FormRow>
             <FormCol>
-              <Label htmlFor="currentEmployer">Current employer</Label>
+              <Label htmlFor="currentEmployer">Current employer*</Label>
               <Controller
                 name="currentEmployer"
                 control={control}
+                rules={{
+                  required: {
+                    value: !unemployed,
+                    message: 'Current employer is required',
+                  },
+                }}
                 render={({ field, fieldState }) => (
                   <Input
                     {...field}
@@ -177,10 +188,16 @@ export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
               />
             </FormCol>
             <FormCol>
-              <Label htmlFor="currentPosition">Current position</Label>
+              <Label htmlFor="currentPosition">Current position*</Label>
               <Controller
                 name="currentPosition"
                 control={control}
+                rules={{
+                  required: {
+                    value: !unemployed,
+                    message: 'Current position is required',
+                  },
+                }}
                 render={({ field, fieldState }) => (
                   <Input
                     {...field}
@@ -198,11 +215,14 @@ export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
           <FormRow>
             <FormCol>
               <Label htmlFor="experienceDescription">
-                Experience description
+                Experience description*
               </Label>
               <Controller
                 name="experienceDescription"
                 control={control}
+                rules={{
+                  required: 'Experience description is required',
+                }}
                 render={({ field, fieldState }) => (
                   <Input
                     {...field}
@@ -212,11 +232,18 @@ export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
                 )}
               />
             </FormCol>
-            <FormCol $width={120}>
-              <Label htmlFor="yearsOfExperience">Years of experience</Label>
+            <FormCol $width={130}>
+              <Label htmlFor="yearsOfExperience">Years of experience*</Label>
               <Controller
                 name="yearsOfExperience"
                 control={control}
+                rules={{
+                  required: 'Number of years is required',
+                  min: {
+                    value: 0,
+                    message: "Year of experience can't be negative",
+                  },
+                }}
                 render={({ field, fieldState }) => (
                   <Input
                     {...field}
@@ -231,11 +258,17 @@ export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
           </FormRow>
         </Section>
         <Section>
-          <SectionTitle>Education Information</SectionTitle>
+          <SectionTitle>Education Information*</SectionTitle>
           <FormRow>
             <Controller
               name="ungraduated"
               control={control}
+              rules={{
+                required: {
+                  value: !ungraduated,
+                  message: 'Select degree level',
+                },
+              }}
               render={({ field: { onChange, value, ...rest } }) => (
                 <Checkbox
                   {...rest}
@@ -249,53 +282,89 @@ export const CandidateForm = forwardRef<HTMLFormElement, CandidateFormProps>(
           <Controller
             name="degree"
             control={control}
+            rules={{
+              required: {
+                value: !ungraduated,
+                message: 'Name of the program is required',
+              },
+            }}
             render={({ field: { value, onChange } }) => {
-              const addEducationalOption = () => {
-                onChange([
-                  ...value,
-                  {
-                    level: undefined,
-                    program: undefined,
-                  },
-                ]);
-              };
-
-              const removeEducationalOptionByIndex = (index: number) => {
-                onChange(value.filter((_, idx) => idx !== index));
-              };
-
               return (
                 <>
-                  {value.map((el, idx) => (
-                    <FormRow key={el?.program ?? idx}>
-                      <FormCol $width={200}>
-                        <Select
-                          options={Object.values(DegreeLevel).map((el) => ({
-                            label: el,
-                            value: el,
-                          }))}
-                        />
-                      </FormCol>
-                      <FormCol>
-                        <Input placeholder="Name of the program" />
-                      </FormCol>
-                      {idx > 0 && (
-                        <FormCol $width={60}>
-                          <SquaredButton
-                            onClick={() => removeEducationalOptionByIndex(idx)}
-                            variant="outline"
-                            size="l"
-                          >
-                            <Cross1Icon />
-                          </SquaredButton>
-                        </FormCol>
-                      )}
-                    </FormRow>
-                  ))}
                   <FormRow>
-                    <Button onClick={addEducationalOption} variant="outline">
-                      Add degree <PlusIcon width={20} height={20} />
-                    </Button>
+                    <FormCol $width={200}>
+                      <Select
+                        selectedValues={value?.level ? [value.level] : []}
+                        onSelect={(selectedValue) => {
+                          onChange({
+                            ...value,
+                            level: selectedValue[0],
+                          });
+                        }}
+                        options={Object.values(DegreeLevel).map((el) => ({
+                          label: el,
+                          value: el,
+                        }))}
+                        disabled={ungraduated}
+                      />
+                    </FormCol>
+                    <FormCol>
+                      <Input
+                        value={value?.program}
+                        onChange={(e) => {
+                          onChange({
+                            ...value,
+                            program: e.target.value,
+                          });
+                        }}
+                        placeholder="Name of the program"
+                        disabled={ungraduated}
+                      />
+                    </FormCol>
+                  </FormRow>
+                </>
+              );
+            }}
+          />
+        </Section>
+        <Section>
+          <SectionTitle>Target role*</SectionTitle>
+          <Controller
+            name="targetRole"
+            control={control}
+            render={({ field: { value, onChange } }) => {
+              return (
+                <>
+                  <FormRow>
+                    <FormCol>
+                      <Input
+                        value={value}
+                        onChange={onChange}
+                        placeholder="Target role"
+                      />
+                    </FormCol>
+                  </FormRow>
+                </>
+              );
+            }}
+          />
+        </Section>
+        <Section>
+          <SectionTitle>Ambitions</SectionTitle>
+          <Controller
+            name="ambitions"
+            control={control}
+            render={({ field: { value, onChange } }) => {
+              return (
+                <>
+                  <FormRow>
+                    <FormCol>
+                      <Textarea
+                        value={value}
+                        onChange={onChange}
+                        placeholder="The candidate's career ambitions..."
+                      />
+                    </FormCol>
                   </FormRow>
                 </>
               );

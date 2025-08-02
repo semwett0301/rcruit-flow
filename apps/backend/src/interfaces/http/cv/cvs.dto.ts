@@ -77,7 +77,7 @@ export class ExtractCvDataResultDto implements ExtractCvDataResult {
 
   @ValidateIf((o) => !o.graduationStatus)
   @ApiPropertyOptional({ type: DegreeDto })
-  degree?: DegreeDto[];
+  degree?: DegreeDto;
 }
 
 export class ExtractCvDataDto implements ExtractCvDataRequest {

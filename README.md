@@ -21,3 +21,7 @@ This project includes a backend service, a PostgreSQL database, and S3-compatibl
 
 - **Provider**: [Cloudflare R2](https://dash.cloudflare.com/)
 - **Interface**: S3-compatible API
+
+
+# TO DO
+- [ ] Fix `pnpm dev` when it runs for the first time (`@repo/dto` isn't visible) 

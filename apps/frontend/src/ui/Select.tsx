@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
@@ -12,9 +12,10 @@ export type SelectOption<T extends string> = {
 export interface SelectProps<T extends string> {
   options: SelectOption<T>[];
   placeholder?: string;
-  onSelect?: (value: T) => void;
-  selectedValue?: T;
+  onSelect?: (value: T[]) => void;
+  selectedValues?: T[];
   multiple?: boolean;
+  disabled?: boolean;
 }
 
 interface SelectDropdownProps {
@@ -29,7 +30,11 @@ interface SelectHeaderProps {
   $isOpen: boolean;
 }
 
-const SelectContainer = styled.div`
+interface ContainerInterface {
+  $isDisabled: boolean;
+}
+
+const SelectContainer = styled.div<ContainerInterface>`
   position: relative;
 
   width: 100%;
@@ -37,9 +42,17 @@ const SelectContainer = styled.div`
 
   user-select: none;
 
-  ${({ theme }) => css`
+  cursor: pointer;
+
+  ${({ theme, $isDisabled }) => css`
     ${extractFontPreset('thirdHeading')(theme)}
     color: ${theme.colors.white};
+
+    ${$isDisabled &&
+    css`
+      opacity: 0.4;
+      cursor: not-allowed;
+    `}
   `};
 `;
 
@@ -57,11 +70,9 @@ const SelectHeader = styled.div<SelectHeaderProps>`
     padding: ${theme.spacing.s};
     border-radius: ${theme.radius.s};
 
-    border: 1px solid ${theme.colors.lighterBlue};
-    outline: ${$isOpen ? `1px solid ${theme.colors.lighterBlue}` : 'none'};
+    border: 0.5px solid ${theme.colors.lighterBlue};
+    outline: ${$isOpen ? `0.5px solid ${theme.colors.lighterBlue}` : 'none'};
   `}
-
-  cursor: pointer;
 `;
 
 const Dropdown = styled.div<SelectDropdownProps>`
@@ -163,18 +174,18 @@ export const Select = forwardRef<HTMLDivElement, SelectProps<string>>(
   <T extends string>(
     {
       options,
-      selectedValue,
+      onSelect,
+      disabled = false,
+      selectedValues = [],
       placeholder = 'Select',
       multiple = false,
     }: SelectProps<T>,
     ref: React.Ref<HTMLDivElement>,
   ) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selected, setSelected] = useState<T[]>(
-      selectedValue ? [selectedValue] : [],
-    );
+    const [selected, setSelected] = useState<T[]>(selectedValues);
 
-    const toggleOpen = () => setIsOpen(!isOpen);
+    const toggleOpen = () => setIsOpen(!isOpen && !disabled);
 
     const correctMultipleSelectedList = (option: T) => {
       if (!selected.includes(option)) {
@@ -205,8 +216,16 @@ export const Select = forwardRef<HTMLDivElement, SelectProps<string>>(
 
     const isAnyChosen = selected.length > 0;
 
+    useEffect(() => {
+      onSelect?.(selected);
+    }, [JSON.stringify(selected)]);
+
+    useEffect(() => {
+      setIsOpen(false);
+    }, [disabled]);
+
     return (
-      <SelectContainer ref={ref}>
+      <SelectContainer $isDisabled={disabled} ref={ref}>
         <SelectHeader $isOpen={isOpen} onClick={toggleOpen}>
           <HeaderLine $isAnyChosen={isAnyChosen}>
             {selected.length > 0 ? selected.join(', ') : placeholder}
