@@ -6,7 +6,6 @@ import {
 } from '@repo/dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsBoolean,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -22,10 +21,6 @@ export class CandidateFormDto
   extends ExtractCvDataResultDto
   implements CandidateForm
 {
-  @ApiProperty({ description: 'Is candidate unemployed?' })
-  @IsBoolean()
-  employmentStatus: boolean;
-
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -35,10 +30,6 @@ export class CandidateFormDto
   @IsString()
   @IsNotEmpty()
   contactName: string;
-
-  @ApiProperty({ description: 'Is candidate ungraduated?' })
-  @IsBoolean()
-  graduationStatus: boolean; // true = ungraduated
 
   @ApiProperty({ type: String })
   targetRole: string;
