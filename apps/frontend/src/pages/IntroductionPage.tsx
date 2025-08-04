@@ -55,14 +55,12 @@ type GlobalFormState = {
 };
 
 interface IntroductionFormState extends GlobalFormState {
-  cv_upload?: CvUploadFormState;
-  candidate_information?: CandidateFormState;
+  cvUpload?: CvUploadFormState;
+  candidateInformation?: CandidateFormState;
 }
 
 export const IntroductionPage = () => {
-  const [currentStep, setCurrentStep] = useState<StepKey>(
-    'candidateInformation',
-  );
+  const [currentStep, setCurrentStep] = useState<StepKey>('cvUpload');
 
   const [introductionFormState, setIntroductionFormState] =
     useState<IntroductionFormState>({});
@@ -77,7 +75,7 @@ export const IntroductionPage = () => {
       step: 1,
       title: 'CV upload',
       onNext: () => {
-        const fileId = introductionFormState.cv_upload?.fileId;
+        const fileId = introductionFormState.cvUpload?.fileId;
 
         if (fileId) {
           cvsExtract(
@@ -88,9 +86,9 @@ export const IntroductionPage = () => {
               onSuccess: (result) => {
                 setIntroductionFormState({
                   ...introductionFormState,
-                  candidate_information: {
+                  candidateInformation: {
                     ...candidateFormDefaultValues,
-                    ...introductionFormState.candidate_information,
+                    ...introductionFormState.candidateInformation,
                     ...result.data,
                     unemployed:
                       !result.data.currentEmployer ||
@@ -109,12 +107,12 @@ export const IntroductionPage = () => {
       },
       BodyComponent: (
         <CvUploadForm
-          defaultValue={introductionFormState.cv_upload}
+          defaultValue={introductionFormState.cvUpload}
           onSubmit={(state) =>
             state
               ? setIntroductionFormState({
                   ...introductionFormState,
-                  cv_upload: state,
+                  cvUpload: state,
                 })
               : setIntroductionFormState({})
           }
@@ -126,14 +124,20 @@ export const IntroductionPage = () => {
       step: 2,
       title: 'Candidate Information',
       onNext: () => {
-        console.log('Next');
         candidateFormRef.current?.submitForm();
       },
       BodyComponent: (
         <CandidateForm
           ref={candidateFormRef}
-          defaultValues={introductionFormState.candidate_information}
-          onSubmit={() => {}}
+          defaultValues={introductionFormState.candidateInformation}
+          onSubmit={(formValue) => {
+            setIntroductionFormState({
+              ...introductionFormState,
+              candidateInformation: formValue,
+            });
+
+            setCurrentStep('jobDescription');
+          }}
         />
       ),
       enableNext: true,

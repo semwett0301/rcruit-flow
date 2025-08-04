@@ -570,15 +570,15 @@ export const CandidateForm = forwardRef<
               rules={{
                 required: 'Gross salary is required',
                 min: {
-                  value: 0,
-                  message: "Gross salary can't be negative",
+                  value: 1,
+                  message: "Gross salary can't be negative or 0",
                 },
               }}
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
                   type="number"
-                  min={0}
+                  min={1}
                   placeholder="Gross salary"
                   error={fieldState.error?.message}
                 />
