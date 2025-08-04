@@ -13,6 +13,10 @@ import {
   CandidateFormHandles,
   CandidateFormState,
 } from 'forms/CandidateForm';
+import {
+  JobDescriptionForm,
+  JobDescriptionFormState,
+} from 'forms/JobDescriptionForm';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -57,10 +61,11 @@ type GlobalFormState = {
 interface IntroductionFormState extends GlobalFormState {
   cvUpload?: CvUploadFormState;
   candidateInformation?: CandidateFormState;
+  jobDescription?: JobDescriptionFormState;
 }
 
 export const IntroductionPage = () => {
-  const [currentStep, setCurrentStep] = useState<StepKey>('cvUpload');
+  const [currentStep, setCurrentStep] = useState<StepKey>('jobDescription');
 
   const [introductionFormState, setIntroductionFormState] =
     useState<IntroductionFormState>({});
@@ -68,6 +73,7 @@ export const IntroductionPage = () => {
   const { mutate: cvsExtract } = useCvsExtract();
 
   const candidateFormRef = useRef<CandidateFormHandles>(null);
+  const jobDescFormRef = useRef<CandidateFormHandles>(null);
 
   const flowSteps: [FlowStepConfig, ...FlowStepConfig[]] = [
     {
@@ -147,9 +153,23 @@ export const IntroductionPage = () => {
       step: 3,
       title: 'Job Description',
       onNext: () => {
-        console.log('Proceed to Step 2');
+        jobDescFormRef.current?.submitForm();
       },
-      BodyComponent: <div />,
+      BodyComponent: (
+        <JobDescriptionForm
+          ref={jobDescFormRef}
+          defaultValues={introductionFormState.jobDescription}
+          onSubmit={(formValue) => {
+            setIntroductionFormState({
+              ...introductionFormState,
+              jobDescription: formValue,
+            });
+
+            setCurrentStep('emailGeneration');
+          }}
+        />
+      ),
+      enableNext: true,
     },
     {
       key: 'emailGeneration',

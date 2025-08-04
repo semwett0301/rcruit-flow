@@ -1,9 +1,7 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
-import styled, { css } from 'styled-components';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { Input } from 'ui/Input';
 import { Checkbox } from 'ui/Checkbox';
-import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { Select } from 'ui/Select';
 import {
   Degree,
@@ -19,6 +17,13 @@ import { SwitchOption } from 'types/ui/SwitchOption';
 import { PlusIcon } from '@radix-ui/react-icons';
 import { RowContainer } from 'containers/RowContainer';
 import { SkillChip } from 'ui/SkillChip';
+import {
+  FormCol,
+  FormRow,
+  Label,
+  Section,
+  SectionTitle,
+} from 'ui/FormElements';
 
 export type CandidateFormHandles = {
   submitForm: () => void;
@@ -50,57 +55,6 @@ interface CandidateFormProps {
   defaultValues?: Partial<CandidateFormState>;
   onSubmit: SubmitHandler<CandidateFormState>;
 }
-
-interface FormColProps {
-  $width?: number;
-  $gap?: number;
-}
-
-const Section = styled.section`
-  margin-bottom: ${({ theme }) => theme.spacing.xl};
-`;
-
-const SectionTitle = styled.h2`
-  ${({ theme }) => extractFontPreset('secondHeading')(theme)};
-  color: ${({ theme }) => theme.colors.white};
-  margin-bottom: ${({ theme }) => theme.spacing.s};
-`;
-
-const Label = styled.label`
-  display: block;
-
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
-  color: ${({ theme }) => theme.colors.white};
-  ${({ theme }) => extractFontPreset('regularBold')(theme)};
-`;
-
-const FormRow = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing.s};
-  margin-bottom: ${({ theme }) => theme.spacing.s};
-`;
-
-export const FormCol = styled.div<FormColProps>`
-  display: flex;
-  flex-direction: column;
-
-  ${({ $width }) =>
-    $width !== undefined
-      ? css`
-          flex: 0 0 auto;
-          width: min(${$width}px, 100%);
-        `
-      : css`
-          flex: 1 1 0;
-          width: 100%;
-        `};
-
-  ${({ $gap }) =>
-    !!$gap &&
-    css`
-      gap: ${$gap}px;
-    `}
-`;
 
 export const candidateFormDefaultValues: CandidateFormState = {
   candidateName: '',
