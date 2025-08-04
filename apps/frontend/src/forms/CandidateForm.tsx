@@ -9,6 +9,7 @@ import {
   Degree,
   DegreeLevel,
   SalaryPeriod,
+  TravelModeEnum,
   WEEK_HOURS,
   WeekHours,
 } from '@repo/dto';
@@ -36,6 +37,9 @@ export type CandidateFormState = {
   salaryPeriod: SalaryPeriod;
   grossSalary: number;
   hoursAWeek: WeekHours;
+  travelMode?: TravelModeEnum;
+  minutesOfRoad?: number;
+  onSiteDays?: number;
 };
 
 interface CandidateFormProps {
@@ -405,6 +409,79 @@ export const CandidateForm = forwardRef<
             );
           }}
         />
+      </Section>
+      <Section>
+        <SectionTitle>Travel information</SectionTitle>
+        <FormRow>
+          <FormCol>
+            <Label htmlFor="travelMode">Travel mode</Label>
+            <Controller
+              name="travelMode"
+              control={control}
+              render={({ field: { value, onChange }, fieldState }) => {
+                return (
+                  <Select<TravelModeEnum>
+                    selectedValues={value ? [value] : []}
+                    onSelect={(selectedValue) => {
+                      onChange(selectedValue[0]);
+                    }}
+                    options={Object.values(TravelModeEnum).map((el) => ({
+                      label: `${el}`,
+                      value: el,
+                    }))}
+                    error={fieldState.error?.message}
+                  />
+                );
+              }}
+            />
+          </FormCol>
+        </FormRow>
+        <FormRow>
+          <FormCol>
+            <Label htmlFor="minutesOfRoad">Minutes of road</Label>
+            <Controller
+              name="minutesOfRoad"
+              control={control}
+              rules={{
+                min: { value: 0, message: 'Minimum is 0' },
+              }}
+              render={({ field, fieldState: { error } }) => (
+                <div>
+                  <Input
+                    type="number"
+                    min={0}
+                    placeholder="Enter minutes of road"
+                    error={error?.message}
+                    {...field}
+                  />
+                </div>
+              )}
+            />
+          </FormCol>
+          <FormCol>
+            <Label htmlFor="onSiteDays">On-site days</Label>
+            <Controller
+              name="onSiteDays"
+              control={control}
+              rules={{
+                min: { value: 0, message: 'Minimum is 0' },
+                max: { value: 5, message: 'Maximum is 5' },
+              }}
+              render={({ field, fieldState: { error } }) => (
+                <div>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={5}
+                    placeholder="Enter on-site days"
+                    error={error?.message}
+                    {...field}
+                  />
+                </div>
+              )}
+            />
+          </FormCol>
+        </FormRow>
       </Section>
       <Section>
         <SectionTitle>Salary Information</SectionTitle>
