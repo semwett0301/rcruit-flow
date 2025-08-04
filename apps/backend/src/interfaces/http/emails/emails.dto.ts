@@ -6,8 +6,6 @@ import {
 } from '@repo/dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  ArrayMinSize,
-  IsArray,
   IsBoolean,
   IsEnum,
   IsInt,
