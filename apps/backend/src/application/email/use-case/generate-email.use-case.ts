@@ -51,10 +51,10 @@ export class GenerateEmailUseCase {
 
   #getTravelClause(
     travelMode: string | undefined,
-    minutesOfRoad: number[] | undefined,
+    minutesOfRoad: number | undefined,
   ): string {
     return travelMode
-      ? `willing to commute up to ${Math.max(...(minutesOfRoad ?? [0]))} minutes by ${travelMode}.`
+      ? `willing to commute up to ${minutesOfRoad ?? 0} minutes by ${travelMode}.`
       : '';
   }
 }

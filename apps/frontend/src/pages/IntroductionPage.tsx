@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState } from 'react';
+import { ReactNode, useCallback, useRef, useState } from 'react';
 import { FlowGridContainer } from 'containers/FlowGridContainer';
 import styled from 'styled-components';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
@@ -17,6 +17,12 @@ import {
   JobDescriptionForm,
   JobDescriptionFormState,
 } from 'forms/JobDescriptionForm';
+import {
+  EmailGenerationForm,
+  EmailGenerationFormState,
+} from 'forms/EmailGenerationForm';
+import { useEmailsGenerate } from 'queries/api/emails/emailsGenerate';
+import { copyToClipboard } from 'utils/copyToClipboard';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -49,7 +55,7 @@ type FlowStepConfig = {
   key: StepKey;
   step: number;
   title: string;
-  onNext: () => void;
+  onNext?: () => void;
   BodyComponent: ReactNode;
   enableNext?: boolean;
 };
@@ -62,18 +68,59 @@ interface IntroductionFormState extends GlobalFormState {
   cvUpload?: CvUploadFormState;
   candidateInformation?: CandidateFormState;
   jobDescription?: JobDescriptionFormState;
+  emailGeneration?: EmailGenerationFormState;
 }
 
 export const IntroductionPage = () => {
-  const [currentStep, setCurrentStep] = useState<StepKey>('jobDescription');
+  const [currentStep, setCurrentStep] = useState<StepKey>('cvUpload');
 
   const [introductionFormState, setIntroductionFormState] =
     useState<IntroductionFormState>({});
 
   const { mutate: cvsExtract } = useCvsExtract();
 
+  const { mutate: emailGenerate } = useEmailsGenerate();
+
   const candidateFormRef = useRef<CandidateFormHandles>(null);
   const jobDescFormRef = useRef<CandidateFormHandles>(null);
+
+  const generateEmail = useCallback(
+    (formValue: JobDescriptionFormState) => {
+      if (introductionFormState.candidateInformation) {
+        const candidateInfo = introductionFormState.candidateInformation;
+
+        const generateData = {
+          ...formValue,
+          ...candidateInfo,
+          // TODO fix with authorisation
+          recruiterName: 'Maxim',
+        };
+
+        if (candidateInfo.ungraduated) {
+          generateData.degree = undefined;
+        }
+
+        if (candidateInfo.unemployed) {
+          generateData.currentEmployer = undefined;
+          generateData.currentPosition = undefined;
+        }
+
+        emailGenerate(generateData, {
+          onSuccess: (emailResponse) => {
+            setIntroductionFormState({
+              ...introductionFormState,
+              jobDescription: formValue,
+              emailGeneration: {
+                message: emailResponse.data.email,
+              },
+            });
+            setCurrentStep('emailGeneration');
+          },
+        });
+      }
+    },
+    [JSON.stringify(introductionFormState), emailGenerate],
+  );
 
   const flowSteps: [FlowStepConfig, ...FlowStepConfig[]] = [
     {
@@ -159,14 +206,7 @@ export const IntroductionPage = () => {
         <JobDescriptionForm
           ref={jobDescFormRef}
           defaultValues={introductionFormState.jobDescription}
-          onSubmit={(formValue) => {
-            setIntroductionFormState({
-              ...introductionFormState,
-              jobDescription: formValue,
-            });
-
-            setCurrentStep('emailGeneration');
-          }}
+          onSubmit={(formValue) => generateEmail(formValue)}
         />
       ),
       enableNext: true,
@@ -175,10 +215,24 @@ export const IntroductionPage = () => {
       key: 'emailGeneration',
       step: 4,
       title: 'Email Generation',
-      onNext: () => {
-        console.log('Proceed to Step 2');
-      },
-      BodyComponent: <div />,
+      BodyComponent: (
+        <EmailGenerationForm
+          state={introductionFormState.emailGeneration}
+          onCopy={copyToClipboard}
+          onChange={(message) => {
+            setIntroductionFormState({
+              ...introductionFormState,
+              emailGeneration: {
+                message,
+              },
+            });
+          }}
+          onGenerate={() => {
+            if (introductionFormState.jobDescription)
+              generateEmail(introductionFormState.jobDescription);
+          }}
+        />
+      ),
     },
   ];
 

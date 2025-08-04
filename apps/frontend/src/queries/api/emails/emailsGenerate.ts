@@ -5,7 +5,7 @@ import { EmailResponse, CandidateForm } from '@repo/dto';
 export const EMAILS_GENERATE_ENDPOINT = 'emails/generate';
 
 const emailsGenerateApi = async (body: CandidateForm) => {
-  await axios.post<EmailResponse>(EMAILS_GENERATE_ENDPOINT, body);
+  return await axios.post<EmailResponse>(EMAILS_GENERATE_ENDPOINT, body);
 };
 
 export const useEmailsGenerate = () =>

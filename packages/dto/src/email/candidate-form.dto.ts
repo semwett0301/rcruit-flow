@@ -3,12 +3,10 @@ import { ExtractCvDataResult } from '../cv/exctract-cv-data-result.dto';
 import { WeekHours } from '../enum/weekHours';
 
 export interface CandidateForm extends ExtractCvDataResult {
-  employmentStatus: boolean;
   recruiterName: string;
   contactName: string;
-  graduationStatus: boolean;
 
-  targetRoles: string[];
+  targetRole: string;
   ambitions?: string;
 
   travelMode?: TravelModeEnum;

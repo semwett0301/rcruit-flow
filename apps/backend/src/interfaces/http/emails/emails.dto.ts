@@ -42,10 +42,8 @@ export class CandidateFormDto
   @IsBoolean()
   graduationStatus: boolean; // true = ungraduated
 
-  @ApiProperty({ type: [String] })
-  @IsArray()
-  @ArrayMinSize(1)
-  targetRoles: string[];
+  @ApiProperty({ type: String })
+  targetRole: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -57,22 +55,18 @@ export class CandidateFormDto
   travelMode?: TravelModeEnum;
 
   @ValidateIf((o) => !!o.travelMode)
-  @ApiPropertyOptional({ type: [Number] })
-  @IsArray()
-  @ArrayMinSize(1)
+  @ApiPropertyOptional({ type: Number })
   @Type(() => Number)
-  @IsInt({ each: true })
-  @Min(1, { each: true })
-  minutesOfRoad?: number[];
+  @IsInt()
+  @Min(0)
+  minutesOfRoad?: number;
 
   @ValidateIf((o) => !!o.travelMode)
-  @ApiPropertyOptional({ type: [Number] })
-  @IsArray()
-  @ArrayMinSize(1)
+  @ApiPropertyOptional({ type: Number })
   @Type(() => Number)
-  @IsInt({ each: true })
-  @Min(1, { each: true })
-  onSiteDays?: number[];
+  @IsInt()
+  @Min(1)
+  onSiteDays?: number;
 
   @ApiProperty({ minimum: 1 })
   @Type(() => Number)

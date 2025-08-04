@@ -6,9 +6,14 @@ const TextareaWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xs};
+
+  height: 100%;
 `;
 
-const CustomTextarea = styled.textarea<{ $error: boolean }>`
+const CustomTextarea = styled.textarea<{
+  $error: boolean;
+  $height?: number | string;
+}>`
   width: 100%;
   background: transparent;
 
@@ -23,7 +28,7 @@ const CustomTextarea = styled.textarea<{ $error: boolean }>`
   outline: none;
   resize: none;
 
-  height: 200px;
+  height: ${({ $height }) => $height ?? '200px'};
 
   &:focus {
     outline: 0.5px solid ${({ theme }) => theme.colors.white};
@@ -67,15 +72,16 @@ const ErrorMessage = styled.div`
 type CurrentTextareaProps =
   React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
     error?: string;
+    height?: number | string;
   };
 
 export const Textarea = React.forwardRef<
   HTMLTextAreaElement,
   CurrentTextareaProps
->(({ error, ...props }, ref) => {
+>(({ error, height, ...props }, ref) => {
   return (
     <TextareaWrapper>
-      <CustomTextarea $error={!!error} ref={ref} {...props} />
+      <CustomTextarea $height={height} $error={!!error} ref={ref} {...props} />
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </TextareaWrapper>
   );

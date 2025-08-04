@@ -39,7 +39,7 @@ export type CandidateFormState = {
   currentPosition?: string;
   experienceDescription: string;
   yearsOfExperience: number;
-  degree?: Partial<Degree>;
+  degree?: Degree;
   targetRole: string;
   ambitions?: string;
   salaryPeriod: SalaryPeriod;
