@@ -3,6 +3,8 @@ import styled, { css } from 'styled-components';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 
 const InputWrapper = styled.div`
+  position: relative;
+
   display: flex;
   flex-direction: column;
 
@@ -67,15 +69,32 @@ const ErrorMessage = styled.div`
   `}
 `;
 
+const RightIconWrapper = styled.div`
+  position: absolute;
+  cursor: pointer;
+
+  ${({ theme }) => css`
+    width: ${theme.spacing.s};
+    height: ${theme.spacing.s};
+
+    top: calc(50% - 10px);
+
+    right: ${theme.spacing.s};
+    color: ${theme.colors.white};
+  `}
+`;
+
 type CurrentInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   error?: string;
+  rightIcon?: React.ReactNode;
 };
 
 export const Input = React.forwardRef<HTMLInputElement, CurrentInputProps>(
-  ({ error, ...props }, ref) => {
+  ({ error, rightIcon, ...props }, ref) => {
     return (
       <InputWrapper>
         <CustomInput $error={!!error} ref={ref} {...props} />
+        {rightIcon && <RightIconWrapper>{rightIcon}</RightIconWrapper>}
         {error && <ErrorMessage>{error}</ErrorMessage>}
       </InputWrapper>
     );

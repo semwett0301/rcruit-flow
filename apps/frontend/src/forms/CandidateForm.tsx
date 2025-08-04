@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import styled, { css } from 'styled-components';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { Input } from 'ui/Input';
@@ -16,6 +16,9 @@ import {
 import { Textarea } from 'ui/Textarea';
 import { Switch } from 'ui/Switch';
 import { SwitchOption } from 'types/ui/SwitchOption';
+import { PlusIcon } from '@radix-ui/react-icons';
+import { RowContainer } from 'containers/RowContainer';
+import { SkillChip } from 'ui/SkillChip';
 
 export type CandidateFormHandles = {
   submitForm: () => void;
@@ -37,6 +40,7 @@ export type CandidateFormState = {
   salaryPeriod: SalaryPeriod;
   grossSalary: number;
   hoursAWeek: WeekHours;
+  hardSkills: string[];
   travelMode?: TravelModeEnum;
   minutesOfRoad?: number;
   onSiteDays?: number;
@@ -113,6 +117,7 @@ export const candidateFormDefaultValues: CandidateFormState = {
   salaryPeriod: SalaryPeriod.YEAR,
   grossSalary: 0,
   hoursAWeek: 8,
+  hardSkills: [],
 };
 
 const salaryPeriodValues = Object.values(SalaryPeriod);
@@ -132,15 +137,30 @@ export const CandidateForm = forwardRef<
   CandidateFormHandles,
   CandidateFormProps
 >(({ defaultValues, onSubmit }, ref) => {
-  const { control, handleSubmit, watch } = useForm<CandidateFormState>({
-    defaultValues: {
-      ...candidateFormDefaultValues,
-      ...defaultValues,
-    },
-  });
+  const { control, handleSubmit, setValue, watch } =
+    useForm<CandidateFormState>({
+      defaultValues: {
+        ...candidateFormDefaultValues,
+        ...defaultValues,
+      },
+    });
 
   const unemployed = watch('unemployed');
   const ungraduated = watch('ungraduated');
+
+  const hardSkillsInputRef = useRef<HTMLInputElement>(null);
+  const hardSkills = watch('hardSkills');
+
+  const addHardSkill = (newHard: string) => {
+    if (!hardSkills.includes(newHard))
+      setValue('hardSkills', [...hardSkills, newHard]);
+  };
+
+  const removeHardSkill = (oldHard: string) => {
+    const updatedSkills = hardSkills.filter((skill) => skill !== oldHard);
+
+    setValue('hardSkills', updatedSkills);
+  };
 
   useImperativeHandle(ref, () => ({
     submitForm: handleSubmit(onSubmit),
@@ -384,6 +404,48 @@ export const CandidateForm = forwardRef<
             }}
           />
         </FormRow>
+      </Section>
+      <Section>
+        <SectionTitle>Hard skills</SectionTitle>
+        {!!hardSkills.length && (
+          <FormRow>
+            <RowContainer>
+              {hardSkills.map((hard) => (
+                <SkillChip
+                  key={hard}
+                  value={hard}
+                  onRemove={() => removeHardSkill(hard)}
+                />
+              ))}
+            </RowContainer>
+          </FormRow>
+        )}
+        <FormCol>
+          <Input
+            ref={hardSkillsInputRef}
+            placeholder="Add skill"
+            rightIcon={
+              <PlusIcon
+                width="100%"
+                height="100%"
+                onClick={() => {
+                  const value = hardSkillsInputRef.current?.value;
+
+                  if (value) addHardSkill(value);
+                }}
+              />
+            }
+            onKeyDown={(e) => {
+              const value = e.currentTarget.value;
+
+              if (e.key === 'Enter' && value) {
+                e.preventDefault();
+
+                addHardSkill(value);
+              }
+            }}
+          />
+        </FormCol>
       </Section>
       <Section>
         <SectionTitle>Target role*</SectionTitle>
