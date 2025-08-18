@@ -570,7 +570,7 @@ export const CandidateForm = forwardRef<
         </FormRow>
       </Section>
       <Section>
-        <SectionTitle>Ambitions</SectionTitle>
+        <SectionTitle>Extra context</SectionTitle>
         <Controller
           name="ambitions"
           control={control}
@@ -579,10 +579,7 @@ export const CandidateForm = forwardRef<
               <>
                 <FormRow>
                   <FormCol>
-                    <Textarea
-                      {...field}
-                      placeholder="The candidate's career ambitions..."
-                    />
+                    <Textarea {...field} placeholder="Any extra context..." />
                   </FormCol>
                 </FormRow>
               </>

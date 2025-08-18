@@ -13,6 +13,9 @@ import {
   FileIcon,
 } from '@radix-ui/react-icons';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
+import { show, useModal } from '@ebay/nice-modal-react';
+import { SimpleModal } from 'modals/SimpleModal';
+import { AuthBodyModal } from 'modals/body/AuthBodyModal';
 
 type OpenProps = { $isOpen: boolean };
 
@@ -159,7 +162,13 @@ const SocialLink = styled.a`
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(true);
-  const [isContentVisible, setIsContentVisible] = useState(true); // контролирует отрисовку содержимого
+  const [isContentVisible, setIsContentVisible] = useState(true);
+
+  const openProfileModal = () => {
+    show(SimpleModal, {
+      body: <AuthBodyModal />,
+    });
+  };
 
   useLayoutEffect(() => {
     let timeout: NodeJS.Timeout;
@@ -210,7 +219,7 @@ export const Navbar = () => {
 
       {isContentVisible && isOpen && (
         <BottomSection>
-          <Button variant="outline">
+          <Button onClick={openProfileModal} variant="outline">
             <AvatarIcon width={20} height={20} />
             <div>Profile</div>
           </Button>

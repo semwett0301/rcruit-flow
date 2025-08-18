@@ -23,6 +23,7 @@ import {
 } from 'forms/EmailGenerationForm';
 import { useEmailsGenerate } from 'queries/api/emails/emailsGenerate';
 import { copyToClipboard } from 'utils/copyToClipboard';
+import { useAuth } from 'hooks/useAuth';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -74,6 +75,8 @@ interface IntroductionFormState extends GlobalFormState {
 export const IntroductionPage = () => {
   const [currentStep, setCurrentStep] = useState<StepKey>('cvUpload');
 
+  const { getUser } = useAuth();
+
   const [introductionFormState, setIntroductionFormState] =
     useState<IntroductionFormState>({});
 
@@ -89,11 +92,13 @@ export const IntroductionPage = () => {
       if (introductionFormState.candidateInformation) {
         const candidateInfo = introductionFormState.candidateInformation;
 
+        const currentUser = getUser();
+
         const generateData = {
           ...formValue,
           ...candidateInfo,
           // TODO fix with authorisation
-          recruiterName: 'Maxim',
+          recruiterName: currentUser.name,
         };
 
         if (candidateInfo.ungraduated) {
@@ -114,6 +119,7 @@ export const IntroductionPage = () => {
                 message: emailResponse.data.email,
               },
             });
+
             setCurrentStep('emailGeneration');
           },
         });

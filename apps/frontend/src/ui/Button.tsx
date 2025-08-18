@@ -26,6 +26,7 @@ const baseButton = css`
   height: 40px;
 
   cursor: pointer;
+  user-select: none;
 
   border: 1px solid ${({ theme }) => theme.colors.white};
   *,
@@ -36,6 +37,10 @@ const baseButton = css`
 
 const fullWidthStyles = css`
   width: 100%;
+`;
+
+const centralStyles = css`
+  justify-content: center;
 `;
 
 const variantStyles: Record<ButtonVariant, ReturnType<typeof css>> = {
@@ -101,10 +106,12 @@ const variantStyles: Record<ButtonVariant, ReturnType<typeof css>> = {
 
 const StyledButton = styled.button<{
   $variant: ButtonVariant;
+  $central: boolean;
   $fullWidth: boolean;
 }>`
   ${baseButton}
   ${({ $fullWidth }) => $fullWidth && fullWidthStyles}
+  ${({ $central }) => $central && centralStyles}
   ${({ $variant }) => variantStyles[$variant]}
 `;
 
@@ -118,6 +125,7 @@ export const Button = ({
 }: ButtonProps) => (
   <StyledButton
     $variant={props.disabled ? 'disabled' : variant}
+    $central={!leftIcon && !rightIcon}
     $fullWidth={fullWidth}
     disabled={props.disabled}
     {...props}

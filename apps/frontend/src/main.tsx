@@ -9,6 +9,7 @@ import { ToastContainer } from 'react-toastify';
 import { QueryClientProvider } from '@tanstack/react-query';
 
 import './config/axiosConfig';
+import NiceModal from '@ebay/nice-modal-react';
 
 const container = document.getElementById('root');
 
@@ -17,10 +18,12 @@ if (container) {
 
   root.render(
     <ThemeProvider theme={blueTheme}>
-      <ToastContainer />
-      <GlobalStyle />
       <QueryClientProvider client={queryClient}>
-        <App />
+        <NiceModal.Provider>
+          <ToastContainer />
+          <GlobalStyle />
+          <App />
+        </NiceModal.Provider>
       </QueryClientProvider>
     </ThemeProvider>,
   );

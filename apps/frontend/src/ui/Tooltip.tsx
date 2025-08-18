@@ -16,8 +16,8 @@ const TooltipContainer = styled.div`
 `;
 
 interface TooltipBoxProps {
-  visible: boolean;
-  onScreen: boolean;
+  $visible: boolean;
+  $onScreen: boolean;
 }
 
 const TooltipBox = styled.div<TooltipBoxProps>`
@@ -27,10 +27,10 @@ const TooltipBox = styled.div<TooltipBoxProps>`
 
   min-width: 200px;
 
-  ${({ theme, visible, onScreen }) => css`
-    opacity: ${visible ? 1 : 0};
+  ${({ theme, $visible, $onScreen }) => css`
+    opacity: ${$visible ? 1 : 0};
 
-    display: ${onScreen ? 'block' : 'none'};
+    display: ${$onScreen ? 'block' : 'none'};
 
     top: ${theme.spacing.l};
     right: -${theme.spacing.xs};
@@ -110,7 +110,7 @@ export const Tooltip = ({
       >
         {children}
       </TooltipChildrenWrapper>
-      <TooltipBox onScreen={isOnScreen} visible={isVisible}>
+      <TooltipBox $onScreen={isOnScreen} $visible={isVisible}>
         {content}
       </TooltipBox>
     </TooltipContainer>
