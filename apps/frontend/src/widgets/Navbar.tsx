@@ -13,7 +13,7 @@ import {
   FileIcon,
 } from '@radix-ui/react-icons';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
-import { show, useModal } from '@ebay/nice-modal-react';
+import { show } from '@ebay/nice-modal-react';
 import { SimpleModal } from 'modals/SimpleModal';
 import { AuthBodyModal } from 'modals/body/AuthBodyModal';
 
