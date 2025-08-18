@@ -1,68 +1,91 @@
-// import styled, { css } from 'styled-components';
-// import { extractFontPreset } from 'theme/utils/extractFontPreset';
-// import { AuthForm, AuthFormState } from 'forms/AuthForm';
-// import { useAuth } from 'hooks/useAuth';
-// import { useEffect, useState } from 'react';
-// import { remove } from '@ebay/nice-modal-react';
-// import { SimpleModal } from 'modals/SimpleModal';
-//
-// const BodyModal = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//
-//   width: 340px;
-//
-//   gap: ${({ theme }) => theme.spacing.m};
-// `;
-//
-// const TitleContainer = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   align-items: center;
-//
-//   ${({ theme }) => css`
-//     gap: ${theme.spacing.xs};
-//
-//     padding: 0 ${theme.spacing.s};
-//
-//     color: ${theme.colors.white};
-//   `}
-// `;
-//
-// const AuthHeader = styled.h1`
-//   ${({ theme }) => extractFontPreset('firstHeading')(theme)}
-// `;
-//
-// const AuthText = styled.p`
-//   text-align: center;
-//   ${({ theme }) => extractFontPreset('regular')(theme)}
-// `;
-//
-// export const ResetBodyModal = () => {
-//   const { getUser, registerUser } = useAuth();
-//   const [user, setUser] = useState<Partial<AuthFormState>>();
-//
-//   useEffect(() => {
-//     setUser(getUser());
-//   }, []);
-//
-//   return (
-//     <BodyModal>
-//       <TitleContainer>
-//         <AuthHeader>Enter user details</AuthHeader>
-//         <AuthText>
-//           Share your details for a personalised experience and secure your
-//           information.
-//         </AuthText>
-//       </TitleContainer>
-//       <AuthForm
-//         values={user}
-//         onSubmit={(newUserData) => {
-//           registerUser(newUserData);
-//           setUser(newUserData);
-//           remove(SimpleModal);
-//         }}
-//       />
-//     </BodyModal>
-//   );
-// };
+import styled, { css } from 'styled-components';
+import { extractFontPreset } from 'theme/utils/extractFontPreset';
+import { remove } from '@ebay/nice-modal-react';
+import { ExclamationTriangleIcon, LoopIcon } from '@radix-ui/react-icons';
+import { Button } from 'ui/Button';
+import { SimpleModal } from 'modals/SimpleModal';
+
+interface ResetBodyModalProps {
+  onReset: () => void;
+}
+
+const BodyModal = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  width: 340px;
+
+  gap: ${({ theme }) => theme.spacing.l};
+`;
+
+const TitleContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  ${({ theme }) => css`
+    gap: ${theme.spacing.s};
+
+    color: ${theme.colors.white};
+  `}
+`;
+
+const AlertContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: ${({ theme }) => theme.spacing.s};
+`;
+
+const ResetHeader = styled.h1`
+  width: 270px;
+  ${({ theme }) => extractFontPreset('secondHeading')(theme)}
+`;
+
+const ResetText = styled.p`
+  ${({ theme }) => extractFontPreset('regular')(theme)}
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing.s};
+`;
+
+export const ResetBodyModal = ({ onReset }: ResetBodyModalProps) => {
+  const onContinue = () => {
+    remove(SimpleModal);
+  };
+
+  const resetFunction = () => {
+    onReset?.();
+    onContinue();
+  };
+
+  return (
+    <BodyModal>
+      <TitleContainer>
+        <AlertContainer>
+          <ExclamationTriangleIcon width={50} height={50} />
+          <ResetHeader>Are you sure you want to start over?</ResetHeader>
+        </AlertContainer>
+        <ResetText>
+          Please be aware that proceeding will result in the file being reset
+          and all data will be permanently deleted.
+        </ResetText>
+      </TitleContainer>
+      <ButtonContainer>
+        <Button
+          fullWidth
+          onClick={resetFunction}
+          type="reset"
+          variant="outline"
+        >
+          Reset <LoopIcon width={20} height={20} />
+        </Button>
+        <Button fullWidth onClick={onContinue}>
+          Continue
+        </Button>
+      </ButtonContainer>
+    </BodyModal>
+  );
+};

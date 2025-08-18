@@ -24,6 +24,9 @@ import {
 import { useEmailsGenerate } from 'queries/api/emails/emailsGenerate';
 import { copyToClipboard } from 'utils/copyToClipboard';
 import { useAuth } from 'hooks/useAuth';
+import { show } from '@ebay/nice-modal-react';
+import { SimpleModal } from 'modals/SimpleModal';
+import { ResetBodyModal } from 'modals/body/ResetBodyModal';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -87,6 +90,19 @@ export const IntroductionPage = () => {
   const candidateFormRef = useRef<CandidateFormHandles>(null);
   const jobDescFormRef = useRef<CandidateFormHandles>(null);
 
+  const onReset = useCallback(() => {
+    show(SimpleModal, {
+      body: (
+        <ResetBodyModal
+          onReset={() => {
+            setIntroductionFormState({});
+            setCurrentStep('cvUpload');
+          }}
+        />
+      ),
+    });
+  }, []);
+
   const generateEmail = useCallback(
     (formValue: JobDescriptionFormState) => {
       if (introductionFormState.candidateInformation) {
@@ -97,7 +113,6 @@ export const IntroductionPage = () => {
         const generateData = {
           ...formValue,
           ...candidateInfo,
-          // TODO fix with authorisation
           recruiterName: currentUser.name,
         };
 
@@ -269,7 +284,7 @@ export const IntroductionPage = () => {
       TopComponent={
         <TopBarWrapper>
           <StepName>{currentConfig.title}</StepName>
-          <Button variant="outline" disabled>
+          <Button variant="outline" onClick={onReset}>
             Reset <LoopIcon />
           </Button>
         </TopBarWrapper>

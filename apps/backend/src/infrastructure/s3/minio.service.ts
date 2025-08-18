@@ -3,15 +3,15 @@ import * as AWS from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class MinioService {
+export class R2Service {
   private readonly s3: AWS.S3;
 
   constructor(private readonly configService: ConfigService) {
     this.s3 = new AWS.S3({
-      endpoint: `${this.configService.get<string>('MINIO_HOST')}:${this.configService.get<string>('MINIO_PORT')}`,
-      accessKeyId: this.configService.get<string>('MINIO_ROOT_ACCESS_KEY'),
-      secretAccessKey: this.configService.get<string>('MINIO_ROOT_SECRET_KEY'),
-      s3ForcePathStyle: true,
+      endpoint: this.configService.get<string>('R2_ENDPOINT'),
+      accessKeyId: this.configService.get<string>('R2_ACCESS_KEY_ID'),
+      secretAccessKey: this.configService.get<string>('R2_SECRET_ACCESS_KEY'),
+      region: 'auto',
       signatureVersion: 'v4',
     });
   }
