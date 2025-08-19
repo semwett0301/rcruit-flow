@@ -6,6 +6,8 @@ import {
 } from '@repo/dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  ArrayMinSize,
+  IsArray,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -31,8 +33,14 @@ export class CandidateFormDto
   @IsNotEmpty()
   contactName: string;
 
-  @ApiProperty({ type: String })
-  targetRole: string;
+  @ApiProperty({
+    type: [String],
+    description: 'List of focus roles (at least one required)',
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayMinSize(1)
+  focusRoles: string[];
 
   @ApiPropertyOptional()
   @IsOptional()

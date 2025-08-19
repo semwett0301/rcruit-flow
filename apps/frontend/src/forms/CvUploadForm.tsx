@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FileUpload, UploadState } from 'ui/FileUpload';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
@@ -88,6 +88,10 @@ export const CvUploadForm = ({ onSubmit, defaultValue }: CvUploadFormProps) => {
     setUploadState('default');
     onSubmit?.(null);
   };
+
+  useEffect(() => {
+    setUploadState(defaultValue ? 'success' : 'default');
+  }, [defaultValue]);
 
   return (
     <FormWrapper>

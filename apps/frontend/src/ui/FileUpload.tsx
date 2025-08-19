@@ -299,9 +299,7 @@ export const FileUpload = ({
   };
 
   useEffect(() => {
-    if (defaultFile) {
-      setSelectedFile(defaultFile);
-    }
+    setSelectedFile(defaultFile ?? null);
   }, [defaultFile]);
 
   return (

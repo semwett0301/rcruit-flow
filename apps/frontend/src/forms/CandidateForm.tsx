@@ -1,5 +1,16 @@
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
+import {
+  Controller,
+  FieldPath,
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+} from 'react-hook-form';
 import { Input } from 'ui/Input';
 import { Checkbox } from 'ui/Checkbox';
 import { Select } from 'ui/Select';
@@ -14,7 +25,7 @@ import {
 import { Textarea } from 'ui/Textarea';
 import { Switch } from 'ui/Switch';
 import { SwitchOption } from 'types/ui/SwitchOption';
-import { PlusIcon } from '@radix-ui/react-icons';
+import { Cross2Icon, PlusIcon } from '@radix-ui/react-icons';
 import { RowContainer } from 'containers/RowContainer';
 import { SkillChip } from 'ui/SkillChip';
 import {
@@ -24,10 +35,17 @@ import {
   Section,
   SectionTitle,
 } from 'ui/FormElements';
+import { Button } from 'ui/Button';
 
 export type CandidateFormHandles = {
   submitForm: () => void;
 };
+
+type FocusRole = {
+  role: string;
+};
+
+type Flags = 'ungraduated' | 'unemployed';
 
 export type CandidateFormState = {
   candidateName: string;
@@ -40,7 +58,7 @@ export type CandidateFormState = {
   experienceDescription: string;
   yearsOfExperience: number;
   degree?: Degree;
-  targetRole: string;
+  focusRoles: FocusRole[];
   ambitions?: string;
   salaryPeriod: SalaryPeriod;
   grossSalary: number;
@@ -67,7 +85,11 @@ export const candidateFormDefaultValues: CandidateFormState = {
   experienceDescription: '',
   yearsOfExperience: 0,
   degree: undefined,
-  targetRole: '',
+  focusRoles: [
+    {
+      role: '',
+    },
+  ],
   salaryPeriod: SalaryPeriod.YEAR,
   grossSalary: 0,
   hoursAWeek: 8,
@@ -87,11 +109,18 @@ const salarySwitchOptions = salaryPeriodValues.map((el) => ({
   value: el,
 })) as [SwitchOption, SwitchOption];
 
+const flagToFields: {
+  [key in Flags]: FieldPath<CandidateFormState>[];
+} = {
+  unemployed: ['currentPosition', 'currentEmployer'],
+  ungraduated: ['degree.level', 'degree.program'],
+};
+
 export const CandidateForm = forwardRef<
   CandidateFormHandles,
   CandidateFormProps
 >(({ defaultValues, onSubmit }, ref) => {
-  const { control, handleSubmit, setValue, watch } =
+  const { control, handleSubmit, setValue, setError, watch } =
     useForm<CandidateFormState>({
       defaultValues: {
         ...candidateFormDefaultValues,
@@ -99,8 +128,20 @@ export const CandidateForm = forwardRef<
       },
     });
 
+  const { fields, append, remove } = useFieldArray<
+    CandidateFormState,
+    'focusRoles',
+    'id'
+  >({
+    name: 'focusRoles',
+    control,
+  });
+
+  // Flags sections
   const unemployed = watch('unemployed');
   const ungraduated = watch('ungraduated');
+
+  const flags = { unemployed, ungraduated } satisfies Record<Flags, boolean>;
 
   const hardSkillsInputRef = useRef<HTMLInputElement>(null);
   const hardSkills = watch('hardSkills');
@@ -119,6 +160,12 @@ export const CandidateForm = forwardRef<
   useImperativeHandle(ref, () => ({
     submitForm: handleSubmit(onSubmit),
   }));
+
+  useEffect(() => {
+    (Object.keys(flags) as Flags[]).forEach((flag) => {
+      flagToFields[flag]?.forEach((name) => setError(name, {}));
+    });
+  }, [JSON.stringify(flags)]);
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -402,29 +449,48 @@ export const CandidateForm = forwardRef<
         </FormCol>
       </Section>
       <Section>
-        <SectionTitle>Target role*</SectionTitle>
-        <Controller
-          name="targetRole"
-          control={control}
-          rules={{
-            required: 'Target role is required',
-          }}
-          render={({ field, fieldState }) => {
-            return (
-              <>
-                <FormRow>
-                  <FormCol>
-                    <Input
-                      error={fieldState.error?.message}
-                      {...field}
-                      placeholder="Target role"
-                    />
-                  </FormCol>
-                </FormRow>
-              </>
-            );
-          }}
-        />
+        <SectionTitle>Wants to focus on*</SectionTitle>
+        {fields.map((field, index) => (
+          <FormRow key={field.id}>
+            <FormCol>
+              <Controller
+                name={`focusRoles.${index}.role`}
+                control={control}
+                rules={{
+                  required: 'Focus role is required',
+                }}
+                render={({ field, fieldState }) => (
+                  <Input
+                    {...field}
+                    placeholder="Enter focus role"
+                    error={fieldState.error?.message}
+                    rightIcon={
+                      fields.length > 1 &&
+                      index > 0 && (
+                        <Cross2Icon
+                          width="100%"
+                          height="100%"
+                          onClick={() => remove(index)}
+                        />
+                      )
+                    }
+                  />
+                )}
+              />
+            </FormCol>
+          </FormRow>
+        ))}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() =>
+            append({
+              role: '',
+            })
+          }
+        >
+          Add focus role <PlusIcon width={20} height={20} />
+        </Button>
       </Section>
       <Section>
         <SectionTitle>Travel information</SectionTitle>

@@ -114,6 +114,7 @@ export const IntroductionPage = () => {
           ...formValue,
           ...candidateInfo,
           recruiterName: currentUser.name,
+          focusRoles: candidateInfo.focusRoles.map((el) => el.role),
         };
 
         if (candidateInfo.ungraduated) {

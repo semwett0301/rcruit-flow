@@ -6,7 +6,7 @@ export interface CandidateForm extends ExtractCvDataResult {
   recruiterName: string;
   contactName: string;
 
-  targetRole: string;
+  focusRoles: string[];
   ambitions?: string;
 
   travelMode?: TravelModeEnum;
