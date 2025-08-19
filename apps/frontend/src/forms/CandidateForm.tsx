@@ -36,6 +36,7 @@ import {
   SectionTitle,
 } from 'ui/FormElements';
 import { Button } from 'ui/Button';
+import { SquaredButton } from 'ui/SquareButton';
 
 export type CandidateFormHandles = {
   submitForm: () => void;
@@ -45,19 +46,18 @@ type FocusRole = {
   role: string;
 };
 
-type Flags = 'ungraduated' | 'unemployed';
+type Flags = 'unemployed';
 
 export type CandidateFormState = {
   candidateName: string;
   age: number;
   location: string;
   unemployed: boolean;
-  ungraduated: boolean;
   currentEmployer?: string;
   currentPosition?: string;
   experienceDescription: string;
   yearsOfExperience: number;
-  degree?: Degree;
+  degrees: Degree[];
   focusRoles: FocusRole[];
   ambitions?: string;
   salaryPeriod: SalaryPeriod;
@@ -79,12 +79,11 @@ export const candidateFormDefaultValues: CandidateFormState = {
   age: 1,
   location: '',
   unemployed: false,
-  ungraduated: false,
   currentEmployer: '',
   currentPosition: '',
   experienceDescription: '',
   yearsOfExperience: 0,
-  degree: undefined,
+  degrees: [],
   focusRoles: [
     {
       role: '',
@@ -113,7 +112,6 @@ const flagToFields: {
   [key in Flags]: FieldPath<CandidateFormState>[];
 } = {
   unemployed: ['currentPosition', 'currentEmployer'],
-  ungraduated: ['degree.level', 'degree.program'],
 };
 
 export const CandidateForm = forwardRef<
@@ -137,11 +135,19 @@ export const CandidateForm = forwardRef<
     control,
   });
 
+  const {
+    fields: degreeFields,
+    append: appendDegree,
+    remove: removeDegree,
+  } = useFieldArray<CandidateFormState, 'degrees', 'id'>({
+    name: 'degrees',
+    control,
+  });
+
   // Flags sections
   const unemployed = watch('unemployed');
-  const ungraduated = watch('ungraduated');
 
-  const flags = { unemployed, ungraduated } satisfies Record<Flags, boolean>;
+  const flags = { unemployed } satisfies Record<Flags, boolean>;
 
   const hardSkillsInputRef = useRef<HTMLInputElement>(null);
   const hardSkills = watch('hardSkills');
@@ -340,32 +346,16 @@ export const CandidateForm = forwardRef<
       </Section>
       <Section>
         <SectionTitle>Education Information*</SectionTitle>
-        <FormRow>
-          <Controller
-            name="ungraduated"
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <Checkbox
-                checked={value}
-                onCheck={onChange}
-                label="Ungraduated"
-              />
-            )}
-          />
-        </FormRow>
-        <FormRow>
-          <Controller
-            name="degree.level"
-            control={control}
-            rules={{
-              required: {
-                value: !ungraduated,
-                message: 'Select degree level',
-              },
-            }}
-            render={({ field: { value, onChange }, fieldState }) => {
-              return (
-                <FormCol $width={200}>
+        {degreeFields.map((field, index) => (
+          <FormRow key={field.id}>
+            <FormCol $width={200}>
+              <Controller
+                name={`degrees.${index}.level`}
+                control={control}
+                rules={{
+                  required: 'Select dwegree level',
+                }}
+                render={({ field: { value, onChange }, fieldState }) => (
                   <Select<DegreeLevel>
                     selectedValues={value ? [value] : []}
                     onSelect={(selectedValue) => {
@@ -376,34 +366,50 @@ export const CandidateForm = forwardRef<
                       value: el,
                     }))}
                     error={fieldState.error?.message}
-                    disabled={ungraduated}
                   />
-                </FormCol>
-              );
-            }}
-          />
-          <Controller
-            name="degree.program"
-            control={control}
-            rules={{
-              required: {
-                value: !ungraduated,
-                message: 'Name of the program is required',
-              },
-            }}
-            render={({ field, fieldState }) => {
-              return (
-                <FormCol>
+                )}
+              />
+            </FormCol>
+            <FormCol>
+              <Controller
+                name={`degrees.${index}.program`}
+                control={control}
+                rules={{
+                  required: 'Name of the program is required',
+                }}
+                render={({ field, fieldState }) => (
                   <Input
                     {...field}
                     error={fieldState.error?.message}
                     placeholder="Name of the program"
-                    disabled={ungraduated}
                   />
-                </FormCol>
-              );
-            }}
-          />
+                )}
+              />
+            </FormCol>
+            <FormCol $width={60}>
+              <SquaredButton
+                size="l"
+                variant="outline"
+                onClick={() => removeDegree(index)}
+              >
+                <Cross2Icon />
+              </SquaredButton>
+            </FormCol>
+          </FormRow>
+        ))}
+        <FormRow>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() =>
+              appendDegree({
+                level: undefined as unknown as DegreeLevel,
+                program: '',
+              })
+            }
+          >
+            Add degree <PlusIcon width={20} height={20} />
+          </Button>
         </FormRow>
       </Section>
       <Section>
@@ -606,14 +612,15 @@ export const CandidateForm = forwardRef<
             />
           </FormCol>
           <FormCol>
-            <Label htmlFor="grossSalary">Hours per week*</Label>
+            <Label htmlFor="hoursAWeek">Hours per week*</Label>
             <Controller
               name="hoursAWeek"
               control={control}
               rules={{
-                required: {
-                  value: !ungraduated,
-                  message: 'Select degree level',
+                required: 'Hours per week is required',
+                min: {
+                  value: 1,
+                  message: "Hours per week can't be negative or 0",
                 },
               }}
               render={({ field: { value, onChange }, fieldState }) => {

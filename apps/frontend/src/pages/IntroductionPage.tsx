@@ -117,10 +117,6 @@ export const IntroductionPage = () => {
           focusRoles: candidateInfo.focusRoles.map((el) => el.role),
         };
 
-        if (candidateInfo.ungraduated) {
-          generateData.degree = undefined;
-        }
-
         if (candidateInfo.unemployed) {
           generateData.currentEmployer = undefined;
           generateData.currentPosition = undefined;
@@ -168,7 +164,6 @@ export const IntroductionPage = () => {
                     unemployed:
                       !result.data.currentEmployer ||
                       !result.data.currentPosition,
-                    ungraduated: !result.data.degree,
                   },
                 });
 

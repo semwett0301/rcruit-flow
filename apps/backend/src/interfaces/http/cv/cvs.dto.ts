@@ -9,6 +9,7 @@ import {
   IsString,
   Min,
   ValidateIf,
+  ValidateNested,
 } from 'class-validator';
 import {
   Degree,
@@ -76,8 +77,11 @@ export class ExtractCvDataResultDto implements ExtractCvDataResult {
   yearsOfExperience: number;
 
   @ValidateIf((o) => !o.graduationStatus)
-  @ApiPropertyOptional({ type: DegreeDto })
-  degree?: DegreeDto;
+  @IsArray()
+  @ArrayMinSize(0)
+  @Type(() => DegreeDto)
+  @ValidateNested({ each: true })
+  degrees: DegreeDto[];
 }
 
 export class ExtractCvDataDto implements ExtractCvDataRequest {

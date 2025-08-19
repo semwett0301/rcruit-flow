@@ -9,5 +9,5 @@ export interface ExtractCvDataResult {
   hardSkills: string[];
   experienceDescription: string;
   yearsOfExperience: number;
-  degree?: Degree;
+  degrees: Degree[];
 }

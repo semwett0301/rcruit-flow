@@ -29,10 +29,10 @@ Return your answer as a JSON object in this format (this is just example of the 
   "hardSkills": ["...", "..."],
   "experienceDescription": "...",
   "yearsOfExperience": ...,
-  "degree": {
+  "degree": [{
     "level": "Master",
     "program": "Computer Science"
-  }
+  }]
 }
 
 CV content:
