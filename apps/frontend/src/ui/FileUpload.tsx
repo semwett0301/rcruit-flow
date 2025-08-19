@@ -15,6 +15,7 @@ import {
 } from '@radix-ui/react-icons';
 import { Button } from 'ui/Button';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
+import { useCvsSave } from 'queries/api/cvs/cvsSave';
 
 export type UploadState = 'default' | 'success' | 'error';
 
@@ -321,4 +322,57 @@ export const FileUpload = ({
       />
     </UploadContainer>
   );
+};
+
+export type FileUploadState = {
+  fileId: string;
+  file: File;
+};
+
+interface UseFileUploadParams {
+  initialValue?: FileUploadState;
+  onUploaded?: (state: FileUploadState | null) => void;
+}
+
+export const useFileUpload = ({
+  initialValue,
+  onUploaded,
+}: UseFileUploadParams) => {
+  const { mutate: saveCv } = useCvsSave();
+
+  const [uploadState, setUploadState] = useState<UploadState>(
+    initialValue ? 'success' : 'default',
+  );
+
+  const onFileSelect = (file: File) => {
+    saveCv(file, {
+      onSuccess: (result) => {
+        onUploaded?.({
+          fileId: result.key,
+          file,
+        });
+
+        setUploadState('success');
+      },
+      onError: () => {
+        setUploadState('error');
+      },
+    });
+  };
+
+  const onFileRemove = () => {
+    setUploadState('default');
+    onUploaded?.(null);
+  };
+
+  useEffect(() => {
+    setUploadState(initialValue ? 'success' : 'default');
+  }, [initialValue]);
+
+  return {
+    uploadState,
+    setUploadState,
+    onFileSelect,
+    onFileRemove,
+  };
 };

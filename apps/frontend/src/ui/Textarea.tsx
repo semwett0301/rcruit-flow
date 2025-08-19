@@ -28,7 +28,7 @@ const CustomTextarea = styled.textarea<{
   outline: none;
   resize: none;
 
-  height: ${({ $height }) => $height ?? '200px'};
+  height: ${({ $height }) => ($height ? `${$height}px` : '200px')};
 
   &:focus {
     outline: 0.5px solid ${({ theme }) => theme.colors.white};

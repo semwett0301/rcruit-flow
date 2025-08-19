@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { FileUpload, UploadState } from 'ui/FileUpload';
+import { FileUpload, FileUploadState, useFileUpload } from 'ui/FileUpload';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
-import { useCvsSave } from 'queries/api/cvs/cvsSave';
 import { CvUploadTooltip } from 'widgets/CvUploadTooltip';
 
 const FormWrapper = styled.div`
@@ -52,46 +51,15 @@ const InfoIconWrapper = styled.div`
 `;
 
 interface CvUploadFormProps {
-  onSubmit?: (state: CvUploadFormState | null) => void;
-  defaultValue?: CvUploadFormState;
+  onSubmit?: (state: FileUploadState | null) => void;
+  defaultValue?: FileUploadState;
 }
 
-export type CvUploadFormState = {
-  fileId: string;
-  file: File;
-};
-
 export const CvUploadForm = ({ onSubmit, defaultValue }: CvUploadFormProps) => {
-  const { mutate: saveCv } = useCvsSave();
-
-  const [uploadState, setUploadState] = useState<UploadState>(
-    defaultValue ? 'success' : 'default',
-  );
-
-  const onFileSelect = (file: File) => {
-    saveCv(file, {
-      onSuccess: (result) => {
-        onSubmit?.({
-          fileId: result.key,
-          file,
-        });
-
-        setUploadState('success');
-      },
-      onError: () => {
-        setUploadState('error');
-      },
-    });
-  };
-
-  const onFileRemove = () => {
-    setUploadState('default');
-    onSubmit?.(null);
-  };
-
-  useEffect(() => {
-    setUploadState(defaultValue ? 'success' : 'default');
-  }, [defaultValue]);
+  const { uploadState, onFileSelect, onFileRemove } = useFileUpload({
+    initialValue: defaultValue,
+    onUploaded: onSubmit,
+  });
 
   return (
     <FormWrapper>

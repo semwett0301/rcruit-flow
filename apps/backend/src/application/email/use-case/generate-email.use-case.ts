@@ -6,12 +6,22 @@ import {
 } from 'application/email/prompts/generate-email-user.prompt';
 import type { ChatCompletionMessageParam } from 'openai/resources/index';
 import { CandidateForm, EmailResponse } from '@repo/dto';
+import { extractTextFromPdf } from '../../../shared/utils/extractTextFromPdf';
+import { R2Service } from '../../../infrastructure/s3/minio.service';
 
 @Injectable()
 export class GenerateEmailUseCase {
-  constructor(private readonly gpt: GptService) {}
+  constructor(
+    private readonly gpt: GptService,
+    private readonly r2Service: R2Service,
+  ) {}
 
   async generate(dto: CandidateForm): Promise<EmailResponse> {
+    if (dto.jobDescriptionFile) {
+      const file = await this.r2Service.getFile(dto.jobDescriptionFile);
+      dto.jobDescriptionText = await extractTextFromPdf(file);
+    }
+
     const userPrompt = generateEmailUserPrompt({
       dto,
       firstName: this.#getFirstName(dto.candidateName),

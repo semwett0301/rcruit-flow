@@ -9,13 +9,11 @@ const SwitchWrapper = styled.div`
 
   width: 100%;
 
+  user-select: none;
+
   padding: 9px;
 
-  background: linear-gradient(
-    to bottom right,
-    rgba(10, 27, 71, 0.6),
-    rgba(25, 67, 173, 0.7)
-  );
+  background: transparent;
 
   border-radius: ${({ theme }) => theme.radius.s};
   border: 1px solid
@@ -62,12 +60,14 @@ export function TextSwitch({ options, value, onSwitch, ...rest }: SwitchProps) {
   return (
     <SwitchWrapper {...rest}>
       <OptionButton
+        type="button"
         $active={isFirstOption}
         onClick={() => onSwitch?.(firstOption.value)}
       >
         {firstOption.label}
       </OptionButton>
       <OptionButton
+        type="button"
         $active={!isFirstOption}
         onClick={() => onSwitch?.(secondOption.value)}
       >

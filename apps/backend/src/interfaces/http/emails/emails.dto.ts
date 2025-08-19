@@ -86,7 +86,10 @@ export class CandidateFormDto
   @IsString()
   jobDescriptionText?: string;
 
-  jobDescriptionFile?: Express.Multer.File;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  jobDescriptionFile?: string;
 }
 
 export class EmailResponseDto implements EmailResponse {

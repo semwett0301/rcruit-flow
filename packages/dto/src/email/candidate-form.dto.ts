@@ -18,5 +18,5 @@ export interface CandidateForm extends ExtractCvDataResult {
   hoursAWeek: WeekHours;
 
   jobDescriptionText?: string;
-  jobDescriptionFile?: Express.Multer.File;
+  jobDescriptionFile?: string;
 }

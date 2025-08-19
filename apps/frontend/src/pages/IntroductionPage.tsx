@@ -5,7 +5,7 @@ import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { Button } from 'ui/Button';
 import { ChevronRightIcon, LoopIcon } from '@radix-ui/react-icons';
 import { StepsColumn } from 'widgets/StepsColumn';
-import { CvUploadForm, CvUploadFormState } from 'forms/CvUploadForm';
+import { CvUploadForm } from 'forms/CvUploadForm';
 import { useCvsExtract } from 'queries/api/cvs/cvsExtract';
 import {
   CandidateForm,
@@ -15,6 +15,7 @@ import {
 } from 'forms/CandidateForm';
 import {
   JobDescriptionForm,
+  JobDescriptionFormHandles,
   JobDescriptionFormState,
 } from 'forms/JobDescriptionForm';
 import {
@@ -27,6 +28,7 @@ import { useAuth } from 'hooks/useAuth';
 import { show } from '@ebay/nice-modal-react';
 import { SimpleModal } from 'modals/SimpleModal';
 import { ResetBodyModal } from 'modals/body/ResetBodyModal';
+import { FileUploadState } from 'ui/FileUpload';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -69,14 +71,14 @@ type GlobalFormState = {
 };
 
 interface IntroductionFormState extends GlobalFormState {
-  cvUpload?: CvUploadFormState;
+  cvUpload?: FileUploadState;
   candidateInformation?: CandidateFormState;
   jobDescription?: JobDescriptionFormState;
   emailGeneration?: EmailGenerationFormState;
 }
 
 export const IntroductionPage = () => {
-  const [currentStep, setCurrentStep] = useState<StepKey>('cvUpload');
+  const [currentStep, setCurrentStep] = useState<StepKey>('jobDescription');
 
   const { getUser } = useAuth();
 
@@ -88,7 +90,7 @@ export const IntroductionPage = () => {
   const { mutate: emailGenerate } = useEmailsGenerate();
 
   const candidateFormRef = useRef<CandidateFormHandles>(null);
-  const jobDescFormRef = useRef<CandidateFormHandles>(null);
+  const jobDescFormRef = useRef<JobDescriptionFormHandles>(null);
 
   const onReset = useCallback(() => {
     show(SimpleModal, {
@@ -110,11 +112,20 @@ export const IntroductionPage = () => {
 
         const currentUser = getUser();
 
+        const jobDescriptionFileId = formValue.jobDescriptionFile?.fileId;
+        const finalJobDescription = {
+          jobDescriptionFile: jobDescriptionFileId,
+          jobDescriptionText: !jobDescriptionFileId
+            ? formValue.jobDescriptionText
+            : undefined,
+        };
+
         const generateData = {
           ...formValue,
           ...candidateInfo,
           recruiterName: currentUser.name,
           focusRoles: candidateInfo.focusRoles.map((el) => el.role),
+          ...finalJobDescription,
         };
 
         if (candidateInfo.unemployed) {
