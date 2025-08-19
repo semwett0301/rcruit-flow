@@ -13,10 +13,10 @@ Extract the following information from the CV below:
 8. Years of experience - total number of years of relevant professional experience.
 9. degree – return a JSON object matching the following structure:
 
-{
+[{
   level: "${Object.values(DegreeLevel).join(' | ')}",
   program: string // name of the program that the candidate studied on
-}
+}]
 
 Return your answer as a JSON object in this format (this is just example of the structure):
 
@@ -29,10 +29,10 @@ Return your answer as a JSON object in this format (this is just example of the 
   "hardSkills": ["...", "..."],
   "experienceDescription": "...",
   "yearsOfExperience": ...,
-  "degree": [{
-    "level": "Master",
-    "program": "Computer Science"
-  }]
+  "degrees": {
+    "level": "...",
+    "program": "..."
+  }[] // List all the education that were in CV
 }
 
 CV content:
