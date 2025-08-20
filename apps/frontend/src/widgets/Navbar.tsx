@@ -223,14 +223,14 @@ export const Navbar = () => {
             <AvatarIcon width={20} height={20} />
             <div>Profile</div>
           </Button>
-          <Switch
-            options={
-              language.map((lang) => ({ value: lang, label: lang })) as [
-                SwitchOption,
-                SwitchOption,
-              ]
-            }
-          />
+          {/*<Switch*/}
+          {/*  options={*/}
+          {/*    language.map((lang) => ({ value: lang, label: lang })) as [*/}
+          {/*      SwitchOption,*/}
+          {/*      SwitchOption,*/}
+          {/*    ]*/}
+          {/*  }*/}
+          {/*/>*/}
           <FooterLinks>
             <SocialLink href="#">User Agreement</SocialLink>
             <SocialLink href="#">Terms & Conditions</SocialLink>
