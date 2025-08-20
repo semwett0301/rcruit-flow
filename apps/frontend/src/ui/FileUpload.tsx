@@ -77,9 +77,9 @@ const UploadArea = styled.div<StyledUploadAreaProps>`
           color: ${theme.colors.red};
 
           background: linear-gradient(
-            to bottom right,
-            #590c0c99 60%,
-            ${theme.colors.red} 70%
+            90deg,
+            rgba(89, 12, 12, 0.6) 0%,
+            rgba(173, 25, 25, 0.7) 100%
           );
 
           border-color: color-mix(
@@ -94,9 +94,9 @@ const UploadArea = styled.div<StyledUploadAreaProps>`
           color: ${theme.colors.green};
 
           background: linear-gradient(
-            to bottom right,
-            #0a330799 60%,
-            ${theme.colors.green} 70%
+            90deg,
+            rgba(10, 51, 7, 0.6) 0%,
+            rgba(35, 173, 25, 0.7) 100%
           );
 
           border-color: color-mix(
@@ -116,9 +116,9 @@ const UploadArea = styled.div<StyledUploadAreaProps>`
           );
 
           background: linear-gradient(
-            to bottom right,
-            #0a1b4799 60%,
-            #1943adb2 70%
+            90deg,
+            rgba(10, 27, 71, 0.6) 0%,
+            rgba(25, 67, 173, 0.7) 100%
           );
 
           /* drag‐over override */
