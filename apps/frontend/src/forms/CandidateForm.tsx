@@ -37,6 +37,8 @@ import {
 } from 'ui/FormElements';
 import { Button } from 'ui/Button';
 import { SquaredButton } from 'ui/SquareButton';
+import { Separator } from 'ui/Separator';
+import styled from 'styled-components';
 
 export type CandidateFormHandles = {
   submitForm: () => void;
@@ -44,6 +46,12 @@ export type CandidateFormHandles = {
 
 type FocusRole = {
   role: string;
+};
+
+type TravelOption = {
+  travelMode: TravelModeEnum;
+  minutesOfRoad?: number;
+  onSiteDays?: number;
 };
 
 type Flags = 'unemployed';
@@ -64,15 +72,23 @@ export type CandidateFormState = {
   grossSalary: number;
   hoursAWeek: WeekHours;
   hardSkills: string[];
-  travelMode?: TravelModeEnum;
-  minutesOfRoad?: number;
-  onSiteDays?: number;
+  travelOptions: TravelOption[];
 };
 
 interface CandidateFormProps {
   defaultValues?: Partial<CandidateFormState>;
   onSubmit: SubmitHandler<CandidateFormState>;
 }
+
+const TravelOptionWrapper = styled.div`
+  position: relative;
+`;
+
+const TravelOptionDeleteButton = styled(SquaredButton)`
+  position: absolute;
+  top: -${({ theme }) => theme.spacing.xs};
+  right: 0;
+`;
 
 export const candidateFormDefaultValues: CandidateFormState = {
   candidateName: '',
@@ -93,6 +109,11 @@ export const candidateFormDefaultValues: CandidateFormState = {
   grossSalary: 0,
   hoursAWeek: 8,
   hardSkills: [],
+  travelOptions: [
+    {
+      travelMode: TravelModeEnum.REMOTE,
+    },
+  ],
 };
 
 const salaryPeriodValues = Object.values(SalaryPeriod);
@@ -114,6 +135,7 @@ const flagToFields: {
   unemployed: ['currentPosition', 'currentEmployer'],
 };
 
+// TODO refactor the form with widgets
 export const CandidateForm = forwardRef<
   CandidateFormHandles,
   CandidateFormProps
@@ -141,6 +163,15 @@ export const CandidateForm = forwardRef<
     remove: removeDegree,
   } = useFieldArray<CandidateFormState, 'degrees', 'id'>({
     name: 'degrees',
+    control,
+  });
+
+  const {
+    fields: travelModeFields,
+    append: appendTravelMode,
+    remove: removeTravelMode,
+  } = useFieldArray<CandidateFormState, 'travelOptions', 'id'>({
+    name: 'travelOptions',
     control,
   });
 
@@ -500,75 +531,145 @@ export const CandidateForm = forwardRef<
       </Section>
       <Section>
         <SectionTitle>Travel information</SectionTitle>
+        {travelModeFields.map((field, index) => {
+          const isTravelModeRemote =
+            watch(`travelOptions.${index}.travelMode`) ===
+            TravelModeEnum.REMOTE;
+
+          if (isTravelModeRemote) {
+            setValue(`travelOptions.${index}.minutesOfRoad`, undefined);
+            setValue(`travelOptions.${index}.onSiteDays`, undefined);
+          }
+
+          return (
+            <>
+              {index > 0 && <Separator />}
+
+              <TravelOptionWrapper key={field.id}>
+                <TravelOptionDeleteButton
+                  onClick={() => removeTravelMode(index)}
+                  type="button"
+                  variant="outline"
+                  size="xs"
+                >
+                  <Cross2Icon />
+                </TravelOptionDeleteButton>
+
+                <FormRow>
+                  <FormCol>
+                    <Label htmlFor={`travelMode-${index}`}>Travel mode</Label>
+                    <Controller
+                      name={`travelOptions.${index}.travelMode`}
+                      control={control}
+                      render={({ field: { value, onChange }, fieldState }) => {
+                        return (
+                          <Select<TravelModeEnum>
+                            selectedValues={value ? [value] : []}
+                            onSelect={(selectedValue) => {
+                              onChange(selectedValue[0]);
+                            }}
+                            options={Object.values(TravelModeEnum).map(
+                              (el) => ({
+                                label: `${el}`,
+                                value: el,
+                              }),
+                            )}
+                            error={fieldState.error?.message}
+                          />
+                        );
+                      }}
+                    />
+                  </FormCol>
+                </FormRow>
+
+                {!isTravelModeRemote && (
+                  <FormRow>
+                    <FormCol>
+                      <Label htmlFor={`minutesOfRoad-${index}`}>
+                        Minutes of road
+                      </Label>
+                      <Controller
+                        name={`travelOptions.${index}.minutesOfRoad`}
+                        control={control}
+                        rules={{
+                          required: {
+                            value: !isTravelModeRemote,
+                            message: 'Minutes of road are required',
+                          },
+                          min: { value: 1, message: 'Minimum is 1' },
+                        }}
+                        render={({
+                          field: { value, onChange },
+                          fieldState,
+                        }) => {
+                          return (
+                            <Input
+                              type="number"
+                              min={0}
+                              placeholder="Enter minutes of road"
+                              error={fieldState.error?.message}
+                              value={value}
+                              onChange={onChange}
+                              disabled={isTravelModeRemote}
+                            />
+                          );
+                        }}
+                      />
+                    </FormCol>
+                    <FormCol>
+                      <Label htmlFor={`onSiteDays-${index}`}>
+                        On-site days
+                      </Label>
+                      <Controller
+                        name={`travelOptions.${index}.onSiteDays`}
+                        control={control}
+                        rules={{
+                          required: {
+                            value: !isTravelModeRemote,
+                            message: 'On-site days are required',
+                          },
+                          min: { value: 1, message: 'Minimum is 1' },
+                          max: { value: 5, message: 'Maximum is 5' },
+                        }}
+                        render={({
+                          field: { value, onChange },
+                          fieldState,
+                        }) => {
+                          return (
+                            <Input
+                              type="number"
+                              min={0}
+                              max={5}
+                              placeholder="Enter on-site days"
+                              error={fieldState.error?.message}
+                              value={value}
+                              onChange={onChange}
+                              disabled={isTravelModeRemote}
+                            />
+                          );
+                        }}
+                      />
+                    </FormCol>
+                  </FormRow>
+                )}
+              </TravelOptionWrapper>
+            </>
+          );
+        })}
         <FormRow>
-          <FormCol>
-            <Label htmlFor="travelMode">Travel mode</Label>
-            <Controller
-              name="travelMode"
-              control={control}
-              render={({ field: { value, onChange }, fieldState }) => {
-                return (
-                  <Select<TravelModeEnum>
-                    selectedValues={value ? [value] : []}
-                    onSelect={(selectedValue) => {
-                      onChange(selectedValue[0]);
-                    }}
-                    options={Object.values(TravelModeEnum).map((el) => ({
-                      label: `${el}`,
-                      value: el,
-                    }))}
-                    error={fieldState.error?.message}
-                  />
-                );
-              }}
-            />
-          </FormCol>
-        </FormRow>
-        <FormRow>
-          <FormCol>
-            <Label htmlFor="minutesOfRoad">Minutes of road</Label>
-            <Controller
-              name="minutesOfRoad"
-              control={control}
-              rules={{
-                min: { value: 0, message: 'Minimum is 0' },
-              }}
-              render={({ field, fieldState: { error } }) => (
-                <div>
-                  <Input
-                    type="number"
-                    min={0}
-                    placeholder="Enter minutes of road"
-                    error={error?.message}
-                    {...field}
-                  />
-                </div>
-              )}
-            />
-          </FormCol>
-          <FormCol>
-            <Label htmlFor="onSiteDays">On-site days</Label>
-            <Controller
-              name="onSiteDays"
-              control={control}
-              rules={{
-                min: { value: 0, message: 'Minimum is 0' },
-                max: { value: 5, message: 'Maximum is 5' },
-              }}
-              render={({ field, fieldState: { error } }) => (
-                <div>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={5}
-                    placeholder="Enter on-site days"
-                    error={error?.message}
-                    {...field}
-                  />
-                </div>
-              )}
-            />
-          </FormCol>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() =>
+              appendTravelMode({
+                travelMode: undefined as unknown as TravelModeEnum,
+                minutesOfRoad: 0,
+                onSiteDays: 0,
+              })
+            }
+          >
+            Add travel option <PlusIcon width={20} height={20} />
+          </Button>
         </FormRow>
       </Section>
       <Section>

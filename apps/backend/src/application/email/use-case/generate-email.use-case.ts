@@ -5,7 +5,12 @@ import {
   generateEmailUserPrompt,
 } from 'application/email/prompts/generate-email-user.prompt';
 import type { ChatCompletionMessageParam } from 'openai/resources/index';
-import { CandidateForm, EmailResponse } from '@repo/dto';
+import {
+  CandidateForm,
+  EmailResponse,
+  TravelModeEnum,
+  TravelOption,
+} from '@repo/dto';
 import { extractTextFromPdf } from '../../../shared/utils/extractTextFromPdf';
 import { R2Service } from '../../../infrastructure/s3/minio.service';
 
@@ -27,7 +32,7 @@ export class GenerateEmailUseCase {
       firstName: this.#getFirstName(dto.candidateName),
       seniority: this.#getSeniority(dto.yearsOfExperience),
       salaryLine: this.#getSalaryLine(dto.salaryPeriod, dto.grossSalary),
-      travelClause: this.#getTravelClause(dto.travelMode, dto.minutesOfRoad),
+      travelClause: this.#getTravelClause(dto.travelOptions),
     });
 
     const gptMessages: ChatCompletionMessageParam[] = [
@@ -59,12 +64,11 @@ export class GenerateEmailUseCase {
       : `€${grossSalary.toLocaleString('en-US')} gross / month`;
   }
 
-  #getTravelClause(
-    travelMode: string | undefined,
-    minutesOfRoad: number | undefined,
-  ): string {
-    return travelMode
-      ? `willing to commute up to ${minutesOfRoad ?? 0} minutes by ${travelMode}.`
-      : '';
+  #getTravelClause(travelModes: TravelOption[]): string {
+    if (travelModes.length === 0) {
+      return '';
+    }
+
+    return `willing to commute up to ${travelModes.map((el) => (el.travelMode === TravelModeEnum.REMOTE ? 'only remote' : `${el.minutesOfRoad ?? 0} minutes by ${el.travelMode} with ${el.onSiteDays ?? 0} on-site days`)).join(' or ')}.`;
   }
 }

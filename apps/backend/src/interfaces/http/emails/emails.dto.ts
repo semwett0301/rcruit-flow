@@ -3,6 +3,7 @@ import {
   EmailResponse,
   SalaryPeriod,
   TravelModeEnum,
+  TravelOption,
 } from '@repo/dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
@@ -15,9 +16,32 @@ import {
   IsString,
   Min,
   ValidateIf,
+  Max,
+  ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ExtractCvDataResultDto } from '../cv/cvs.dto';
+
+export class TravelOptionDto implements TravelOption {
+  @ApiProperty({ enum: TravelModeEnum })
+  @IsEnum(TravelModeEnum)
+  travelMode: TravelModeEnum;
+
+  @ApiProperty({ minimum: 0 })
+  @Type(() => Number)
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  minutesOfRoad?: number;
+
+  @ApiProperty({ minimum: 0, maximum: 5 })
+  @Type(() => Number)
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(5)
+  onSiteDays?: number;
+}
 
 export class CandidateFormDto
   extends ExtractCvDataResultDto
@@ -46,24 +70,11 @@ export class CandidateFormDto
   @IsOptional()
   ambitions?: string;
 
-  @ApiPropertyOptional({ enum: TravelModeEnum })
-  @IsOptional()
-  @IsEnum(TravelModeEnum)
-  travelMode?: TravelModeEnum;
-
-  @ValidateIf((o) => !!o.travelMode)
-  @ApiPropertyOptional({ type: Number })
-  @Type(() => Number)
-  @IsInt()
-  @Min(0)
-  minutesOfRoad?: number;
-
-  @ValidateIf((o) => !!o.travelMode)
-  @ApiPropertyOptional({ type: Number })
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  onSiteDays?: number;
+  @ApiPropertyOptional({ type: [Object], isArray: true })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TravelOptionDto)
+  travelOptions: TravelOptionDto[];
 
   @ApiProperty({ minimum: 1 })
   @Type(() => Number)

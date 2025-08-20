@@ -9,9 +9,7 @@ export interface CandidateForm extends ExtractCvDataResult {
   focusRoles: string[];
   ambitions?: string;
 
-  travelMode?: TravelModeEnum;
-  minutesOfRoad?: number;
-  onSiteDays?: number;
+  travelOptions: TravelOption[];
 
   grossSalary: number;
   salaryPeriod: SalaryPeriod;
@@ -19,4 +17,10 @@ export interface CandidateForm extends ExtractCvDataResult {
 
   jobDescriptionText?: string;
   jobDescriptionFile?: string;
+}
+
+export interface TravelOption {
+  travelMode: TravelModeEnum;
+  minutesOfRoad?: number;
+  onSiteDays?: number;
 }

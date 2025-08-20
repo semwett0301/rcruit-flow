@@ -78,7 +78,7 @@ interface IntroductionFormState extends GlobalFormState {
 }
 
 export const IntroductionPage = () => {
-  const [currentStep, setCurrentStep] = useState<StepKey>('jobDescription');
+  const [currentStep, setCurrentStep] = useState<StepKey>('cvUpload');
 
   const { getUser } = useAuth();
 

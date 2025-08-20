@@ -1,6 +1,7 @@
 export enum TravelModeEnum {
-  CAR = 'car',
-  PUBLIC = 'public transport',
-  BICYCLE = 'bicycle',
-  WALK = 'on walk',
+  CAR = 'Car',
+  PUBLIC = 'Public transport',
+  BICYCLE = 'Bicycle',
+  WALK = 'On walk',
+  REMOTE = 'Remote',
 }
