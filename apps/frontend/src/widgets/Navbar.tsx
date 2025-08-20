@@ -16,6 +16,11 @@ import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { show } from '@ebay/nice-modal-react';
 import { SimpleModal } from 'modals/SimpleModal';
 import { AuthBodyModal } from 'modals/body/AuthBodyModal';
+import {
+  LINKED_IN_LINK,
+  TERMS_AND_AGREEMENT_LINK,
+  USER_AGREEMENT_LINK,
+} from 'constants/links';
 
 type OpenProps = { $isOpen: boolean };
 
@@ -232,13 +237,17 @@ export const Navbar = () => {
           {/*  }*/}
           {/*/>*/}
           <FooterLinks>
-            <SocialLink href="#">User Agreement</SocialLink>
-            <SocialLink href="#">Terms & Conditions</SocialLink>
             <SocialLinks>
-              <SocialLink href="#">LinkedIn</SocialLink>
-              <SocialLink href="#">Instagram</SocialLink>
-              <SocialLink href="#">Facebook</SocialLink>
+              <SocialLink href={LINKED_IN_LINK} target="_blank">
+                LinkedIn
+              </SocialLink>
             </SocialLinks>
+            <SocialLink href={USER_AGREEMENT_LINK} target="_blank">
+              User Agreement
+            </SocialLink>
+            <SocialLink href={TERMS_AND_AGREEMENT_LINK} target="_blank">
+              Terms & Conditions
+            </SocialLink>
           </FooterLinks>
         </BottomSection>
       )}
