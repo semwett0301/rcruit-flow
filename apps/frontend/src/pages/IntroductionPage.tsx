@@ -29,6 +29,7 @@ import { show } from '@ebay/nice-modal-react';
 import { SimpleModal } from 'modals/SimpleModal';
 import { ResetBodyModal } from 'modals/body/ResetBodyModal';
 import { FileUploadState } from 'ui/FileUpload';
+import { AuthBodyModal } from 'modals/body/AuthBodyModal';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -110,7 +111,13 @@ export const IntroductionPage = () => {
       if (introductionFormState.candidateInformation) {
         const candidateInfo = introductionFormState.candidateInformation;
 
-        const currentUser = getUser();
+        const { name: recruiterName } = getUser();
+
+        if (!recruiterName) {
+          return show(SimpleModal, {
+            body: <AuthBodyModal />,
+          });
+        }
 
         const jobDescriptionFileId = formValue.jobDescriptionFile?.fileId;
         const finalJobDescription = {
@@ -123,7 +130,7 @@ export const IntroductionPage = () => {
         const generateData = {
           ...formValue,
           ...candidateInfo,
-          recruiterName: currentUser.name,
+          recruiterName,
           focusRoles: candidateInfo.focusRoles.map((el) => el.role),
           ...finalJobDescription,
         };

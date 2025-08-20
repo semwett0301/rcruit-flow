@@ -110,7 +110,7 @@ export const JobDescriptionForm = forwardRef<
                 render={({ field, fieldState }) => (
                   <Textarea
                     {...field}
-                    height={heightBody}
+                    height={`${heightBody}px`}
                     placeholder="Enter the job description..."
                     error={fieldState.error?.message}
                   />
