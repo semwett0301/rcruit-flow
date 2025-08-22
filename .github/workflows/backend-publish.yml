@@ -22,9 +22,14 @@ jobs:
         with:
           filters: |
             only_ignored:
+              - '.github/**'
               - 'demonstration/**'
               - 'apps/frontend/**'
-          base: ${{ github.event.workflow_run.head_commit.id }}
+            other:
+              - '**'
+      - name: Set build flag
+        run: echo "should_build=${{ steps.filter.outputs.other != 'false' }}" >> $GITHUB_OUTPUT
+
 
   build-and-push-backend:
     runs-on: ubuntu-latest
