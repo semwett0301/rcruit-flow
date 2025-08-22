@@ -107,7 +107,7 @@ export const candidateFormDefaultValues: CandidateFormState = {
   ],
   salaryPeriod: SalaryPeriod.YEAR,
   grossSalary: 0,
-  hoursAWeek: 8,
+  hoursAWeek: 40,
   hardSkills: [],
   travelOptions: [
     {
