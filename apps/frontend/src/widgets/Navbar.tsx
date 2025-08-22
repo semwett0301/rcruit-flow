@@ -1,9 +1,6 @@
 import React, { useLayoutEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { Button } from 'ui/Button';
-import { Switch } from 'ui/Switch';
-import { language } from 'constants/language';
-import { SwitchOption } from 'types/ui/SwitchOption';
 import LogoIcon from 'assets/images/logo.svg?component';
 import { SquaredButton } from 'ui/SquareButton';
 import {
