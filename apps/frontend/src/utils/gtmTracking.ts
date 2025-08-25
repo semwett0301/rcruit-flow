@@ -33,7 +33,6 @@ export const gtmTracking = {
   trackStepSubmitSuccess: ({ formName, step }: StepCommon) =>
     pushToDL('form_step_submit_success', {
       form_name: formName,
-      status: 'success',
       form_step: step,
     }),
 
