@@ -78,29 +78,7 @@ interface IntroductionFormState extends GlobalFormState {
   emailGeneration?: EmailGenerationFormState;
 }
 
-export const IntroductionPage = (
-  emailGenerationForm: JSX.Element = (
-    <>
-      <EmailGenerationForm
-        state={introductionFormState.emailGeneration}
-        onCopy={copyToClipboard}
-        onChange={(message) => {
-          setIntroductionFormState({
-            ...introductionFormState,
-            emailGeneration: {
-              message,
-            },
-          });
-        }}
-        onGenerate={() => {
-          if (introductionFormState.jobDescription) {
-            generateEmail(introductionFormState.jobDescription);
-          }
-        }}
-      />
-    </>
-  ),
-) => {
+export const IntroductionPage = () => {
   const [currentStep, setCurrentStep] = useState<StepKey>('cvUpload');
 
   const { getUser } = useAuth();
@@ -274,7 +252,25 @@ export const IntroductionPage = (
       key: 'emailGeneration',
       step: 4,
       title: 'Email Generation',
-      BodyComponent: emailGenerationForm,
+      BodyComponent: (
+        <EmailGenerationForm
+          state={introductionFormState.emailGeneration}
+          onCopy={copyToClipboard}
+          onChange={(message) => {
+            setIntroductionFormState({
+              ...introductionFormState,
+              emailGeneration: {
+                message,
+              },
+            });
+          }}
+          onGenerate={() => {
+            if (introductionFormState.jobDescription) {
+              generateEmail(introductionFormState.jobDescription);
+            }
+          }}
+        />
+      ),
     },
   ];
 
