@@ -298,8 +298,6 @@ export const IntroductionPage = () => {
     return null;
   }
 
-  console.log(introductionFormState);
-
   return (
     <FlowGridContainer
       BottomComponent={
