@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useRef, useState } from 'react';
 import { FlowGridContainer } from 'containers/FlowGridContainer';
 import styled from 'styled-components';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
@@ -78,7 +78,29 @@ interface IntroductionFormState extends GlobalFormState {
   emailGeneration?: EmailGenerationFormState;
 }
 
-export const IntroductionPage = () => {
+export const IntroductionPage = (
+  emailGenerationForm: JSX.Element = (
+    <>
+      <EmailGenerationForm
+        state={introductionFormState.emailGeneration}
+        onCopy={copyToClipboard}
+        onChange={(message) => {
+          setIntroductionFormState({
+            ...introductionFormState,
+            emailGeneration: {
+              message,
+            },
+          });
+        }}
+        onGenerate={() => {
+          if (introductionFormState.jobDescription) {
+            generateEmail(introductionFormState.jobDescription);
+          }
+        }}
+      />
+    </>
+  ),
+) => {
   const [currentStep, setCurrentStep] = useState<StepKey>('cvUpload');
 
   const { getUser } = useAuth();
@@ -252,25 +274,7 @@ export const IntroductionPage = () => {
       key: 'emailGeneration',
       step: 4,
       title: 'Email Generation',
-      BodyComponent: (
-        <EmailGenerationForm
-          state={introductionFormState.emailGeneration}
-          onCopy={copyToClipboard}
-          onChange={(message) => {
-            setIntroductionFormState({
-              ...introductionFormState,
-              emailGeneration: {
-                message,
-              },
-            });
-          }}
-          onGenerate={() => {
-            if (introductionFormState.jobDescription) {
-              generateEmail(introductionFormState.jobDescription);
-            }
-          }}
-        />
-      ),
+      BodyComponent: emailGenerationForm,
     },
   ];
 

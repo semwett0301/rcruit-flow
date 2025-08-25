@@ -52,6 +52,7 @@
     "type-fest": "4.20.1",
     "vite": "^7.0.4",
     "vite-plugin-checker": "0.8.0",
+    "vite-plugin-html": "^3.2.2",
     "vite-plugin-svgr": "4.2.0",
     "vite-tsconfig-paths": "5.0.1"
   }
