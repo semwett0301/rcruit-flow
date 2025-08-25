@@ -30,7 +30,6 @@ import { SimpleModal } from 'modals/SimpleModal';
 import { ResetBodyModal } from 'modals/body/ResetBodyModal';
 import { FileUploadState } from 'ui/FileUpload';
 import { AuthBodyModal } from 'modals/body/AuthBodyModal';
-import { EventCategory, gAnalytics } from 'utils/gAnalytics';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -101,11 +100,6 @@ export const IntroductionPage = () => {
           onReset={() => {
             setIntroductionFormState({});
             setCurrentStep('cvUpload');
-
-            gAnalytics.registerEvent({
-              category: EventCategory.INTRO_MAIL,
-              action: 'Form reset',
-            });
           }}
         />
       ),
@@ -195,11 +189,6 @@ export const IntroductionPage = () => {
               },
             },
           );
-
-          gAnalytics.registerEvent({
-            category: EventCategory.INTRO_MAIL,
-            action: 'CV upload step',
-          });
         } else {
           throw Error('Impossible behaviour');
         }
@@ -236,11 +225,6 @@ export const IntroductionPage = () => {
             });
 
             setCurrentStep('jobDescription');
-
-            gAnalytics.registerEvent({
-              category: EventCategory.INTRO_MAIL,
-              action: 'Candidate information step',
-            });
           }}
         />
       ),
@@ -259,11 +243,6 @@ export const IntroductionPage = () => {
           defaultValues={introductionFormState.jobDescription}
           onSubmit={(formValue) => {
             generateEmail(formValue);
-
-            gAnalytics.registerEvent({
-              category: EventCategory.INTRO_MAIL,
-              action: 'Job description step',
-            });
           }}
         />
       ),
@@ -288,11 +267,6 @@ export const IntroductionPage = () => {
           onGenerate={() => {
             if (introductionFormState.jobDescription) {
               generateEmail(introductionFormState.jobDescription);
-
-              gAnalytics.registerEvent({
-                category: EventCategory.INTRO_MAIL,
-                action: 'Email regeneration',
-              });
             }
           }}
         />
@@ -302,13 +276,6 @@ export const IntroductionPage = () => {
 
   const currentConfigIdx = flowSteps.findIndex((el) => el.key === currentStep);
   const currentConfig = flowSteps[currentConfigIdx];
-
-  useEffect(() => {
-    gAnalytics.registerPageView(
-      window.location.pathname,
-      'Introduction mail load',
-    );
-  }, []);
 
   if (!currentConfig) {
     return null;
