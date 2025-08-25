@@ -53,11 +53,14 @@ const StepName = styled.span`
   color: ${({ theme }) => theme.colors.white}
 `;
 
-export type IntroMailStepKey =
-  | 'cv_upload'
-  | 'candidate_information'
-  | 'job_description'
-  | 'email_generation';
+interface IntroductionFormState {
+  cv_upload?: FileUploadState;
+  candidate_information?: CandidateFormState;
+  job_description?: JobDescriptionFormState;
+  email_generation?: EmailGenerationFormState;
+}
+
+export type IntroMailStepKey = keyof IntroductionFormState;
 
 type FlowStepConfig = {
   key: IntroMailStepKey;
@@ -67,17 +70,6 @@ type FlowStepConfig = {
   BodyComponent: ReactNode;
   enableNext?: boolean;
 };
-
-type GlobalFormState = {
-  [key in IntroMailStepKey]?: object;
-};
-
-interface IntroductionFormState extends GlobalFormState {
-  cvUpload?: FileUploadState;
-  candidateInformation?: CandidateFormState;
-  jobDescription?: JobDescriptionFormState;
-  emailGeneration?: EmailGenerationFormState;
-}
 
 // TODO refactor and decompose the page
 export const IntroductionPage = () => {
@@ -114,8 +106,8 @@ export const IntroductionPage = () => {
 
   const generateEmail = useCallback(
     (formValue: JobDescriptionFormState) => {
-      if (introductionFormState.candidateInformation) {
-        const candidateInfo = introductionFormState.candidateInformation;
+      if (introductionFormState.candidate_information) {
+        const candidateInfo = introductionFormState.candidate_information;
 
         const { name: recruiterName } = getUser();
 
@@ -150,8 +142,8 @@ export const IntroductionPage = () => {
           onSuccess: (emailResponse) => {
             setIntroductionFormState({
               ...introductionFormState,
-              jobDescription: formValue,
-              emailGeneration: {
+              job_description: formValue,
+              email_generation: {
                 message: emailResponse.data.email,
               },
             });
@@ -170,7 +162,7 @@ export const IntroductionPage = () => {
       step: 1,
       title: 'CV upload',
       onNext: () => {
-        const fileId = introductionFormState.cvUpload?.fileId;
+        const fileId = introductionFormState.cv_upload?.fileId;
 
         if (fileId) {
           cvsExtract(
@@ -181,9 +173,9 @@ export const IntroductionPage = () => {
               onSuccess: (result) => {
                 setIntroductionFormState({
                   ...introductionFormState,
-                  candidateInformation: {
+                  candidate_information: {
                     ...candidateFormDefaultValues,
-                    ...introductionFormState.candidateInformation,
+                    ...introductionFormState.candidate_information,
                     ...result.data,
                     unemployed:
                       !result.data.currentEmployer ||
@@ -206,12 +198,12 @@ export const IntroductionPage = () => {
       },
       BodyComponent: (
         <CvUploadForm
-          defaultValue={introductionFormState.cvUpload}
+          defaultValue={introductionFormState.cv_upload}
           onSubmit={(state) =>
             state
               ? setIntroductionFormState({
                   ...introductionFormState,
-                  cvUpload: state,
+                  cv_upload: state,
                 })
               : setIntroductionFormState({})
           }
@@ -228,11 +220,11 @@ export const IntroductionPage = () => {
       BodyComponent: (
         <CandidateForm
           ref={candidateFormRef}
-          defaultValues={introductionFormState.candidateInformation}
+          defaultValues={introductionFormState.candidate_information}
           onSubmit={(formValue) => {
             setIntroductionFormState({
               ...introductionFormState,
-              candidateInformation: formValue,
+              candidate_information: formValue,
             });
 
             setCurrentStep('job_description');
@@ -256,7 +248,7 @@ export const IntroductionPage = () => {
       BodyComponent: (
         <JobDescriptionForm
           ref={jobDescFormRef}
-          defaultValues={introductionFormState.jobDescription}
+          defaultValues={introductionFormState.job_description}
           onSubmit={(formValue) => {
             generateEmail(formValue);
 
@@ -275,19 +267,19 @@ export const IntroductionPage = () => {
       title: 'Email Generation',
       BodyComponent: (
         <EmailGenerationForm
-          state={introductionFormState.emailGeneration}
+          state={introductionFormState.email_generation}
           onCopy={copyToClipboard}
           onChange={(message) => {
             setIntroductionFormState({
               ...introductionFormState,
-              emailGeneration: {
+              email_generation: {
                 message,
               },
             });
           }}
           onGenerate={() => {
-            if (introductionFormState.jobDescription) {
-              generateEmail(introductionFormState.jobDescription);
+            if (introductionFormState.job_description) {
+              generateEmail(introductionFormState.job_description);
 
               gtmTracking.trackRegenerate({
                 formName: GtmForm.INTRO_MAIL,
@@ -305,6 +297,8 @@ export const IntroductionPage = () => {
   if (!currentConfig) {
     return null;
   }
+
+  console.log(introductionFormState);
 
   return (
     <FlowGridContainer
