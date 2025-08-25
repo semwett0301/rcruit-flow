@@ -1,8 +1,8 @@
 import React, { useLayoutEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
-import { Button } from 'ui/Button';
+import { Button } from 'ui/components/Button';
 import LogoIcon from 'assets/images/logo.svg?component';
-import { SquaredButton } from 'ui/SquareButton';
+import { SquaredButton } from 'ui/components/SquareButton';
 import {
   AvatarIcon,
   ChevronLeftIcon,

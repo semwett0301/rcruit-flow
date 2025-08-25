@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import styled from 'styled-components';
-import { Tooltip } from 'ui/Tooltip';
+import { Tooltip } from 'ui/components/Tooltip';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 
 const TooltipContentWrapper = styled.div`

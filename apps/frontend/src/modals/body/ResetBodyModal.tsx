@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { remove } from '@ebay/nice-modal-react';
 import { ExclamationTriangleIcon, LoopIcon } from '@radix-ui/react-icons';
-import { Button } from 'ui/Button';
+import { Button } from 'ui/components/Button';
 import { SimpleModal } from 'modals/SimpleModal';
 
 interface ResetBodyModalProps {

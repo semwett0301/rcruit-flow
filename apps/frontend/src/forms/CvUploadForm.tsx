@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FileUpload, FileUploadState, useFileUpload } from 'ui/FileUpload';
+import {
+  FileUpload,
+  FileUploadState,
+  useFileUpload,
+} from 'ui/components/FileUpload';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { CvUploadTooltip } from 'widgets/CvUploadTooltip';

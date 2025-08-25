@@ -1,6 +1,6 @@
 import { create, remove } from '@ebay/nice-modal-react';
 import { ReactNode } from 'react';
-import { ModalContainer } from 'containers/ModalContainer';
+import { ModalContainer } from 'ui/containers/ModalContainer';
 
 interface SimpleModalProps {
   body: ReactNode;

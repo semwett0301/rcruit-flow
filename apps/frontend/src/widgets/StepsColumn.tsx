@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import { SquaredButton } from 'ui/SquareButton';
+import { SquaredButton } from 'ui/components/SquareButton';
 
 export type StepDescription = {
   label: string | number;

@@ -4,7 +4,7 @@ import BackgroundSpiral from 'assets/images/background-spiral.svg';
 import LoadingOverlay from 'react-loading-overlay-ts';
 import styled from 'styled-components';
 
-export const LoadingWrapper = styled(LoadingOverlay)`
+export const LoadingProvider = styled(LoadingOverlay)`
   height: 100%;
   width: 100%;
 

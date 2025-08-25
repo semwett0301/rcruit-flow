@@ -1,8 +1,8 @@
 import { ReactNode, useCallback, useRef, useState } from 'react';
-import { FlowGridContainer } from 'containers/FlowGridContainer';
+import { FlowGridContainer } from 'ui/containers/FlowGridContainer';
 import styled from 'styled-components';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
-import { Button } from 'ui/Button';
+import { Button } from 'ui/components/Button';
 import { ChevronRightIcon, LoopIcon } from '@radix-ui/react-icons';
 import { StepsColumn } from 'widgets/StepsColumn';
 import { CvUploadForm } from 'forms/CvUploadForm';
@@ -28,8 +28,9 @@ import { useAuth } from 'hooks/useAuth';
 import { show } from '@ebay/nice-modal-react';
 import { SimpleModal } from 'modals/SimpleModal';
 import { ResetBodyModal } from 'modals/body/ResetBodyModal';
-import { FileUploadState } from 'ui/FileUpload';
+import { FileUploadState } from 'ui/components/FileUpload';
 import { AuthBodyModal } from 'modals/body/AuthBodyModal';
+import { GtmForm, gtmTracking } from 'utils/gtmTracking';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -52,14 +53,14 @@ const StepName = styled.span`
   color: ${({ theme }) => theme.colors.white}
 `;
 
-type StepKey =
-  | 'cvUpload'
-  | 'candidateInformation'
-  | 'jobDescription'
-  | 'emailGeneration';
+export type IntroMailStepKey =
+  | 'cv_upload'
+  | 'candidate_information'
+  | 'job_description'
+  | 'email_generation';
 
 type FlowStepConfig = {
-  key: StepKey;
+  key: IntroMailStepKey;
   step: number;
   title: string;
   onNext?: () => void;
@@ -68,7 +69,7 @@ type FlowStepConfig = {
 };
 
 type GlobalFormState = {
-  [key in StepKey]?: object;
+  [key in IntroMailStepKey]?: object;
 };
 
 interface IntroductionFormState extends GlobalFormState {
@@ -78,8 +79,9 @@ interface IntroductionFormState extends GlobalFormState {
   emailGeneration?: EmailGenerationFormState;
 }
 
+// TODO refactor and decompose the page
 export const IntroductionPage = () => {
-  const [currentStep, setCurrentStep] = useState<StepKey>('cvUpload');
+  const [currentStep, setCurrentStep] = useState<IntroMailStepKey>('cv_upload');
 
   const { getUser } = useAuth();
 
@@ -99,7 +101,11 @@ export const IntroductionPage = () => {
         <ResetBodyModal
           onReset={() => {
             setIntroductionFormState({});
-            setCurrentStep('cvUpload');
+            setCurrentStep('cv_upload');
+
+            gtmTracking.trackReset({
+              formName: GtmForm.INTRO_MAIL,
+            });
           }}
         />
       ),
@@ -150,7 +156,7 @@ export const IntroductionPage = () => {
               },
             });
 
-            setCurrentStep('emailGeneration');
+            setCurrentStep('email_generation');
           },
         });
       }
@@ -160,7 +166,7 @@ export const IntroductionPage = () => {
 
   const flowSteps: [FlowStepConfig, ...FlowStepConfig[]] = [
     {
-      key: 'cvUpload',
+      key: 'cv_upload',
       step: 1,
       title: 'CV upload',
       onNext: () => {
@@ -185,7 +191,12 @@ export const IntroductionPage = () => {
                   },
                 });
 
-                setCurrentStep('candidateInformation');
+                setCurrentStep('candidate_information');
+
+                gtmTracking.trackStepSubmitSuccess({
+                  formName: GtmForm.INTRO_MAIL,
+                  step: 'cv_upload',
+                });
               },
             },
           );
@@ -208,7 +219,7 @@ export const IntroductionPage = () => {
       ),
     },
     {
-      key: 'candidateInformation',
+      key: 'candidate_information',
       step: 2,
       title: 'Candidate Information',
       onNext: () => {
@@ -224,14 +235,19 @@ export const IntroductionPage = () => {
               candidateInformation: formValue,
             });
 
-            setCurrentStep('jobDescription');
+            setCurrentStep('job_description');
+
+            gtmTracking.trackStepSubmitSuccess({
+              formName: GtmForm.INTRO_MAIL,
+              step: 'candidate_information',
+            });
           }}
         />
       ),
       enableNext: true,
     },
     {
-      key: 'jobDescription',
+      key: 'job_description',
       step: 3,
       title: 'Job Description',
       onNext: () => {
@@ -243,13 +259,18 @@ export const IntroductionPage = () => {
           defaultValues={introductionFormState.jobDescription}
           onSubmit={(formValue) => {
             generateEmail(formValue);
+
+            gtmTracking.trackStepSubmitSuccess({
+              formName: GtmForm.INTRO_MAIL,
+              step: 'job_description',
+            });
           }}
         />
       ),
       enableNext: true,
     },
     {
-      key: 'emailGeneration',
+      key: 'email_generation',
       step: 4,
       title: 'Email Generation',
       BodyComponent: (
@@ -267,6 +288,10 @@ export const IntroductionPage = () => {
           onGenerate={() => {
             if (introductionFormState.jobDescription) {
               generateEmail(introductionFormState.jobDescription);
+
+              gtmTracking.trackRegenerate({
+                formName: GtmForm.INTRO_MAIL,
+              });
             }
           }}
         />

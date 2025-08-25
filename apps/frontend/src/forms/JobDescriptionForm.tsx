@@ -1,11 +1,20 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { Input } from 'ui/Input';
-import { FormCol, FormRow, Section, SectionTitle } from 'ui/FormElements';
-import { Textarea } from 'ui/Textarea';
-import { TextSwitch } from 'ui/TextSwitch';
+import { Input } from 'ui/components/Input';
+import {
+  FormCol,
+  FormRow,
+  Section,
+  SectionTitle,
+} from 'ui/components/FormElements';
+import { Textarea } from 'ui/components/Textarea';
+import { TextSwitch } from 'ui/components/TextSwitch';
 import { SwitchOption } from 'types/ui/SwitchOption';
-import { FileUpload, FileUploadState, useFileUpload } from 'ui/FileUpload';
+import {
+  FileUpload,
+  FileUploadState,
+  useFileUpload,
+} from 'ui/components/FileUpload';
 
 const heightBody = 315;
 

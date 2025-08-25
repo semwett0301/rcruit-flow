@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { Textarea } from 'ui/Textarea';
-import { Button } from 'ui/Button';
+import { Textarea } from 'ui/components/Textarea';
+import { Button } from 'ui/components/Button';
 import { CopyIcon, ReloadIcon } from '@radix-ui/react-icons';
 
 export type EmailGenerationFormState = {

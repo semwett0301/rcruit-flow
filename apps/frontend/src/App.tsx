@@ -3,23 +3,23 @@ import AppRouter from './router';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { useAxiosLoader } from 'hooks/useAxiosLoader';
-import { LoadingWrapper } from 'containers/LoadingContainer';
-import { NavbarContainer } from 'containers/NavbarContainer';
+import { LoadingProvider } from 'providers/LoadingProvider';
+import { NavbarContainer } from 'ui/containers/NavbarContainer';
 import { Navbar } from 'widgets/Navbar';
-import { ContentContainer } from 'containers/ContentContainer';
+import { ContentContainer } from 'ui/containers/ContentContainer';
 
 const App: React.FC = () => {
   const hasRequest = useAxiosLoader();
 
   return (
-    <LoadingWrapper active={hasRequest} spinner>
+    <LoadingProvider active={hasRequest} spinner>
       <NavbarContainer>
         <Navbar />
       </NavbarContainer>
       <ContentContainer>
         <AppRouter />
       </ContentContainer>
-    </LoadingWrapper>
+    </LoadingProvider>
   );
 };
 

@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
-import { Button, ButtonProps } from 'ui/Button';
+import { Button, ButtonProps } from 'ui/components/Button';
 
 export type SquareButtonSize = 'xs' | 's' | 'l';
 

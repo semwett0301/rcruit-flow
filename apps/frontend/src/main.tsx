@@ -10,6 +10,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 
 import './config/axiosConfig';
 import NiceModal from '@ebay/nice-modal-react';
+import { GtmProvider } from 'providers/GtmProvider';
 
 const container = document.getElementById('root');
 
@@ -20,6 +21,7 @@ if (container) {
     <ThemeProvider theme={blueTheme}>
       <QueryClientProvider client={queryClient}>
         <NiceModal.Provider>
+          <GtmProvider />
           <ToastContainer />
           <GlobalStyle />
           <App />

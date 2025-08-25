@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { HiddenCheckbox } from 'ui/Checkbox';
+import { HiddenCheckbox } from 'ui/components/Checkbox';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { SwitchProps } from 'types/ui/SwitchOption';
 

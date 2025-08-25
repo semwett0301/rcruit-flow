@@ -11,9 +11,9 @@ import {
   useFieldArray,
   useForm,
 } from 'react-hook-form';
-import { Input } from 'ui/Input';
-import { Checkbox } from 'ui/Checkbox';
-import { Select } from 'ui/Select';
+import { Input } from 'ui/components/Input';
+import { Checkbox } from 'ui/components/Checkbox';
+import { Select } from 'ui/components/Select';
 import {
   Degree,
   DegreeLevel,
@@ -22,22 +22,22 @@ import {
   WEEK_HOURS,
   WeekHours,
 } from '@repo/dto';
-import { Textarea } from 'ui/Textarea';
-import { Switch } from 'ui/Switch';
+import { Textarea } from 'ui/components/Textarea';
+import { Switch } from 'ui/components/Switch';
 import { SwitchOption } from 'types/ui/SwitchOption';
 import { Cross2Icon, PlusIcon } from '@radix-ui/react-icons';
-import { RowContainer } from 'containers/RowContainer';
-import { SkillChip } from 'ui/SkillChip';
+import { RowContainer } from 'ui/containers/RowContainer';
+import { SkillChip } from 'ui/components/SkillChip';
 import {
   FormCol,
   FormRow,
   Label,
   Section,
   SectionTitle,
-} from 'ui/FormElements';
-import { Button } from 'ui/Button';
-import { SquaredButton } from 'ui/SquareButton';
-import { Separator } from 'ui/Separator';
+} from 'ui/components/FormElements';
+import { Button } from 'ui/components/Button';
+import { SquaredButton } from 'ui/components/SquareButton';
+import { Separator } from 'ui/components/Separator';
 import styled from 'styled-components';
 
 export type CandidateFormHandles = {
