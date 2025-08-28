@@ -58,6 +58,7 @@ jobs:
   build-and-deploy-frontend:
     permissions:
       id-token: write
+      contents: read
     needs: changes_check
     if: ${{ github.event_name == 'push' && needs.changes_check.outputs.is_frontend_affected == 'true' }}
     runs-on: ubuntu-latest
