@@ -55,7 +55,7 @@ jobs:
 
   build-and-deploy-frontend:
     needs: changes_check
-    if: ${{ github.event_name == 'push' && needs.changes.outputs.has_others == 'true' }}
+    if: ${{ github.event_name == 'push' && needs.changes_check.outputs.has_others == 'true' }}
     runs-on: ubuntu-latest
     env:
       FRONTEND_BUILD_DIR: apps/frontend/dist
