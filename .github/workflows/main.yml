@@ -37,7 +37,8 @@ jobs:
     if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     outputs:
-      has_others: ${{ steps.filter.outputs.has_others }}
+      is_frontend_affected: ${{ steps.filter.outputs.is_frontend_affected }}
+      is_backend_affected: ${{ steps.filter.outputs.is_backend_affected }}
     steps:
       - uses: actions/checkout@v4
 
