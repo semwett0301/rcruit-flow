@@ -203,7 +203,7 @@ export const Navbar = () => {
             {isOpen ? (
               <>
                 <MenuOption $isActive>Introduction Email</MenuOption>
-                <MenuOption>Interview Preparation</MenuOption>
+                <MenuOption>Preparation Email</MenuOption>
               </>
             ) : (
               <>
