@@ -9,7 +9,7 @@ on:
 jobs:
   lint-and-check:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' && github.head_ref != 'development' }}
+    if: ${{ github.event_name == 'pull_request' && github.head_ref != 'develop' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
               - 'README.md'
               - 'docker-compose.yaml'
             has_others:
-              - **
+              - '**'
 
   build-and-deploy-frontend:
     needs: changes_check
