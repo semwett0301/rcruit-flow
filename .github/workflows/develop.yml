@@ -1,4 +1,4 @@
-name: CI (Lint/Check → Build/Deploy)
+name: DEV (Lint/Check -> Build?/Deploy?)
 
 on:
   push:
@@ -52,20 +52,15 @@ jobs:
             other:
               - '**'
 
-      - name: Check build condition
-        run: |
-          if [[ "${{ steps.filter.outputs.only_ignored }}" == "true" ]]; then
-            echo "No relevant changes detected. Skipping build and deploy."
-            exit 1
-          fi
-
       - name: Log in to Docker Hub
+        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
+        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -74,6 +69,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_VERSION }}
 
       - name: Trigger Render deploy
+        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         uses: JorgeLNJunior/render-deploy@v1.4.5
         with:
           service_id: ${{ secrets.RENDER_SERVICE_ID }}
