@@ -46,16 +46,19 @@ jobs:
         uses: dorny/paths-filter@v3
         with:
           filters: |
-            only_common_ignored:
-              - '.github/**'
-              - 'README.md'
-              - 'docker-compose.yaml'
-            has_others:
-              - '**'
+            is_frontend_affected:
+              - 'apps/frontend/**'
+              - 'packages/**'
+            
+            is_backend_affected:
+              - 'apps/backend/**'
+              - 'packages/**'
 
   build-and-deploy-frontend:
+    permissions:
+      id-token: write
     needs: changes_check
-    if: ${{ github.event_name == 'push' && needs.changes_check.outputs.has_others == 'true' }}
+    if: ${{ github.event_name == 'push' && needs.changes_check.outputs.is_frontend_affected == 'true' }}
     runs-on: ubuntu-latest
     env:
       FRONTEND_BUILD_DIR: apps/frontend/dist
@@ -78,29 +81,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check if only ignored files were changed
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            only_ignored:
-              - 'apps/backend/**'
-            other:
-              - '**'
-
       - name: Build frontend
-        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         run: pnpm build --filter=frontend
 
       - name: Configure AWS credentials
-        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Sync static assets
-        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         run: |
           aws s3 cp "$FRONTEND_BUILD_DIR" "s3://${S3_BUCKET}/" \
             --recursive \
