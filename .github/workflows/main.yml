@@ -9,7 +9,7 @@ on:
 jobs:
   lint-and-check:
     runs-on: ubuntu-latest
-    if: ${{ github.head_ref != 'development' }}
+    if: ${{ github.event_name == 'pull_request' && github.head_ref != 'development' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,11 +34,10 @@ jobs:
         run: pnpm turbo run check
 
   changes_check:
-    needs: lint-and-check
     if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     outputs:
-      only_common_ignored: ${{ steps.filter.outputs.only_common_ignored }}
+      has_others: ${{ steps.filter.outputs.has_others }}
     steps:
       - uses: actions/checkout@v4
 
@@ -51,10 +50,12 @@ jobs:
               - '.github/**'
               - 'README.md'
               - 'docker-compose.yaml'
+            has_others:
+              - **
 
   build-and-deploy-frontend:
     needs: changes_check
-    if: ${{ github.event_name == 'push' && needs.changes.outputs.only_common_ignored == 'false' }}
+    if: ${{ github.event_name == 'push' && needs.changes.outputs.has_others == 'true' }}
     runs-on: ubuntu-latest
     env:
       FRONTEND_BUILD_DIR: apps/frontend/dist
@@ -68,6 +69,8 @@ jobs:
           filters: |
             only_ignored:
               - 'apps/backend/**'
+            other:
+              - '**'
 
       - name: Checkout code
         if: ${{ steps.filter.outputs.only_ignored == 'false' }}
