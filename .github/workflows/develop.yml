@@ -3,8 +3,6 @@ name: DEV (Lint/Check -> Build?/Deploy?)
 on:
   push:
     branches: [develop]
-  pull_request:
-    branches: [develop, main]
 
 jobs:
   lint-and-check:
@@ -34,7 +32,7 @@ jobs:
 
   build-and-deploy:
     needs: lint-and-check
-    if: ${{ github.event_name == 'push' && needs.lint-and-check.result == 'success' }}
+    if: ${{ needs.lint-and-check.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
