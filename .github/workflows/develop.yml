@@ -1,4 +1,4 @@
-name: DEV (Lint/Check -> Build?/Deploy?)
+name: Development pipeline
 
 on:
   push:
@@ -34,7 +34,7 @@ jobs:
 
   build-and-deploy:
     needs: lint-and-check
-    if: ${{ github.event_name == 'push' && needs.lint-and-check.result == 'success' }}
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -47,8 +47,9 @@ jobs:
           filters: |
             only_ignored:
               - '.github/**'
-              - 'demonstration/**'
               - 'apps/frontend/**'
+              - 'README.md'
+              - 'docker-compose.yaml'
             other:
               - '**'
 
