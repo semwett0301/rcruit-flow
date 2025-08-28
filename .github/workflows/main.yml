@@ -9,6 +9,7 @@ on:
 jobs:
   lint-and-check:
     runs-on: ubuntu-latest
+    if: ${{ github.head_ref != 'development' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,6 +54,7 @@ jobs:
 
   build-and-deploy-frontend:
     needs: changes_check
+    if: ${{ github.event_name == 'push' && needs.changes.outputs.only_common_ignored == 'false' }}
     runs-on: ubuntu-latest
     env:
       FRONTEND_BUILD_DIR: apps/frontend/dist
@@ -67,16 +69,23 @@ jobs:
             only_ignored:
               - 'apps/backend/**'
 
+      - name: Checkout code
+        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
+        uses: actions/checkout@v4
+
       - name: Build frontend
+        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         run: pnpm build --filter=frontend
 
       - name: Configure AWS credentials
+        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Sync static assets
+        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         run: |
           aws s3 cp "$FRONTEND_BUILD_DIR" "s3://${S3_BUCKET}/" \
             --recursive \
@@ -84,6 +93,7 @@ jobs:
             --metadata-directive REPLACE
 
       - name: Invalidate CloudFront (optional)
+        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         run: |
           aws cloudfront create-invalidation \
             --distribution-id "${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}" \
