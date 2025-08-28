@@ -1,17 +1,41 @@
-name: Build and Push to Docker Hub
+name: Development pipeline
 
 on:
-  workflow_run:
-    workflows: [ "Lint And Check" ]
-    types:
-      - completed
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
 
 jobs:
-  check-if-build-should-run:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+  lint-and-check:
     runs-on: ubuntu-latest
-    outputs:
-      should_build: ${{ steps.filter.outputs.only_ignored == 'false' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.13.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run lint
+        run: pnpm turbo run lint
+
+      - name: Run type check
+        run: pnpm turbo run check
+
+  build-and-deploy:
+    needs: lint-and-check
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,30 +47,21 @@ jobs:
           filters: |
             only_ignored:
               - '.github/**'
-              - 'demonstration/**'
               - 'apps/frontend/**'
+              - 'README.md'
+              - 'docker-compose.yaml'
             other:
               - '**'
-      - name: Set build flag
-        run: echo "should_build=${{ steps.filter.outputs.other != 'false' }}" >> $GITHUB_OUTPUT
-
-
-  build-and-push-backend:
-    runs-on: ubuntu-latest
-    needs: check-if-build-should-run
-    if: ${{ needs.check-if-build-should-run.outputs.should_build == 'true' }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: Log in to Docker Hub
+        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
+        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -54,17 +69,11 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_VERSION }}
 
-
-  deploy-to-render:
-    runs-on: ubuntu-latest
-    needs: build-and-push-backend
-
-    steps:
       - name: Trigger Render deploy
+        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         uses: JorgeLNJunior/render-deploy@v1.4.5
         with:
           service_id: ${{ secrets.RENDER_SERVICE_ID }}
           api_key: ${{ secrets.RENDER_API_KEY }}
           wait_deploy: true
           github_token: ''
-

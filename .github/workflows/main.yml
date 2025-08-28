@@ -1,0 +1,92 @@
+name: Production pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.13.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run lint
+        run: pnpm turbo run lint
+
+      - name: Run type check
+        run: pnpm turbo run check
+
+  changes_check:
+    needs: lint-and-check
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    outputs:
+      only_common_ignored: ${{ steps.filter.outputs.only_common_ignored }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if only ignored files were changed
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            only_common_ignored:
+              - '.github/**'
+              - 'README.md'
+              - 'docker-compose.yaml'
+
+  build-and-deploy-frontend:
+    needs: changes_check
+    runs-on: ubuntu-latest
+    env:
+      FRONTEND_BUILD_DIR: apps/frontend/dist
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      S3_BUCKET: ${{ secrets.AWS_S3_FRONTEND_BUCKET }}
+    steps:
+      - name: Check if only ignored files were changed
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            only_ignored:
+              - 'apps/backend/**'
+
+      - name: Build frontend
+        run: pnpm build --filter=frontend
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync static assets
+        run: |
+          aws s3 cp "$FRONTEND_BUILD_DIR" "s3://${S3_BUCKET}/" \
+            --recursive \
+            --cache-control "no-cache" \
+            --metadata-directive REPLACE
+
+      - name: Invalidate CloudFront (optional)
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*"
+
+      
