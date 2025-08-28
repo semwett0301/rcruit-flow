@@ -63,7 +63,6 @@ jobs:
       S3_BUCKET: ${{ secrets.AWS_S3_FRONTEND_BUCKET }}
     steps:
       - name: Checkout code
-        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         uses: actions/checkout@v4
 
       - name: Check if only ignored files were changed
