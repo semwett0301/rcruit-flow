@@ -100,7 +100,6 @@ jobs:
             --metadata-directive REPLACE
 
       - name: Invalidate CloudFront (optional)
-        if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         run: |
           aws cloudfront create-invalidation \
             --distribution-id "${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}" \
