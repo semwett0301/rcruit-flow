@@ -4,6 +4,7 @@ import { UsersModule } from 'interfaces/http/users/users.module';
 import { DatabaseModule } from 'infrastructure/persistence/database.module';
 import { CvsModule } from 'interfaces/http/cv/cvs.module';
 import { EmailsModule } from './interfaces/http/emails/emails.module';
+import { HealthModule } from './interfaces/http/health/health.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { EmailsModule } from './interfaces/http/emails/emails.module';
     UsersModule,
     CvsModule,
     DatabaseModule,
+    HealthModule,
     EmailsModule,
   ],
 })
