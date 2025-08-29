@@ -68,6 +68,8 @@ jobs:
           file: ./apps/backend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Trigger Render deploy
         if: ${{ steps.filter.outputs.only_ignored == 'false' }}
