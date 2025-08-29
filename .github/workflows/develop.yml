@@ -60,6 +60,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+
       - name: Build and push Docker image
         if: ${{ steps.filter.outputs.only_ignored == 'false' }}
         uses: docker/build-push-action@v5
