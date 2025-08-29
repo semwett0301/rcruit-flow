@@ -6,6 +6,17 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  FRONTEND_BUILD_DIR: apps/frontend/dist
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  S3_BUCKET: ${{ secrets.AWS_S3_FRONTEND_BUCKET }}
+
+  VITE_API_URL: ${{ vars.VITE_API_URL }}
+  VITE_GTM_ID: ${{ secrets.VITE_GTM_ID }}
+  VITE_MODE: ${{ secrets.VITE_MODE }}
+
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+
 jobs:
   lint-and-check:
     runs-on: ubuntu-latest
@@ -55,17 +66,53 @@ jobs:
               - 'apps/backend/**'
               - 'packages/**'
 
+  build-and-deploy-backend:
+    permissions:
+      id-token: write
+      contents: read
+    needs: changes_check
+    if: ${{ github.event_name == 'push' && needs.changes_check.outputs.is_backend_affected == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./apps/backend/Dockerfile
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+
   build-and-deploy-frontend:
     permissions:
       id-token: write
       contents: read
     needs: changes_check
     if: ${{ github.event_name == 'push' && needs.changes_check.outputs.is_frontend_affected == 'true' }}
+
     runs-on: ubuntu-latest
-    env:
-      FRONTEND_BUILD_DIR: apps/frontend/dist
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      S3_BUCKET: ${{ secrets.AWS_S3_FRONTEND_BUCKET }}
+
+    environment: production
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

@@ -20,6 +20,8 @@ export class ExtractCvContentUseCase {
     const cvText = await this.#extractText(dto.fileId);
     const gptResult = await this.#extractDataFromGpt(cvText);
 
+    console.log(gptResult);
+
     return parseGptJsonSafe<ExtractCvDataResult>(gptResult);
   }
 
