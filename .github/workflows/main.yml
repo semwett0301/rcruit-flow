@@ -15,8 +15,6 @@ env:
   VITE_GTM_ID: ${{ secrets.VITE_GTM_ID }}
   VITE_MODE: ${{ secrets.VITE_MODE }}
 
-  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-
 jobs:
   lint-and-check:
     runs-on: ubuntu-latest
@@ -103,9 +101,16 @@ jobs:
           context: .
           file: ./apps/backend/Dockerfile
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ secrets.AWS_ECS_CLUSTER }} \
+            --service ${{ secrets.AWS_ECS_SERVICE }} \
+            --force-new-deployment
 
 
   build-and-deploy-frontend:

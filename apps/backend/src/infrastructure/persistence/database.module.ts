@@ -12,6 +12,8 @@ import { UserOrmEntity } from './entities/user.orm.entity'; // adjust path as ne
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
+        const isSSL = configService.get<string>('DB_SSL') === 'true';
+
         return {
           type: 'postgres',
           host: configService.get<string>('DB_HOST'),
@@ -21,6 +23,7 @@ import { UserOrmEntity } from './entities/user.orm.entity'; // adjust path as ne
           database: configService.get<string>('POSTGRES_DB'),
           entities: [UserOrmEntity],
           synchronize: true,
+          ssl: isSSL ? { rejectUnauthorized: false } : false,
         };
       },
     }),
