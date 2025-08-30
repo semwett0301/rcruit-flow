@@ -10,6 +10,8 @@ export class S3Service {
     const r2Endpoint = this.configService.get<string>('R2_ENDPOINT');
     const isR2 = Boolean(r2Endpoint);
 
+    console.log(`Using R2: ${isR2}`);
+
     this.s3 = new AWS.S3(
       isR2
         ? {
