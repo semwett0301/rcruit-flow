@@ -3,17 +3,31 @@ import * as AWS from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class R2Service {
+export class S3Service {
   private readonly s3: AWS.S3;
 
   constructor(private readonly configService: ConfigService) {
-    this.s3 = new AWS.S3({
-      endpoint: this.configService.get<string>('R2_ENDPOINT'),
-      accessKeyId: this.configService.get<string>('R2_ACCESS_KEY_ID'),
-      secretAccessKey: this.configService.get<string>('R2_SECRET_ACCESS_KEY'),
-      region: 'auto',
-      signatureVersion: 'v4',
-    });
+    const r2Endpoint = this.configService.get<string>('R2_ENDPOINT');
+    const isR2 = Boolean(r2Endpoint);
+
+    console.log(`Using R2: ${isR2}`);
+
+    this.s3 = new AWS.S3(
+      isR2
+        ? {
+            endpoint: r2Endpoint,
+            accessKeyId: this.configService.get<string>('R2_ACCESS_KEY_ID'),
+            secretAccessKey: this.configService.get<string>(
+              'R2_SECRET_ACCESS_KEY',
+            ),
+            region: 'auto',
+            signatureVersion: 'v4',
+            s3ForcePathStyle: true,
+          }
+        : {
+            region: this.configService.get<string>('AWS_REGION'),
+          },
+    );
   }
 
   async uploadFile(

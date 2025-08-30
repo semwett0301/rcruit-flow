@@ -12,13 +12,13 @@ import {
   TravelOption,
 } from '@repo/dto';
 import { extractTextFromPdf } from '../../../shared/utils/extractTextFromPdf';
-import { R2Service } from '../../../infrastructure/s3/minio.service';
+import { S3Service } from '../../../infrastructure/s3/s3.service';
 
 @Injectable()
 export class GenerateEmailUseCase {
   constructor(
     private readonly gpt: GptService,
-    private readonly r2Service: R2Service,
+    private readonly r2Service: S3Service,
   ) {}
 
   async generate(dto: CandidateForm): Promise<EmailResponse> {

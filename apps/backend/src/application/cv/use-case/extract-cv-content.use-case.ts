@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { extractTextFromPdf } from 'shared/utils/extractTextFromPdf';
-import { R2Service } from 'infrastructure/s3/minio.service';
+import { S3Service } from '../../../infrastructure/s3/s3.service';
 import { GptService } from 'infrastructure/gpt/gpt.service';
 import { parseGptJsonSafe } from 'shared/utils/parseGptJsonSave';
 import {
@@ -12,7 +12,7 @@ import { ExtractCvDataRequest, ExtractCvDataResult } from '@repo/dto';
 @Injectable()
 export class ExtractCvContentUseCase {
   constructor(
-    private readonly minioService: R2Service,
+    private readonly minioService: S3Service,
     private readonly gpt: GptService,
   ) {}
 
