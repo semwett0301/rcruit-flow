@@ -29,6 +29,8 @@ export class GenerateEmailUseCase {
       dto.jobDescriptionText = await extractTextFromPdf(file);
     }
 
+    this.logger.debug(`Final job description text: ${dto.jobDescriptionText}`);
+
     const userPrompt = generateEmailUserPrompt({
       dto,
       firstName: this.#getFirstName(dto.candidateName),
