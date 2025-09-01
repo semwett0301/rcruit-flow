@@ -39,6 +39,7 @@ import { Button } from 'ui/components/Button';
 import { SquaredButton } from 'ui/components/SquareButton';
 import { Separator } from 'ui/components/Separator';
 import styled from 'styled-components';
+import { useI18n } from 'hooks/useI18n';
 
 export type CandidateFormHandles = {
   submitForm: () => void;
@@ -140,6 +141,7 @@ export const CandidateForm = forwardRef<
   CandidateFormHandles,
   CandidateFormProps
 >(({ defaultValues, onSubmit }, ref) => {
+  const { t } = useI18n();
   const { control, handleSubmit, setValue, setError, watch } =
     useForm<CandidateFormState>({
       defaultValues: {
@@ -207,35 +209,35 @@ export const CandidateForm = forwardRef<
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
       <Section>
-        <SectionTitle>Personal Information</SectionTitle>
+        <SectionTitle>{t('forms.candidate.sections.personalInformation')}</SectionTitle>
         <FormRow>
           <FormCol>
-            <Label htmlFor="candidateName">Full Name*</Label>
+            <Label htmlFor="candidateName">{t('forms.candidate.fields.fullName.label')}</Label>
             <Controller
               name="candidateName"
               control={control}
               rules={{
-                required: 'Full name is required',
+                required: t('forms.candidate.fields.fullName.error'),
               }}
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
-                  placeholder="Full name"
+                  placeholder={t('forms.candidate.fields.fullName.placeholder')}
                   error={fieldState.error?.message}
                 />
               )}
             />
           </FormCol>
           <FormCol>
-            <Label htmlFor="age">Age*</Label>
+            <Label htmlFor="age">{t('forms.candidate.fields.age.label')}</Label>
             <Controller
               name="age"
               control={control}
               rules={{
-                required: 'Age is required',
+                required: t('forms.candidate.fields.age.error'),
                 min: {
                   value: 1,
-                  message: "Age can't be less than 1",
+                  message: t('forms.candidate.fields.age.minError'),
                 },
               }}
               render={({ field, fieldState }) => (
@@ -243,31 +245,31 @@ export const CandidateForm = forwardRef<
                   {...field}
                   type="number"
                   min={1}
-                  placeholder="Age"
+                  placeholder={t('forms.candidate.fields.age.placeholder')}
                   error={fieldState.error?.message}
                 />
               )}
             />
           </FormCol>
         </FormRow>
-        <Label htmlFor="location">Location*</Label>
+        <Label htmlFor="location">{t('forms.candidate.fields.location.label')}</Label>
         <Controller
           name="location"
           control={control}
           rules={{
-            required: 'Location is required',
+            required: t('forms.candidate.fields.location.error'),
           }}
           render={({ field, fieldState }) => (
             <Input
               {...field}
-              placeholder="ex. London, United Kingdom"
+              placeholder={t('forms.candidate.fields.location.placeholder')}
               error={fieldState.error?.message}
             />
           )}
         />
       </Section>
       <Section>
-        <SectionTitle>Employment Information</SectionTitle>
+        <SectionTitle>{t('forms.candidate.sections.employmentInformation')}</SectionTitle>
         <FormRow>
           <FormCol>
             <Controller
@@ -277,7 +279,7 @@ export const CandidateForm = forwardRef<
                 <Checkbox
                   checked={value}
                   onCheck={onChange}
-                  label="Unemployed"
+                  label={t('forms.candidate.fields.unemployed.label')}
                 />
               )}
             />
@@ -285,20 +287,20 @@ export const CandidateForm = forwardRef<
         </FormRow>
         <FormRow>
           <FormCol>
-            <Label htmlFor="currentEmployer">Current employer*</Label>
+            <Label htmlFor="currentEmployer">{t('forms.candidate.fields.currentEmployer.label')}</Label>
             <Controller
               name="currentEmployer"
               control={control}
               rules={{
                 required: {
                   value: !unemployed,
-                  message: 'Current employer is required',
+                  message: t('forms.candidate.fields.currentEmployer.error'),
                 },
               }}
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
-                  placeholder="Current employer"
+                  placeholder={t('forms.candidate.fields.currentEmployer.placeholder')}
                   error={fieldState.error?.message}
                   disabled={unemployed}
                 />
@@ -306,20 +308,20 @@ export const CandidateForm = forwardRef<
             />
           </FormCol>
           <FormCol>
-            <Label htmlFor="currentPosition">Current position*</Label>
+            <Label htmlFor="currentPosition">{t('forms.candidate.fields.currentPosition.label')}</Label>
             <Controller
               name="currentPosition"
               control={control}
               rules={{
                 required: {
                   value: !unemployed,
-                  message: 'Current position is required',
+                  message: t('forms.candidate.fields.currentPosition.error'),
                 },
               }}
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
-                  placeholder="Current position"
+                  placeholder={t('forms.candidate.fields.currentPosition.placeholder')}
                   error={fieldState.error?.message}
                   disabled={unemployed}
                 />
@@ -329,37 +331,37 @@ export const CandidateForm = forwardRef<
         </FormRow>
       </Section>
       <Section>
-        <SectionTitle>Work Experience</SectionTitle>
+        <SectionTitle>{t('forms.candidate.sections.workExperience')}</SectionTitle>
         <FormRow>
           <FormCol>
             <Label htmlFor="experienceDescription">
-              Experience description*
+              {t('forms.candidate.fields.experienceDescription.label')}
             </Label>
             <Controller
               name="experienceDescription"
               control={control}
               rules={{
-                required: 'Experience description is required',
+                required: t('forms.candidate.fields.experienceDescription.error'),
               }}
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
-                  placeholder="Experience description"
+                  placeholder={t('forms.candidate.fields.experienceDescription.placeholder')}
                   error={fieldState.error?.message}
                 />
               )}
             />
           </FormCol>
           <FormCol $width={130}>
-            <Label htmlFor="yearsOfExperience">Years of experience*</Label>
+            <Label htmlFor="yearsOfExperience">{t('forms.candidate.fields.yearsOfExperience.label')}</Label>
             <Controller
               name="yearsOfExperience"
               control={control}
               rules={{
-                required: 'Number of years is required',
+                required: t('forms.candidate.fields.yearsOfExperience.error'),
                 min: {
                   value: 0,
-                  message: "Year of experience can't be negative",
+                  message: t('forms.candidate.fields.yearsOfExperience.minError'),
                 },
               }}
               render={({ field, fieldState }) => (
@@ -367,7 +369,7 @@ export const CandidateForm = forwardRef<
                   {...field}
                   type="number"
                   min={0}
-                  placeholder="Years"
+                  placeholder={t('forms.candidate.fields.yearsOfExperience.placeholder')}
                   error={fieldState.error?.message}
                 />
               )}
@@ -376,7 +378,7 @@ export const CandidateForm = forwardRef<
         </FormRow>
       </Section>
       <Section>
-        <SectionTitle>Education Information*</SectionTitle>
+        <SectionTitle>{t('forms.candidate.sections.educationInformation')}</SectionTitle>
         {degreeFields.map((field, index) => (
           <FormRow key={field.id}>
             <FormCol $width={200}>
@@ -384,7 +386,7 @@ export const CandidateForm = forwardRef<
                 name={`degrees.${index}.level`}
                 control={control}
                 rules={{
-                  required: 'Select dwegree level',
+                  required: t('forms.candidate.fields.degreeLevel.error'),
                 }}
                 render={({ field: { value, onChange }, fieldState }) => (
                   <Select<DegreeLevel>
@@ -406,13 +408,13 @@ export const CandidateForm = forwardRef<
                 name={`degrees.${index}.program`}
                 control={control}
                 rules={{
-                  required: 'Name of the program is required',
+                  required: t('forms.candidate.fields.program.error'),
                 }}
                 render={({ field, fieldState }) => (
                   <Input
                     {...field}
                     error={fieldState.error?.message}
-                    placeholder="Name of the program"
+                    placeholder={t('forms.candidate.fields.program.placeholder')}
                   />
                 )}
               />
@@ -439,12 +441,12 @@ export const CandidateForm = forwardRef<
               })
             }
           >
-            Add degree <PlusIcon width={20} height={20} />
+            {t('forms.candidate.fields.addDegree')} <PlusIcon width={20} height={20} />
           </Button>
         </FormRow>
       </Section>
       <Section>
-        <SectionTitle>Hard skills</SectionTitle>
+        <SectionTitle>{t('forms.candidate.sections.hardSkills')}</SectionTitle>
         {!!hardSkills.length && (
           <FormRow>
             <RowContainer>
@@ -461,7 +463,7 @@ export const CandidateForm = forwardRef<
         <FormCol>
           <Input
             ref={hardSkillsInputRef}
-            placeholder="Add skill"
+            placeholder={t('forms.candidate.fields.addSkill')}
             rightIcon={
               <PlusIcon
                 width="100%"
@@ -486,7 +488,7 @@ export const CandidateForm = forwardRef<
         </FormCol>
       </Section>
       <Section>
-        <SectionTitle>Wants to focus on*</SectionTitle>
+        <SectionTitle>{t('forms.candidate.sections.focusRoles')}</SectionTitle>
         {fields.map((field, index) => (
           <FormRow key={field.id}>
             <FormCol>
@@ -494,12 +496,12 @@ export const CandidateForm = forwardRef<
                 name={`focusRoles.${index}.role`}
                 control={control}
                 rules={{
-                  required: 'Focus role is required',
+                  required: t('forms.candidate.fields.focusRole.error'),
                 }}
                 render={({ field, fieldState }) => (
                   <Input
                     {...field}
-                    placeholder="Enter focus role"
+                    placeholder={t('forms.candidate.fields.focusRole.placeholder')}
                     error={fieldState.error?.message}
                     rightIcon={
                       fields.length > 1 &&
@@ -526,11 +528,11 @@ export const CandidateForm = forwardRef<
             })
           }
         >
-          Add focus role <PlusIcon width={20} height={20} />
+          {t('forms.candidate.fields.addFocusRole')} <PlusIcon width={20} height={20} />
         </Button>
       </Section>
       <Section>
-        <SectionTitle>Travel information</SectionTitle>
+        <SectionTitle>{t('forms.candidate.sections.travelInformation')}</SectionTitle>
         {travelModeFields.map((field, index) => {
           const isTravelModeRemote =
             watch(`travelOptions.${index}.travelMode`) ===
@@ -557,7 +559,7 @@ export const CandidateForm = forwardRef<
 
                 <FormRow>
                   <FormCol>
-                    <Label htmlFor={`travelMode-${index}`}>Travel mode</Label>
+                    <Label htmlFor={`travelMode-${index}`}>{t('forms.candidate.fields.travelMode.label')}</Label>
                     <Controller
                       name={`travelOptions.${index}.travelMode`}
                       control={control}
@@ -586,7 +588,7 @@ export const CandidateForm = forwardRef<
                   <FormRow>
                     <FormCol>
                       <Label htmlFor={`minutesOfRoad-${index}`}>
-                        Minutes of road
+                        {t('forms.candidate.fields.minutesOfRoad.label')}
                       </Label>
                       <Controller
                         name={`travelOptions.${index}.minutesOfRoad`}
@@ -594,9 +596,9 @@ export const CandidateForm = forwardRef<
                         rules={{
                           required: {
                             value: !isTravelModeRemote,
-                            message: 'Minutes of road are required',
+                            message: t('forms.candidate.fields.minutesOfRoad.error'),
                           },
-                          min: { value: 1, message: 'Minimum is 1' },
+                          min: { value: 1, message: t('forms.candidate.fields.minutesOfRoad.minError') },
                         }}
                         render={({
                           field: { value, onChange },
@@ -606,7 +608,7 @@ export const CandidateForm = forwardRef<
                             <Input
                               type="number"
                               min={0}
-                              placeholder="Enter minutes of road"
+                              placeholder={t('forms.candidate.fields.minutesOfRoad.placeholder')}
                               error={fieldState.error?.message}
                               value={value}
                               onChange={onChange}
@@ -618,7 +620,7 @@ export const CandidateForm = forwardRef<
                     </FormCol>
                     <FormCol>
                       <Label htmlFor={`onSiteDays-${index}`}>
-                        On-site days
+                        {t('forms.candidate.fields.onSiteDays.label')}
                       </Label>
                       <Controller
                         name={`travelOptions.${index}.onSiteDays`}
@@ -626,10 +628,10 @@ export const CandidateForm = forwardRef<
                         rules={{
                           required: {
                             value: !isTravelModeRemote,
-                            message: 'On-site days are required',
+                            message: t('forms.candidate.fields.onSiteDays.error'),
                           },
-                          min: { value: 1, message: 'Minimum is 1' },
-                          max: { value: 5, message: 'Maximum is 5' },
+                          min: { value: 1, message: t('forms.candidate.fields.onSiteDays.minError') },
+                          max: { value: 5, message: t('forms.candidate.fields.onSiteDays.maxError') },
                         }}
                         render={({
                           field: { value, onChange },
@@ -640,7 +642,7 @@ export const CandidateForm = forwardRef<
                               type="number"
                               min={0}
                               max={5}
-                              placeholder="Enter on-site days"
+                              placeholder={t('forms.candidate.fields.onSiteDays.placeholder')}
                               error={fieldState.error?.message}
                               value={value}
                               onChange={onChange}
@@ -668,15 +670,15 @@ export const CandidateForm = forwardRef<
               })
             }
           >
-            Add travel option <PlusIcon width={20} height={20} />
+            {t('forms.candidate.fields.addTravelOption')} <PlusIcon width={20} height={20} />
           </Button>
         </FormRow>
       </Section>
       <Section>
-        <SectionTitle>Salary Information</SectionTitle>
+        <SectionTitle>{t('forms.candidate.sections.salaryInformation')}</SectionTitle>
         <FormRow>
           <FormCol $gap={20} $width={170}>
-            <Label htmlFor="salaryPeriod">Salary period*</Label>
+            <Label htmlFor="salaryPeriod">{t('forms.candidate.fields.salaryPeriod.label')}</Label>
             <Controller
               name="salaryPeriod"
               control={control}
@@ -690,15 +692,15 @@ export const CandidateForm = forwardRef<
             />
           </FormCol>
           <FormCol>
-            <Label htmlFor="grossSalary">Gross salary*</Label>
+            <Label htmlFor="grossSalary">{t('forms.candidate.fields.grossSalary.label')}</Label>
             <Controller
               name="grossSalary"
               control={control}
               rules={{
-                required: 'Gross salary is required',
+                required: t('forms.candidate.fields.grossSalary.error'),
                 min: {
                   value: 1,
-                  message: "Gross salary can't be negative or 0",
+                  message: t('forms.candidate.fields.grossSalary.minError'),
                 },
               }}
               render={({ field, fieldState }) => (
@@ -706,22 +708,22 @@ export const CandidateForm = forwardRef<
                   {...field}
                   type="number"
                   min={1}
-                  placeholder="Gross salary"
+                  placeholder={t('forms.candidate.fields.grossSalary.placeholder')}
                   error={fieldState.error?.message}
                 />
               )}
             />
           </FormCol>
           <FormCol>
-            <Label htmlFor="hoursAWeek">Hours per week*</Label>
+            <Label htmlFor="hoursAWeek">{t('forms.candidate.fields.hoursPerWeek.label')}</Label>
             <Controller
               name="hoursAWeek"
               control={control}
               rules={{
-                required: 'Hours per week is required',
+                required: t('forms.candidate.fields.hoursPerWeek.error'),
                 min: {
                   value: 1,
-                  message: "Hours per week can't be negative or 0",
+                  message: t('forms.candidate.fields.hoursPerWeek.minError'),
                 },
               }}
               render={({ field: { value, onChange }, fieldState }) => {
@@ -744,7 +746,7 @@ export const CandidateForm = forwardRef<
         </FormRow>
       </Section>
       <Section>
-        <SectionTitle>Extra context</SectionTitle>
+        <SectionTitle>{t('forms.candidate.sections.extraContext')}</SectionTitle>
         <Controller
           name="ambitions"
           control={control}
@@ -753,7 +755,7 @@ export const CandidateForm = forwardRef<
               <>
                 <FormRow>
                   <FormCol>
-                    <Textarea {...field} placeholder="Any extra context..." />
+                    <Textarea {...field} placeholder={t('forms.candidate.fields.ambitions.placeholder')} />
                   </FormCol>
                 </FormRow>
               </>

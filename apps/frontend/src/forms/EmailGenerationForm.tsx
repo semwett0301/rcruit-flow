@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { Textarea } from 'ui/components/Textarea';
 import { Button } from 'ui/components/Button';
 import { CopyIcon, ReloadIcon } from '@radix-ui/react-icons';
+import { useI18n } from 'hooks/useI18n';
 
 export type EmailGenerationFormState = {
   message: string;
@@ -36,6 +37,7 @@ export const EmailGenerationForm = ({
   onCopy,
   onChange,
 }: EmailGenerationForm) => {
+  const { t } = useI18n();
   return (
     <Container>
       <Textarea
@@ -51,14 +53,14 @@ export const EmailGenerationForm = ({
       <ButtonRow>
         <Button variant="outline" onClick={onGenerate}>
           <ReloadIcon style={{ marginRight: 8 }} />
-          Generate again
+          {t('common.buttons.generateAgain')}
         </Button>
         <Button
           variant="outline"
           onClick={() => state?.message && onCopy(state.message)}
         >
           <CopyIcon style={{ marginRight: 8 }} />
-          Copy
+          {t('common.buttons.copy')}
         </Button>
       </ButtonRow>
     </Container>

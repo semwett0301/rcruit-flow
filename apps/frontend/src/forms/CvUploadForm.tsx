@@ -8,6 +8,7 @@ import {
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { CvUploadTooltip } from 'widgets/CvUploadTooltip';
+import { useI18n } from 'hooks/useI18n';
 
 const FormWrapper = styled.div`
   display: flex;
@@ -60,6 +61,7 @@ interface CvUploadFormProps {
 }
 
 export const CvUploadForm = ({ onSubmit, defaultValue }: CvUploadFormProps) => {
+  const { t } = useI18n();
   const { uploadState, onFileSelect, onFileRemove } = useFileUpload({
     initialValue: defaultValue,
     onUploaded: onSubmit,
@@ -69,9 +71,7 @@ export const CvUploadForm = ({ onSubmit, defaultValue }: CvUploadFormProps) => {
     <FormWrapper>
       <TopBar>
         <InfoText>
-          To upload your CV, simply click the 'Upload' button and select your
-          file from your device. Ensure your document is in PDF format for a
-          smooth submission process.
+          {t('forms.cvUpload.description')}
         </InfoText>
         <CvUploadTooltip>
           <InfoIconWrapper>
