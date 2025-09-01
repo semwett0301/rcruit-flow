@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { Input } from 'ui/components/Input';
 import { Button } from 'ui/components/Button';
+import { useI18n } from 'hooks/useI18n';
 
 export type AuthFormHandles = {
   submitForm: () => void;
@@ -47,6 +48,7 @@ const FieldsContainer = styled.div`
 // --- form component ---
 export const AuthForm = forwardRef<AuthFormHandles, AuthFormProps>(
   ({ values, onSubmit }, ref) => {
+    const { t } = useI18n();
     const { control, handleSubmit, setValue } = useForm<AuthFormState>({
       defaultValues: authFormDefaultValues,
     });
@@ -70,11 +72,11 @@ export const AuthForm = forwardRef<AuthFormHandles, AuthFormProps>(
           <Controller
             name="name"
             control={control}
-            rules={{ required: 'Name is required' }}
+            rules={{ required: t('forms.auth.fields.name.error') }}
             render={({ field, fieldState }) => (
               <Input
                 {...field}
-                placeholder="Name*"
+                placeholder={t('forms.auth.fields.name.placeholder')}
                 error={fieldState.error?.message}
               />
             )}
@@ -84,17 +86,17 @@ export const AuthForm = forwardRef<AuthFormHandles, AuthFormProps>(
             name="email"
             control={control}
             rules={{
-              required: 'Email is required',
+              required: t('forms.auth.fields.email.error'),
               pattern: {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Enter a valid email address',
+                message: t('forms.auth.fields.email.invalidError'),
               },
             }}
             render={({ field, fieldState }) => (
               <Input
                 {...field}
                 type="email"
-                placeholder="Email*"
+                placeholder={t('forms.auth.fields.email.placeholder')}
                 error={fieldState.error?.message}
               />
             )}
@@ -102,7 +104,7 @@ export const AuthForm = forwardRef<AuthFormHandles, AuthFormProps>(
         </FieldsContainer>
 
         <Button type="submit" fullWidth>
-          Submit
+          {t('common.buttons.submit')}
         </Button>
       </FormContainer>
     );

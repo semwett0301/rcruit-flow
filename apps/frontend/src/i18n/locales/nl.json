@@ -1,0 +1,188 @@
+{
+  "common": {
+    "buttons": {
+      "next": "Volgende stap",
+      "reset": "Reset",
+      "submit": "Versturen",
+      "continue": "Doorgaan",
+      "copy": "Kopiëren",
+      "generateAgain": "Opnieuw genereren",
+      "add": "Toevoegen",
+      "profile": "Profiel"
+    },
+    "navigation": {
+      "introductionEmail": "Introductie E-mail",
+      "preparationEmail": "Voorbereiding E-mail"
+    },
+    "steps": {
+      "cvUpload": "CV upload",
+      "candidateInformation": "Kandidaat Informatie",
+      "jobDescription": "Functieomschrijving",
+      "emailGeneration": "E-mail Generatie"
+    },
+    "links": {
+      "linkedin": "LinkedIn",
+      "userAgreement": "Gebruikersovereenkomst",
+      "termsAndConditions": "Algemene Voorwaarden"
+    }
+  },
+  "forms": {
+    "cvUpload": {
+      "title": "CV Upload",
+      "description": "Om je CV te uploaden, klik je gewoon op de 'Upload' knop en selecteer je bestand van je apparaat. Zorg ervoor dat je document in PDF-formaat is voor een soepele indiening."
+    },
+    "candidate": {
+      "sections": {
+        "personalInformation": "Persoonlijke Informatie",
+        "employmentInformation": "Werkgelegenheid Informatie",
+        "workExperience": "Werkervaring",
+        "educationInformation": "Opleiding Informatie*",
+        "hardSkills": "Hard skills",
+        "focusRoles": "Wil zich richten op*",
+        "travelInformation": "Reisinformatie",
+        "salaryInformation": "Salaris Informatie",
+        "extraContext": "Extra context"
+      },
+      "fields": {
+        "fullName": {
+          "label": "Volledige Naam*",
+          "placeholder": "Volledige naam",
+          "error": "Volledige naam is verplicht"
+        },
+        "age": {
+          "label": "Leeftijd*",
+          "placeholder": "Leeftijd",
+          "error": "Leeftijd is verplicht",
+          "minError": "Leeftijd kan niet minder dan 1 zijn"
+        },
+        "location": {
+          "label": "Locatie*",
+          "placeholder": "bijv. Amsterdam, Nederland",
+          "error": "Locatie is verplicht"
+        },
+        "unemployed": {
+          "label": "Werkloos"
+        },
+        "currentEmployer": {
+          "label": "Huidige werkgever*",
+          "placeholder": "Huidige werkgever",
+          "error": "Huidige werkgever is verplicht"
+        },
+        "currentPosition": {
+          "label": "Huidige functie*",
+          "placeholder": "Huidige functie",
+          "error": "Huidige functie is verplicht"
+        },
+        "experienceDescription": {
+          "label": "Ervaringsbeschrijving*",
+          "placeholder": "Ervaringsbeschrijving",
+          "error": "Ervaringsbeschrijving is verplicht"
+        },
+        "yearsOfExperience": {
+          "label": "Jaren ervaring*",
+          "placeholder": "Jaren",
+          "error": "Aantal jaren is verplicht",
+          "minError": "Jaren ervaring kan niet negatief zijn"
+        },
+        "degreeLevel": {
+          "label": "Opleidingsniveau",
+          "error": "Selecteer opleidingsniveau"
+        },
+        "program": {
+          "label": "Programma",
+          "placeholder": "Naam van het programma",
+          "error": "Naam van het programma is verplicht"
+        },
+        "addDegree": "Opleiding toevoegen",
+        "addSkill": "Vaardigheid toevoegen",
+        "focusRole": {
+          "label": "Focus Rol",
+          "placeholder": "Voer focus rol in",
+          "error": "Focus rol is verplicht"
+        },
+        "addFocusRole": "Focus rol toevoegen",
+        "travelMode": {
+          "label": "Reismodus"
+        },
+        "minutesOfRoad": {
+          "label": "Minuten reistijd",
+          "placeholder": "Voer minuten reistijd in",
+          "error": "Minuten reistijd is verplicht",
+          "minError": "Minimum is 1"
+        },
+        "onSiteDays": {
+          "label": "Dagen op kantoor",
+          "placeholder": "Voer dagen op kantoor in",
+          "error": "Dagen op kantoor is verplicht",
+          "minError": "Minimum is 1",
+          "maxError": "Maximum is 5"
+        },
+        "addTravelOption": "Reisoptie toevoegen",
+        "salaryPeriod": {
+          "label": "Salarisperiode*"
+        },
+        "grossSalary": {
+          "label": "Bruto salaris*",
+          "placeholder": "Bruto salaris",
+          "error": "Bruto salaris is verplicht",
+          "minError": "Bruto salaris kan niet negatief of 0 zijn"
+        },
+        "hoursPerWeek": {
+          "label": "Uren per week*",
+          "error": "Uren per week is verplicht",
+          "minError": "Uren per week kan niet negatief of 0 zijn"
+        },
+        "ambitions": {
+          "placeholder": "Eventuele extra context..."
+        }
+      }
+    },
+    "jobDescription": {
+      "sections": {
+        "receiverName": "Ontvanger naam*",
+        "jobDescription": "Functieomschrijving"
+      },
+      "fields": {
+        "contactName": {
+          "label": "Contact Naam",
+          "placeholder": "Naam van de persoon aan wie je schrijft...",
+          "error": "Contact naam is verplicht"
+        },
+        "jobDescriptionText": {
+          "placeholder": "Voer de functieomschrijving in..."
+        }
+      },
+      "options": {
+        "pasteText": "Tekst plakken",
+        "uploadPdf": "PDF uploaden"
+      }
+    },
+    "auth": {
+      "title": "Voer gebruikersgegevens in",
+      "description": "Deel je gegevens voor een gepersonaliseerde ervaring en beveilig je informatie.",
+      "fields": {
+        "name": {
+          "label": "Naam",
+          "placeholder": "Naam*",
+          "error": "Naam is verplicht"
+        },
+        "email": {
+          "label": "E-mail",
+          "placeholder": "E-mail*",
+          "error": "E-mail is verplicht",
+          "invalidError": "Voer een geldig e-mailadres in"
+        }
+      }
+    }
+  },
+  "modals": {
+    "reset": {
+      "title": "Weet je zeker dat je opnieuw wilt beginnen?",
+      "description": "Houd er rekening mee dat doorgaan resulteert in het resetten van het bestand en alle gegevens permanent worden verwijderd."
+    }
+  },
+  "errors": {
+    "impossibleBehaviour": "Onmogelijk gedrag",
+    "salaryPeriodError": "Verwacht precies 2 SalaryPeriod waarden, kreeg {{count}}"
+  }
+}

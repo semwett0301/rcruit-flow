@@ -4,6 +4,7 @@ import { remove } from '@ebay/nice-modal-react';
 import { ExclamationTriangleIcon, LoopIcon } from '@radix-ui/react-icons';
 import { Button } from 'ui/components/Button';
 import { SimpleModal } from 'modals/SimpleModal';
+import { useI18n } from 'hooks/useI18n';
 
 interface ResetBodyModalProps {
   onReset: () => void;
@@ -52,6 +53,7 @@ const ButtonContainer = styled.div`
 `;
 
 export const ResetBodyModal = ({ onReset }: ResetBodyModalProps) => {
+  const { t } = useI18n();
   const onContinue = () => {
     remove(SimpleModal);
   };
@@ -66,11 +68,10 @@ export const ResetBodyModal = ({ onReset }: ResetBodyModalProps) => {
       <TitleContainer>
         <AlertContainer>
           <ExclamationTriangleIcon width={50} height={50} />
-          <ResetHeader>Are you sure you want to start over?</ResetHeader>
+          <ResetHeader>{t('modals.reset.title')}</ResetHeader>
         </AlertContainer>
         <ResetText>
-          Please be aware that proceeding will result in the file being reset
-          and all data will be permanently deleted.
+          {t('modals.reset.description')}
         </ResetText>
       </TitleContainer>
       <ButtonContainer>
@@ -80,10 +81,10 @@ export const ResetBodyModal = ({ onReset }: ResetBodyModalProps) => {
           type="reset"
           variant="outline"
         >
-          Reset <LoopIcon width={20} height={20} />
+          {t('common.buttons.reset')} <LoopIcon width={20} height={20} />
         </Button>
         <Button fullWidth onClick={onContinue}>
-          Continue
+          {t('common.buttons.continue')}
         </Button>
       </ButtonContainer>
     </BodyModal>

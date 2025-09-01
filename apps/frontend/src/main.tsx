@@ -9,6 +9,7 @@ import { ToastContainer } from 'react-toastify';
 import { QueryClientProvider } from '@tanstack/react-query';
 
 import './config/axiosConfig';
+import './i18n';
 import NiceModal from '@ebay/nice-modal-react';
 import { GtmProvider } from 'providers/GtmProvider';
 

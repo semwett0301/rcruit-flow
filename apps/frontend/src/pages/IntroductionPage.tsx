@@ -31,6 +31,7 @@ import { ResetBodyModal } from 'modals/body/ResetBodyModal';
 import { FileUploadState } from 'ui/components/FileUpload';
 import { AuthBodyModal } from 'modals/body/AuthBodyModal';
 import { GtmForm, gtmTracking } from 'utils/gtmTracking';
+import { useI18n } from 'hooks/useI18n';
 
 const TopBarWrapper = styled.div`
   display: flex;
@@ -74,6 +75,7 @@ type FlowStepConfig = {
 // TODO refactor and decompose the page
 export const IntroductionPage = () => {
   const [currentStep, setCurrentStep] = useState<IntroMailStepKey>('cv_upload');
+  const { t } = useI18n();
 
   const { getUser } = useAuth();
 
@@ -160,7 +162,7 @@ export const IntroductionPage = () => {
     {
       key: 'cv_upload',
       step: 1,
-      title: 'CV upload',
+      title: t('common.steps.cvUpload'),
       onNext: () => {
         const fileId = introductionFormState.cv_upload?.fileId;
 
@@ -193,7 +195,7 @@ export const IntroductionPage = () => {
             },
           );
         } else {
-          throw Error('Impossible behaviour');
+          throw Error(t('errors.impossibleBehaviour'));
         }
       },
       BodyComponent: (
@@ -213,7 +215,7 @@ export const IntroductionPage = () => {
     {
       key: 'candidate_information',
       step: 2,
-      title: 'Candidate Information',
+      title: t('common.steps.candidateInformation'),
       onNext: () => {
         candidateFormRef.current?.submitForm();
       },
@@ -241,7 +243,7 @@ export const IntroductionPage = () => {
     {
       key: 'job_description',
       step: 3,
-      title: 'Job Description',
+      title: t('common.steps.jobDescription'),
       onNext: () => {
         jobDescFormRef.current?.submitForm();
       },
@@ -264,7 +266,7 @@ export const IntroductionPage = () => {
     {
       key: 'email_generation',
       step: 4,
-      title: 'Email Generation',
+      title: t('common.steps.emailGeneration'),
       BodyComponent: (
         <EmailGenerationForm
           state={introductionFormState.email_generation}
@@ -310,7 +312,7 @@ export const IntroductionPage = () => {
               }
               onClick={currentConfig.onNext}
             >
-              Next step <ChevronRightIcon />
+              {t('common.buttons.next')} <ChevronRightIcon />
             </Button>
           )}
         </BottomBarWrapper>
@@ -319,7 +321,7 @@ export const IntroductionPage = () => {
         <TopBarWrapper>
           <StepName>{currentConfig.title}</StepName>
           <Button variant="outline" onClick={onReset}>
-            Reset <LoopIcon />
+            {t('common.buttons.reset')} <LoopIcon />
           </Button>
         </TopBarWrapper>
       }

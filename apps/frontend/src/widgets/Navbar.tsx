@@ -15,9 +15,15 @@ import { SimpleModal } from 'modals/SimpleModal';
 import { AuthBodyModal } from 'modals/body/AuthBodyModal';
 import {
   LINKED_IN_LINK,
-  TERMS_AND_AGREEMENT_LINK,
-  USER_AGREEMENT_LINK,
+  TERMS_AND_AGREEMENT_LINK_ENG,
+  TERMS_AND_AGREEMENT_LINK_NL,
+  USER_AGREEMENT_LINK_ENG,
+  USER_AGREEMENT_LINK_NL,
 } from 'constants/links';
+import { useI18n } from 'hooks/useI18n';
+import { Switch } from 'ui/components/Switch';
+import { SwitchOption } from 'types/ui/SwitchOption';
+import { i18nResources } from 'i18n';
 
 type OpenProps = { $isOpen: boolean };
 
@@ -165,6 +171,7 @@ const SocialLink = styled.a`
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isContentVisible, setIsContentVisible] = useState(true);
+  const { t, changeLanguage, currentLanguage } = useI18n();
 
   const openProfileModal = () => {
     show(SimpleModal, {
@@ -202,8 +209,12 @@ export const Navbar = () => {
           <MenuButtons>
             {isOpen ? (
               <>
-                <MenuOption $isActive>Introduction Email</MenuOption>
-                <MenuOption>Preparation Email</MenuOption>
+                <MenuOption $isActive>
+                  {t('common.navigation.introductionEmail')}
+                </MenuOption>
+                <MenuOption>
+                  {t('common.navigation.preparationEmail')}
+                </MenuOption>
               </>
             ) : (
               <>
@@ -223,27 +234,43 @@ export const Navbar = () => {
         <BottomSection>
           <Button onClick={openProfileModal} variant="outline">
             <AvatarIcon width={20} height={20} />
-            <div>Profile</div>
+            <div>{t('common.buttons.profile')}</div>
           </Button>
-          {/*<Switch*/}
-          {/*  options={*/}
-          {/*    language.map((lang) => ({ value: lang, label: lang })) as [*/}
-          {/*      SwitchOption,*/}
-          {/*      SwitchOption,*/}
-          {/*    ]*/}
-          {/*  }*/}
-          {/*/>*/}
+          <Switch
+            onSwitch={changeLanguage}
+            value={currentLanguage}
+            options={
+              Object.keys(i18nResources).map((lang) => ({
+                value: lang,
+                label: lang,
+              })) as [SwitchOption, SwitchOption]
+            }
+          />
           <FooterLinks>
             <SocialLinks>
               <SocialLink href={LINKED_IN_LINK} target="_blank">
-                LinkedIn
+                {t('common.links.linkedin')}
               </SocialLink>
             </SocialLinks>
-            <SocialLink href={USER_AGREEMENT_LINK} target="_blank">
-              User Agreement
+            <SocialLink
+              href={
+                currentLanguage === 'NL'
+                  ? USER_AGREEMENT_LINK_NL
+                  : USER_AGREEMENT_LINK_ENG
+              }
+              target="_blank"
+            >
+              {t('common.links.userAgreement')}
             </SocialLink>
-            <SocialLink href={TERMS_AND_AGREEMENT_LINK} target="_blank">
-              Terms & Conditions
+            <SocialLink
+              href={
+                currentLanguage === 'NL'
+                  ? TERMS_AND_AGREEMENT_LINK_NL
+                  : TERMS_AND_AGREEMENT_LINK_ENG
+              }
+              target="_blank"
+            >
+              {t('common.links.termsAndConditions')}
             </SocialLink>
           </FooterLinks>
         </BottomSection>

@@ -5,6 +5,7 @@ import { useAuth } from 'hooks/useAuth';
 import { useEffect, useState } from 'react';
 import { remove } from '@ebay/nice-modal-react';
 import { SimpleModal } from 'modals/SimpleModal';
+import { useI18n } from 'hooks/useI18n';
 
 const BodyModal = styled.div`
   display: flex;
@@ -41,6 +42,7 @@ const AuthText = styled.p`
 export const AuthBodyModal = () => {
   const { getUser, registerUser } = useAuth();
   const [user, setUser] = useState<AuthFormState>();
+  const { t } = useI18n();
 
   const onSubmit = async (newUserData: AuthFormState) => {
     await registerUser(newUserData);
@@ -55,10 +57,9 @@ export const AuthBodyModal = () => {
   return (
     <BodyModal>
       <TitleContainer>
-        <AuthHeader>Enter user details</AuthHeader>
+        <AuthHeader>{t('forms.auth.title')}</AuthHeader>
         <AuthText>
-          Share your details for a personalised experience and secure your
-          information.
+          {t('forms.auth.description')}
         </AuthText>
       </TitleContainer>
       <AuthForm values={user} onSubmit={onSubmit} />

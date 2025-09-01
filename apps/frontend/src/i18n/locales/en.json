@@ -1,0 +1,188 @@
+{
+  "common": {
+    "buttons": {
+      "next": "Next step",
+      "reset": "Reset",
+      "submit": "Submit",
+      "continue": "Continue",
+      "copy": "Copy",
+      "generateAgain": "Generate again",
+      "add": "Add",
+      "profile": "Profile"
+    },
+    "navigation": {
+      "introductionEmail": "Introduction Email",
+      "preparationEmail": "Preparation Email"
+    },
+    "steps": {
+      "cvUpload": "CV upload",
+      "candidateInformation": "Candidate Information",
+      "jobDescription": "Job Description",
+      "emailGeneration": "Email Generation"
+    },
+    "links": {
+      "linkedin": "LinkedIn",
+      "userAgreement": "User Agreement",
+      "termsAndConditions": "Terms & Conditions"
+    }
+  },
+  "forms": {
+    "cvUpload": {
+      "title": "CV Upload",
+      "description": "To upload your CV, simply click the 'Upload' button and select your file from your device. Ensure your document is in PDF format for a smooth submission process."
+    },
+    "candidate": {
+      "sections": {
+        "personalInformation": "Personal Information",
+        "employmentInformation": "Employment Information",
+        "workExperience": "Work Experience",
+        "educationInformation": "Education Information*",
+        "hardSkills": "Hard skills",
+        "focusRoles": "Wants to focus on*",
+        "travelInformation": "Travel information",
+        "salaryInformation": "Salary Information",
+        "extraContext": "Extra context"
+      },
+      "fields": {
+        "fullName": {
+          "label": "Full Name*",
+          "placeholder": "Full name",
+          "error": "Full name is required"
+        },
+        "age": {
+          "label": "Age*",
+          "placeholder": "Age",
+          "error": "Age is required",
+          "minError": "Age can't be less than 1"
+        },
+        "location": {
+          "label": "Location*",
+          "placeholder": "ex. London, United Kingdom",
+          "error": "Location is required"
+        },
+        "unemployed": {
+          "label": "Unemployed"
+        },
+        "currentEmployer": {
+          "label": "Current employer*",
+          "placeholder": "Current employer",
+          "error": "Current employer is required"
+        },
+        "currentPosition": {
+          "label": "Current position*",
+          "placeholder": "Current position",
+          "error": "Current position is required"
+        },
+        "experienceDescription": {
+          "label": "Experience description*",
+          "placeholder": "Experience description",
+          "error": "Experience description is required"
+        },
+        "yearsOfExperience": {
+          "label": "Years of experience*",
+          "placeholder": "Years",
+          "error": "Number of years is required",
+          "minError": "Year of experience can't be negative"
+        },
+        "degreeLevel": {
+          "label": "Degree Level",
+          "error": "Select degree level"
+        },
+        "program": {
+          "label": "Program",
+          "placeholder": "Name of the program",
+          "error": "Name of the program is required"
+        },
+        "addDegree": "Add degree",
+        "addSkill": "Add skill",
+        "focusRole": {
+          "label": "Focus Role",
+          "placeholder": "Enter focus role",
+          "error": "Focus role is required"
+        },
+        "addFocusRole": "Add focus role",
+        "travelMode": {
+          "label": "Travel mode"
+        },
+        "minutesOfRoad": {
+          "label": "Minutes of road",
+          "placeholder": "Enter minutes of road",
+          "error": "Minutes of road are required",
+          "minError": "Minimum is 1"
+        },
+        "onSiteDays": {
+          "label": "On-site days",
+          "placeholder": "Enter on-site days",
+          "error": "On-site days are required",
+          "minError": "Minimum is 1",
+          "maxError": "Maximum is 5"
+        },
+        "addTravelOption": "Add travel option",
+        "salaryPeriod": {
+          "label": "Salary period*"
+        },
+        "grossSalary": {
+          "label": "Gross salary*",
+          "placeholder": "Gross salary",
+          "error": "Gross salary is required",
+          "minError": "Gross salary can't be negative or 0"
+        },
+        "hoursPerWeek": {
+          "label": "Hours per week*",
+          "error": "Hours per week is required",
+          "minError": "Hours per week can't be negative or 0"
+        },
+        "ambitions": {
+          "placeholder": "Any extra context..."
+        }
+      }
+    },
+    "jobDescription": {
+      "sections": {
+        "receiverName": "Receiver name*",
+        "jobDescription": "Job description"
+      },
+      "fields": {
+        "contactName": {
+          "label": "Contact Name",
+          "placeholder": "Name of the person you are writing to...",
+          "error": "Contact name is required"
+        },
+        "jobDescriptionText": {
+          "placeholder": "Enter the job description..."
+        }
+      },
+      "options": {
+        "pasteText": "Paste text",
+        "uploadPdf": "Upload PDF"
+      }
+    },
+    "auth": {
+      "title": "Enter user details",
+      "description": "Share your details for a personalised experience and secure your information.",
+      "fields": {
+        "name": {
+          "label": "Name",
+          "placeholder": "Name*",
+          "error": "Name is required"
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "Email*",
+          "error": "Email is required",
+          "invalidError": "Enter a valid email address"
+        }
+      }
+    }
+  },
+  "modals": {
+    "reset": {
+      "title": "Are you sure you want to start over?",
+      "description": "Please be aware that proceeding will result in the file being reset and all data will be permanently deleted."
+    }
+  },
+  "errors": {
+    "impossibleBehaviour": "Impossible behaviour",
+    "salaryPeriodError": "Expected exactly 2 SalaryPeriod values, got {{count}}"
+  }
+}

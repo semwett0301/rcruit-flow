@@ -15,6 +15,7 @@ import {
   FileUploadState,
   useFileUpload,
 } from 'ui/components/FileUpload';
+import { useI18n } from 'hooks/useI18n';
 
 const heightBody = 315;
 
@@ -53,6 +54,7 @@ export const JobDescriptionForm = forwardRef<
   JobDescriptionFormHandles,
   JobDescriptionFormProps
 >(({ defaultValues, onSubmit }, ref) => {
+  const { t } = useI18n();
   const { control, handleSubmit, setValue, watch } =
     useForm<JobDescriptionFormState>({
       defaultValues: {
@@ -74,6 +76,17 @@ export const JobDescriptionForm = forwardRef<
     switchOptions[0].value,
   );
 
+  const switchOptionsWithTranslation: [SwitchOption, SwitchOption] = [
+    {
+      label: t('forms.jobDescription.options.pasteText'),
+      value: 'text',
+    },
+    {
+      label: t('forms.jobDescription.options.uploadPdf'),
+      value: 'pdf',
+    },
+  ];
+
   useImperativeHandle(ref, () => ({
     submitForm: handleSubmit(onSubmit),
   }));
@@ -81,19 +94,19 @@ export const JobDescriptionForm = forwardRef<
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
       <Section>
-        <SectionTitle>Receiver name*</SectionTitle>
+        <SectionTitle>{t('forms.jobDescription.sections.receiverName')}</SectionTitle>
         <FormRow>
           <FormCol>
             <Controller
               name="contactName"
               control={control}
               rules={{
-                required: 'Contact name name is required',
+                required: t('forms.jobDescription.fields.contactName.error'),
               }}
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
-                  placeholder="Name of the person you are writing to..."
+                  placeholder={t('forms.jobDescription.fields.contactName.placeholder')}
                   error={fieldState.error?.message}
                 />
               )}
@@ -102,12 +115,12 @@ export const JobDescriptionForm = forwardRef<
         </FormRow>
       </Section>
       <Section>
-        <SectionTitle>Job description</SectionTitle>
+        <SectionTitle>{t('forms.jobDescription.sections.jobDescription')}</SectionTitle>
         <FormRow>
           <TextSwitch
             onSwitch={setSwitchValue}
             value={switchValue}
-            options={switchOptions}
+            options={switchOptionsWithTranslation}
           />
         </FormRow>
         <FormRow>
@@ -120,7 +133,7 @@ export const JobDescriptionForm = forwardRef<
                   <Textarea
                     {...field}
                     height={`${heightBody}px`}
-                    placeholder="Enter the job description..."
+                    placeholder={t('forms.jobDescription.fields.jobDescriptionText.placeholder')}
                     error={fieldState.error?.message}
                   />
                 )}
