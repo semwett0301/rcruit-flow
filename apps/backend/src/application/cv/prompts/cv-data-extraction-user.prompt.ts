@@ -14,7 +14,7 @@ Extract the following information from the CV below:
 9. degree – return a JSON object matching the following structure:
 
 [{
-  level: "${Object.values(DegreeLevel).join(' | ')}",
+  level: "${Object.values(DegreeLevel).join(' | ')}", // you can choose only one of these options
   program: string // name of the program that the candidate studied on
 }]
 

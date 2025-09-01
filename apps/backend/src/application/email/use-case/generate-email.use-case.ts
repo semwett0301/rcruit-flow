@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { GptService } from 'infrastructure/gpt/gpt.service';
 import {
   generateEmailSystemPrompt,
@@ -16,6 +16,8 @@ import { S3Service } from '../../../infrastructure/s3/s3.service';
 
 @Injectable()
 export class GenerateEmailUseCase {
+  private readonly logger = new Logger(GenerateEmailUseCase.name);
+
   constructor(
     private readonly gpt: GptService,
     private readonly r2Service: S3Service,
@@ -34,6 +36,8 @@ export class GenerateEmailUseCase {
       salaryLine: this.#getSalaryLine(dto.salaryPeriod, dto.grossSalary),
       travelClause: this.#getTravelClause(dto.travelOptions),
     });
+
+    this.logger.debug(`Created user prompt: ${userPrompt}`);
 
     const gptMessages: ChatCompletionMessageParam[] = [
       {
