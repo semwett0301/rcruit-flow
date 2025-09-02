@@ -49,8 +49,12 @@ export class GenerateEmailUseCase {
       { role: 'user', content: userPrompt },
     ];
 
+    const email = await this.gpt.chat(gptMessages);
+
+    this.logger.debug(`Final email: ${email}`);
+
     return {
-      email: await this.gpt.chat(gptMessages),
+      email,
     };
   }
 

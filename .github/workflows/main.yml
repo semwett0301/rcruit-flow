@@ -122,7 +122,7 @@ jobs:
             --region "$REGION" \
             --parameters 'commands=[
               "set -e",
-              "cd /home/app",
+              "cd /home/ubuntu/app",
               "docker compose pull",
               "docker compose up -d --force-recreate"
             ]' \
