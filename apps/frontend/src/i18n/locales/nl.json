@@ -158,7 +158,7 @@
       }
     },
     "auth": {
-      "title": "Voer gebruikersgegevens in",
+      "title": "Gegevens invoeren",
       "description": "Deel je gegevens voor een gepersonaliseerde ervaring en beveilig je informatie.",
       "fields": {
         "name": {
