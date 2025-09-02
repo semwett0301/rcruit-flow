@@ -67,7 +67,7 @@ export class ExtractCvContentUseCase {
         temperature: 0,
       },
     );
-    this.logger.debug('Received response from GPT');
+    this.logger.debug(`Received response from GPT: ${result}`);
     return result;
   }
 }
