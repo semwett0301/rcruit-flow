@@ -29,7 +29,7 @@
   "forms": {
     "cvUpload": {
       "title": "CV Upload",
-      "description": "To upload your CV, simply click the 'Upload' button and select your file from your device. Ensure your document is in PDF format for a smooth submission process."
+      "description": "Upload your CV to instantly generate a tailored introduction email you can send to clients — ready in seconds."
     },
     "candidate": {
       "sections": {

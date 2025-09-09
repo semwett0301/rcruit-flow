@@ -29,7 +29,7 @@
   "forms": {
     "cvUpload": {
       "title": "CV Upload",
-      "description": "Om je CV te uploaden, klik je gewoon op de 'Upload' knop en selecteer je bestand van je apparaat. Zorg ervoor dat je document in PDF-formaat is voor een soepele indiening."
+      "description": "Upload je CV en genereer direct een op maat gemaakte introductiemail die je zo naar je klanten kunt sturen — binnen enkele seconden klaar."
     },
     "candidate": {
       "sections": {
