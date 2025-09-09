@@ -11,8 +11,8 @@
       "profile": "Profile"
     },
     "navigation": {
-      "introductionEmail": "Introduction Email",
-      "preparationEmail": "Preparation Email"
+      "introductionEmail": "Introduction mail",
+      "preparationEmail": "Preparation mail"
     },
     "steps": {
       "cvUpload": "CV upload",
