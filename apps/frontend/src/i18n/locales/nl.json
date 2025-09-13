@@ -159,7 +159,7 @@
     },
     "auth": {
       "title": "Login details",
-      "description": "Deel je gegevens voor een gepersonaliseerde ervaring en beveilig je informatie.",
+      "description": "Vul je naam en e-mailadres in om de volledige gegenereerde mail te ontvangen, klaar om te versturen. Gratis te gebruiken.",
       "fields": {
         "name": {
           "label": "Naam",

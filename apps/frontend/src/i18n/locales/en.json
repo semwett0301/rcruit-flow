@@ -159,7 +159,7 @@
     },
     "auth": {
       "title": "Enter user details",
-      "description": "Share your details for a personalised experience and secure your information.",
+      "description": "Enter your name and email to receive the full generated mail, ready to send. Free to use.",
       "fields": {
         "name": {
           "label": "Name",
