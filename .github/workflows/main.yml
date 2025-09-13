@@ -14,6 +14,7 @@ env:
   VITE_API_URL: ${{ vars.VITE_API_URL }}
   VITE_GTM_ID: ${{ secrets.VITE_GTM_ID }}
   VITE_MODE: ${{ secrets.VITE_MODE }}
+  VITE_ROUTER_BASE: ${{ vars.VITE_ROUTER_BASE }}
 
 jobs:
   lint-and-check:
