@@ -58,9 +58,7 @@ export const AuthBodyModal = () => {
     <BodyModal>
       <TitleContainer>
         <AuthHeader>{t('forms.auth.title')}</AuthHeader>
-        <AuthText>
-          {t('forms.auth.description')}
-        </AuthText>
+        <AuthText>{t('forms.auth.description')}</AuthText>
       </TitleContainer>
       <AuthForm values={user} onSubmit={onSubmit} />
     </BodyModal>
