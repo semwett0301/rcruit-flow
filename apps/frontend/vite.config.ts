@@ -5,29 +5,26 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import svgr from 'vite-plugin-svgr';
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
-  return {
-    plugins: [
-      tsconfigPaths(),
-      checker({
-        typescript: true,
-        overlay: { initialIsOpen: false },
-      }),
-      react(),
+export default defineConfig(() => ({
+  plugins: [
+    tsconfigPaths(),
+    checker({
+      typescript: true,
+      overlay: { initialIsOpen: false },
+    }),
+    react(),
 
-      svgr({
-        include: '**/*.svg?component',
-        svgrOptions: { plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'] },
-      }),
-    ],
-    server: {
-      open: Boolean(process.env.VITE_API_PROXY),
-      port: 3000,
-    },
-    assetsInclude: ['**/*.svg', '**/*.png'],
-    build: {
-      assetsInlineLimit: 0,
-    },
-  };
-});
+    svgr({
+      include: '**/*.svg?component',
+      svgrOptions: { plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'] },
+    }),
+  ],
+  server: {
+    open: Boolean(process.env.VITE_API_PROXY),
+    port: 3000,
+  },
+  assetsInclude: ['**/*.svg', '**/*.png'],
+  build: {
+    assetsInlineLimit: 0,
+  },
+}));

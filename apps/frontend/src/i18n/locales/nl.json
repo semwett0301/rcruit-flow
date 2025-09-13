@@ -11,8 +11,8 @@
       "profile": "Profiel"
     },
     "navigation": {
-      "introductionEmail": "Introductie E-mail",
-      "preparationEmail": "Voorbereiding E-mail"
+      "introductionEmail": "Introductie mail",
+      "preparationEmail": "Voorbereidings mail"
     },
     "steps": {
       "cvUpload": "CV upload",
@@ -29,7 +29,7 @@
   "forms": {
     "cvUpload": {
       "title": "CV Upload",
-      "description": "Om je CV te uploaden, klik je gewoon op de 'Upload' knop en selecteer je bestand van je apparaat. Zorg ervoor dat je document in PDF-formaat is voor een soepele indiening."
+      "description": "Upload je CV en genereer direct een op maat gemaakte introductiemail die je zo naar je klanten kunt sturen — binnen enkele seconden klaar."
     },
     "candidate": {
       "sections": {
@@ -158,7 +158,7 @@
       }
     },
     "auth": {
-      "title": "Gegevens invoeren",
+      "title": "Login details",
       "description": "Deel je gegevens voor een gepersonaliseerde ervaring en beveilig je informatie.",
       "fields": {
         "name": {
