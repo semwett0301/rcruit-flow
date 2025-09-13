@@ -17,7 +17,7 @@ const routes = [
 const AppRoutes = () => useRoutes(routes);
 
 const AppRouter: React.FC = () => (
-  <BrowserRouter>
+  <BrowserRouter basename={import.meta.env.VITE_ROUTER_BASE || '/'}>
     <AppRoutes />
   </BrowserRouter>
 );
