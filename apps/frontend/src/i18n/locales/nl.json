@@ -29,7 +29,10 @@
   "forms": {
     "cvUpload": {
       "title": "CV Upload",
-      "description": "Upload je CV en genereer direct een op maat gemaakte introductiemail die je zo naar je klanten kunt sturen — binnen enkele seconden klaar."
+      "description": "Upload je CV en genereer direct een op maat gemaakte introductiemail die je zo naar je klanten kunt sturen — binnen enkele seconden klaar.",
+      "button": {
+        "next": "Verwerk CV"
+      }
     },
     "candidate": {
       "sections": {
@@ -135,6 +138,9 @@
         "ambitions": {
           "placeholder": "Eventuele extra context..."
         }
+      },
+      "button": {
+        "next": "Ga naar vacature"
       }
     },
     "jobDescription": {
@@ -155,6 +161,9 @@
       "options": {
         "pasteText": "Tekst plakken",
         "uploadPdf": "PDF uploaden"
+      },
+      "button": {
+        "next": "Genereer mail"
       }
     },
     "auth": {

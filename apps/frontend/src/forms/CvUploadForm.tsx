@@ -70,9 +70,7 @@ export const CvUploadForm = ({ onSubmit, defaultValue }: CvUploadFormProps) => {
   return (
     <FormWrapper>
       <TopBar>
-        <InfoText>
-          {t('forms.cvUpload.description')}
-        </InfoText>
+        <InfoText>{t('forms.cvUpload.description')}</InfoText>
         <CvUploadTooltip>
           <InfoIconWrapper>
             <InfoCircledIcon width={24} height={24} />

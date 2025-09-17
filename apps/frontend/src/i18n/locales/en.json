@@ -29,7 +29,10 @@
   "forms": {
     "cvUpload": {
       "title": "CV Upload",
-      "description": "Upload your CV to instantly generate a tailored introduction email you can send to clients — ready in seconds."
+      "description": "Upload your CV to instantly generate a tailored introduction email you can send to clients — ready in seconds.",
+      "button": {
+        "next": "Continue to details"
+      }
     },
     "candidate": {
       "sections": {
@@ -135,6 +138,9 @@
         "ambitions": {
           "placeholder": "Any extra context..."
         }
+      },
+      "button": {
+        "next": "Go to job info"
       }
     },
     "jobDescription": {
@@ -151,6 +157,9 @@
         "jobDescriptionText": {
           "placeholder": "Enter the job description..."
         }
+      },
+      "button": {
+        "next": "Generate mail"
       },
       "options": {
         "pasteText": "Paste text",

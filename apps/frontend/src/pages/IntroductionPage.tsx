@@ -67,6 +67,7 @@ type FlowStepConfig = {
   key: IntroMailStepKey;
   step: number;
   title: string;
+  nextButtonTitle?: string;
   onNext?: () => void;
   BodyComponent: ReactNode;
   enableNext?: boolean;
@@ -163,6 +164,7 @@ export const IntroductionPage = () => {
       key: 'cv_upload',
       step: 1,
       title: t('common.steps.cvUpload'),
+      nextButtonTitle: t('forms.cvUpload.button.next'),
       onNext: () => {
         const fileId = introductionFormState.cv_upload?.fileId;
 
@@ -216,6 +218,7 @@ export const IntroductionPage = () => {
       key: 'candidate_information',
       step: 2,
       title: t('common.steps.candidateInformation'),
+      nextButtonTitle: t('forms.candidate.button.next'),
       onNext: () => {
         candidateFormRef.current?.submitForm();
       },
@@ -244,6 +247,7 @@ export const IntroductionPage = () => {
       key: 'job_description',
       step: 3,
       title: t('common.steps.jobDescription'),
+      nextButtonTitle: t('forms.jobDescription.button.next'),
       onNext: () => {
         jobDescFormRef.current?.submitForm();
       },
@@ -312,7 +316,8 @@ export const IntroductionPage = () => {
               }
               onClick={currentConfig.onNext}
             >
-              {t('common.buttons.next')} <ChevronRightIcon />
+              {t(currentConfig.nextButtonTitle ?? 'common.buttons.next')}{' '}
+              <ChevronRightIcon />
             </Button>
           )}
         </BottomBarWrapper>

@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "turbo dev",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
     "check": "turbo run check",
     "build": "turbo run build",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",

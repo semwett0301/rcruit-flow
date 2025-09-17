@@ -70,9 +70,7 @@ export const ResetBodyModal = ({ onReset }: ResetBodyModalProps) => {
           <ExclamationTriangleIcon width={50} height={50} />
           <ResetHeader>{t('modals.reset.title')}</ResetHeader>
         </AlertContainer>
-        <ResetText>
-          {t('modals.reset.description')}
-        </ResetText>
+        <ResetText>{t('modals.reset.description')}</ResetText>
       </TitleContainer>
       <ButtonContainer>
         <Button

@@ -209,10 +209,14 @@ export const CandidateForm = forwardRef<
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
       <Section>
-        <SectionTitle>{t('forms.candidate.sections.personalInformation')}</SectionTitle>
+        <SectionTitle>
+          {t('forms.candidate.sections.personalInformation')}
+        </SectionTitle>
         <FormRow>
           <FormCol>
-            <Label htmlFor="candidateName">{t('forms.candidate.fields.fullName.label')}</Label>
+            <Label htmlFor="candidateName">
+              {t('forms.candidate.fields.fullName.label')}
+            </Label>
             <Controller
               name="candidateName"
               control={control}
@@ -252,7 +256,9 @@ export const CandidateForm = forwardRef<
             />
           </FormCol>
         </FormRow>
-        <Label htmlFor="location">{t('forms.candidate.fields.location.label')}</Label>
+        <Label htmlFor="location">
+          {t('forms.candidate.fields.location.label')}
+        </Label>
         <Controller
           name="location"
           control={control}
@@ -269,7 +275,9 @@ export const CandidateForm = forwardRef<
         />
       </Section>
       <Section>
-        <SectionTitle>{t('forms.candidate.sections.employmentInformation')}</SectionTitle>
+        <SectionTitle>
+          {t('forms.candidate.sections.employmentInformation')}
+        </SectionTitle>
         <FormRow>
           <FormCol>
             <Controller
@@ -287,7 +295,9 @@ export const CandidateForm = forwardRef<
         </FormRow>
         <FormRow>
           <FormCol>
-            <Label htmlFor="currentEmployer">{t('forms.candidate.fields.currentEmployer.label')}</Label>
+            <Label htmlFor="currentEmployer">
+              {t('forms.candidate.fields.currentEmployer.label')}
+            </Label>
             <Controller
               name="currentEmployer"
               control={control}
@@ -300,7 +310,9 @@ export const CandidateForm = forwardRef<
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
-                  placeholder={t('forms.candidate.fields.currentEmployer.placeholder')}
+                  placeholder={t(
+                    'forms.candidate.fields.currentEmployer.placeholder',
+                  )}
                   error={fieldState.error?.message}
                   disabled={unemployed}
                 />
@@ -308,7 +320,9 @@ export const CandidateForm = forwardRef<
             />
           </FormCol>
           <FormCol>
-            <Label htmlFor="currentPosition">{t('forms.candidate.fields.currentPosition.label')}</Label>
+            <Label htmlFor="currentPosition">
+              {t('forms.candidate.fields.currentPosition.label')}
+            </Label>
             <Controller
               name="currentPosition"
               control={control}
@@ -321,7 +335,9 @@ export const CandidateForm = forwardRef<
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
-                  placeholder={t('forms.candidate.fields.currentPosition.placeholder')}
+                  placeholder={t(
+                    'forms.candidate.fields.currentPosition.placeholder',
+                  )}
                   error={fieldState.error?.message}
                   disabled={unemployed}
                 />
@@ -331,7 +347,9 @@ export const CandidateForm = forwardRef<
         </FormRow>
       </Section>
       <Section>
-        <SectionTitle>{t('forms.candidate.sections.workExperience')}</SectionTitle>
+        <SectionTitle>
+          {t('forms.candidate.sections.workExperience')}
+        </SectionTitle>
         <FormRow>
           <FormCol>
             <Label htmlFor="experienceDescription">
@@ -341,19 +359,25 @@ export const CandidateForm = forwardRef<
               name="experienceDescription"
               control={control}
               rules={{
-                required: t('forms.candidate.fields.experienceDescription.error'),
+                required: t(
+                  'forms.candidate.fields.experienceDescription.error',
+                ),
               }}
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
-                  placeholder={t('forms.candidate.fields.experienceDescription.placeholder')}
+                  placeholder={t(
+                    'forms.candidate.fields.experienceDescription.placeholder',
+                  )}
                   error={fieldState.error?.message}
                 />
               )}
             />
           </FormCol>
           <FormCol $width={130}>
-            <Label htmlFor="yearsOfExperience">{t('forms.candidate.fields.yearsOfExperience.label')}</Label>
+            <Label htmlFor="yearsOfExperience">
+              {t('forms.candidate.fields.yearsOfExperience.label')}
+            </Label>
             <Controller
               name="yearsOfExperience"
               control={control}
@@ -361,7 +385,9 @@ export const CandidateForm = forwardRef<
                 required: t('forms.candidate.fields.yearsOfExperience.error'),
                 min: {
                   value: 0,
-                  message: t('forms.candidate.fields.yearsOfExperience.minError'),
+                  message: t(
+                    'forms.candidate.fields.yearsOfExperience.minError',
+                  ),
                 },
               }}
               render={({ field, fieldState }) => (
@@ -369,7 +395,9 @@ export const CandidateForm = forwardRef<
                   {...field}
                   type="number"
                   min={0}
-                  placeholder={t('forms.candidate.fields.yearsOfExperience.placeholder')}
+                  placeholder={t(
+                    'forms.candidate.fields.yearsOfExperience.placeholder',
+                  )}
                   error={fieldState.error?.message}
                 />
               )}
@@ -378,7 +406,9 @@ export const CandidateForm = forwardRef<
         </FormRow>
       </Section>
       <Section>
-        <SectionTitle>{t('forms.candidate.sections.educationInformation')}</SectionTitle>
+        <SectionTitle>
+          {t('forms.candidate.sections.educationInformation')}
+        </SectionTitle>
         {degreeFields.map((field, index) => (
           <FormRow key={field.id}>
             <FormCol $width={200}>
@@ -414,7 +444,9 @@ export const CandidateForm = forwardRef<
                   <Input
                     {...field}
                     error={fieldState.error?.message}
-                    placeholder={t('forms.candidate.fields.program.placeholder')}
+                    placeholder={t(
+                      'forms.candidate.fields.program.placeholder',
+                    )}
                   />
                 )}
               />
@@ -441,7 +473,8 @@ export const CandidateForm = forwardRef<
               })
             }
           >
-            {t('forms.candidate.fields.addDegree')} <PlusIcon width={20} height={20} />
+            {t('forms.candidate.fields.addDegree')}{' '}
+            <PlusIcon width={20} height={20} />
           </Button>
         </FormRow>
       </Section>
@@ -501,7 +534,9 @@ export const CandidateForm = forwardRef<
                 render={({ field, fieldState }) => (
                   <Input
                     {...field}
-                    placeholder={t('forms.candidate.fields.focusRole.placeholder')}
+                    placeholder={t(
+                      'forms.candidate.fields.focusRole.placeholder',
+                    )}
                     error={fieldState.error?.message}
                     rightIcon={
                       fields.length > 1 &&
@@ -528,11 +563,14 @@ export const CandidateForm = forwardRef<
             })
           }
         >
-          {t('forms.candidate.fields.addFocusRole')} <PlusIcon width={20} height={20} />
+          {t('forms.candidate.fields.addFocusRole')}{' '}
+          <PlusIcon width={20} height={20} />
         </Button>
       </Section>
       <Section>
-        <SectionTitle>{t('forms.candidate.sections.travelInformation')}</SectionTitle>
+        <SectionTitle>
+          {t('forms.candidate.sections.travelInformation')}
+        </SectionTitle>
         {travelModeFields.map((field, index) => {
           const isTravelModeRemote =
             watch(`travelOptions.${index}.travelMode`) ===
@@ -559,7 +597,9 @@ export const CandidateForm = forwardRef<
 
                 <FormRow>
                   <FormCol>
-                    <Label htmlFor={`travelMode-${index}`}>{t('forms.candidate.fields.travelMode.label')}</Label>
+                    <Label htmlFor={`travelMode-${index}`}>
+                      {t('forms.candidate.fields.travelMode.label')}
+                    </Label>
                     <Controller
                       name={`travelOptions.${index}.travelMode`}
                       control={control}
@@ -596,9 +636,16 @@ export const CandidateForm = forwardRef<
                         rules={{
                           required: {
                             value: !isTravelModeRemote,
-                            message: t('forms.candidate.fields.minutesOfRoad.error'),
+                            message: t(
+                              'forms.candidate.fields.minutesOfRoad.error',
+                            ),
                           },
-                          min: { value: 1, message: t('forms.candidate.fields.minutesOfRoad.minError') },
+                          min: {
+                            value: 1,
+                            message: t(
+                              'forms.candidate.fields.minutesOfRoad.minError',
+                            ),
+                          },
                         }}
                         render={({
                           field: { value, onChange },
@@ -608,7 +655,9 @@ export const CandidateForm = forwardRef<
                             <Input
                               type="number"
                               min={0}
-                              placeholder={t('forms.candidate.fields.minutesOfRoad.placeholder')}
+                              placeholder={t(
+                                'forms.candidate.fields.minutesOfRoad.placeholder',
+                              )}
                               error={fieldState.error?.message}
                               value={value}
                               onChange={onChange}
@@ -628,10 +677,22 @@ export const CandidateForm = forwardRef<
                         rules={{
                           required: {
                             value: !isTravelModeRemote,
-                            message: t('forms.candidate.fields.onSiteDays.error'),
+                            message: t(
+                              'forms.candidate.fields.onSiteDays.error',
+                            ),
                           },
-                          min: { value: 1, message: t('forms.candidate.fields.onSiteDays.minError') },
-                          max: { value: 5, message: t('forms.candidate.fields.onSiteDays.maxError') },
+                          min: {
+                            value: 1,
+                            message: t(
+                              'forms.candidate.fields.onSiteDays.minError',
+                            ),
+                          },
+                          max: {
+                            value: 5,
+                            message: t(
+                              'forms.candidate.fields.onSiteDays.maxError',
+                            ),
+                          },
                         }}
                         render={({
                           field: { value, onChange },
@@ -642,7 +703,9 @@ export const CandidateForm = forwardRef<
                               type="number"
                               min={0}
                               max={5}
-                              placeholder={t('forms.candidate.fields.onSiteDays.placeholder')}
+                              placeholder={t(
+                                'forms.candidate.fields.onSiteDays.placeholder',
+                              )}
                               error={fieldState.error?.message}
                               value={value}
                               onChange={onChange}
@@ -670,15 +733,20 @@ export const CandidateForm = forwardRef<
               })
             }
           >
-            {t('forms.candidate.fields.addTravelOption')} <PlusIcon width={20} height={20} />
+            {t('forms.candidate.fields.addTravelOption')}{' '}
+            <PlusIcon width={20} height={20} />
           </Button>
         </FormRow>
       </Section>
       <Section>
-        <SectionTitle>{t('forms.candidate.sections.salaryInformation')}</SectionTitle>
+        <SectionTitle>
+          {t('forms.candidate.sections.salaryInformation')}
+        </SectionTitle>
         <FormRow>
           <FormCol $gap={20} $width={170}>
-            <Label htmlFor="salaryPeriod">{t('forms.candidate.fields.salaryPeriod.label')}</Label>
+            <Label htmlFor="salaryPeriod">
+              {t('forms.candidate.fields.salaryPeriod.label')}
+            </Label>
             <Controller
               name="salaryPeriod"
               control={control}
@@ -692,7 +760,9 @@ export const CandidateForm = forwardRef<
             />
           </FormCol>
           <FormCol>
-            <Label htmlFor="grossSalary">{t('forms.candidate.fields.grossSalary.label')}</Label>
+            <Label htmlFor="grossSalary">
+              {t('forms.candidate.fields.grossSalary.label')}
+            </Label>
             <Controller
               name="grossSalary"
               control={control}
@@ -708,14 +778,18 @@ export const CandidateForm = forwardRef<
                   {...field}
                   type="number"
                   min={1}
-                  placeholder={t('forms.candidate.fields.grossSalary.placeholder')}
+                  placeholder={t(
+                    'forms.candidate.fields.grossSalary.placeholder',
+                  )}
                   error={fieldState.error?.message}
                 />
               )}
             />
           </FormCol>
           <FormCol>
-            <Label htmlFor="hoursAWeek">{t('forms.candidate.fields.hoursPerWeek.label')}</Label>
+            <Label htmlFor="hoursAWeek">
+              {t('forms.candidate.fields.hoursPerWeek.label')}
+            </Label>
             <Controller
               name="hoursAWeek"
               control={control}
@@ -746,7 +820,9 @@ export const CandidateForm = forwardRef<
         </FormRow>
       </Section>
       <Section>
-        <SectionTitle>{t('forms.candidate.sections.extraContext')}</SectionTitle>
+        <SectionTitle>
+          {t('forms.candidate.sections.extraContext')}
+        </SectionTitle>
         <Controller
           name="ambitions"
           control={control}
@@ -755,7 +831,12 @@ export const CandidateForm = forwardRef<
               <>
                 <FormRow>
                   <FormCol>
-                    <Textarea {...field} placeholder={t('forms.candidate.fields.ambitions.placeholder')} />
+                    <Textarea
+                      {...field}
+                      placeholder={t(
+                        'forms.candidate.fields.ambitions.placeholder',
+                      )}
+                    />
                   </FormCol>
                 </FormRow>
               </>
