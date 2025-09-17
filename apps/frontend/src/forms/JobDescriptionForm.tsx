@@ -94,7 +94,9 @@ export const JobDescriptionForm = forwardRef<
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
       <Section>
-        <SectionTitle>{t('forms.jobDescription.sections.receiverName')}</SectionTitle>
+        <SectionTitle>
+          {t('forms.jobDescription.sections.receiverName')}
+        </SectionTitle>
         <FormRow>
           <FormCol>
             <Controller
@@ -106,7 +108,9 @@ export const JobDescriptionForm = forwardRef<
               render={({ field, fieldState }) => (
                 <Input
                   {...field}
-                  placeholder={t('forms.jobDescription.fields.contactName.placeholder')}
+                  placeholder={t(
+                    'forms.jobDescription.fields.contactName.placeholder',
+                  )}
                   error={fieldState.error?.message}
                 />
               )}
@@ -115,7 +119,9 @@ export const JobDescriptionForm = forwardRef<
         </FormRow>
       </Section>
       <Section>
-        <SectionTitle>{t('forms.jobDescription.sections.jobDescription')}</SectionTitle>
+        <SectionTitle>
+          {t('forms.jobDescription.sections.jobDescription')}
+        </SectionTitle>
         <FormRow>
           <TextSwitch
             onSwitch={setSwitchValue}
@@ -133,7 +139,9 @@ export const JobDescriptionForm = forwardRef<
                   <Textarea
                     {...field}
                     height={`${heightBody}px`}
-                    placeholder={t('forms.jobDescription.fields.jobDescriptionText.placeholder')}
+                    placeholder={t(
+                      'forms.jobDescription.fields.jobDescriptionText.placeholder',
+                    )}
                     error={fieldState.error?.message}
                   />
                 )}

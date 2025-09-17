@@ -15,7 +15,8 @@
     }
   },
   "scripts": {
-    "lint": "eslint \"src/**/*.ts\" --fix",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "lint": "eslint \"src/**/*.ts\"",
     "build": "vite build",
     "dev": "pnpm build"
   },
