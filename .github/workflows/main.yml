@@ -1,25 +1,14 @@
-name: Production pipeline
+name: Development pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-
-env:
-  FRONTEND_BUILD_DIR: apps/frontend/dist
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-  S3_BUCKET: ${{ secrets.AWS_S3_FRONTEND_BUCKET }}
-
-  VITE_API_URL: ${{ vars.VITE_API_URL }}
-  VITE_GTM_ID: ${{ secrets.VITE_GTM_ID }}
-  VITE_MODE: ${{ secrets.VITE_MODE }}
-  VITE_ROUTER_BASE: ${{ vars.VITE_ROUTER_BASE }}
+    branches: [main]
 
 jobs:
   lint-and-check:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' && github.head_ref != 'develop' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,52 +32,33 @@ jobs:
       - name: Run type check
         run: pnpm turbo run check
 
-  changes_check:
+  build-and-deploy:
+    needs: lint-and-check
     if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
-    outputs:
-      is_frontend_affected: ${{ steps.filter.outputs.is_frontend_affected }}
-      is_backend_affected: ${{ steps.filter.outputs.is_backend_affected }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Check if only ignored files were changed
         id: filter
         uses: dorny/paths-filter@v3
         with:
           filters: |
-            is_frontend_affected:
+            only_ignored:
+              - '.github/**'
               - 'apps/frontend/**'
-              - 'packages/**'
-            
-            is_backend_affected:
-              - 'apps/backend/**'
-              - 'packages/**'
+              - 'README.md'
+              - 'docker-compose.yaml'
+            other:
+              - '**'
 
-  build-and-deploy-backend:
-    permissions:
-      id-token: write
-      contents: read
-    needs: changes_check
-    if: ${{ github.event_name == 'push' && needs.changes_check.outputs.is_backend_affected == 'true' }}
-
-    runs-on: ubuntu-latest
-
-    environment: production
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Log in to Docker Hub
+        if: ${{ steps.filter.outputs.other == 'true' }}
+        uses: docker/login-action@v3
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         id: buildx
@@ -97,98 +67,21 @@ jobs:
           driver: docker-container
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        if: ${{ steps.filter.outputs.other == 'true' }}
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./apps/backend/Dockerfile
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Restart Docker Compose on EC2
-        env:
-          INSTANCE_ID: ${{ secrets.AWS_EC2_INSTANCE_ID }}
-          REGION: ${{ secrets.AWS_REGION }}
-          ECR_REGISTRY: ${{secrets.AWS_ECR_REGISTRY}}
-        run: |
-          set -e
-          echo "Sending command to EC2 instance $INSTANCE_ID..."
-          
-          CMD_ID=$(aws ssm send-command \
-            --targets "Key=instanceIds,Values=$INSTANCE_ID" \
-            --document-name "AWS-RunShellScript" \
-            --comment "Deploy new Docker Compose" \
-            --region "$REGION" \
-            --parameters 'commands=[
-              "set -e",
-              "cd /home/ubuntu/app",
-              "aws ecr get-login-password --region '"$REGION"' | docker login --username AWS --password-stdin '"$ECR_REGISTRY"'",
-              "docker compose pull",
-              "docker compose up -d --force-recreate"
-            ]' \
-            --query "Command.CommandId" \
-            --output text)
-          
-          echo "Waiting for SSM command to finish..."
-          aws ssm wait command-executed --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" --region "$REGION"
-          
-          echo "Fetching command output..."
-          aws ssm get-command-invocation \
-            --command-id "$CMD_ID" \
-            --instance-id "$INSTANCE_ID" \
-            --region "$REGION" \
-            --query "{Status:Status,StdOut:StandardOutputContent,StdErr:StandardErrorContent}"
-
-
-  build-and-deploy-frontend:
-    permissions:
-      id-token: write
-      contents: read
-    needs: changes_check
-    if: ${{ github.event_name == 'push' && needs.changes_check.outputs.is_frontend_affected == 'true' }}
-
-    runs-on: ubuntu-latest
-
-    environment: production
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Trigger Render deploy
+        if: ${{ steps.filter.outputs.other == 'true' }}
+        uses: JorgeLNJunior/render-deploy@v1.4.5
         with:
-          node-version: 18
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10.13.1
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build frontend
-        run: pnpm build --filter=frontend
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Sync static assets
-        run: |
-          aws s3 cp "$FRONTEND_BUILD_DIR" "s3://${S3_BUCKET}/" \
-            --recursive \
-            --cache-control "no-cache" \
-            --metadata-directive REPLACE
-
-      - name: Invalidate CloudFront (optional)
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id "${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }}" \
-            --paths "/*"
-
-      
+          service_id: ${{ secrets.RENDER_SERVICE_ID }}
+          api_key: ${{ secrets.RENDER_API_KEY }}
+          wait_deploy: true
+          github_token: ''
