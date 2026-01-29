@@ -27,6 +27,21 @@
       "dependsOn": [
         "@repo/dto#build"
       ]
+    },
+    "test": {
+      "dependsOn": [
+        "@repo/dto#build"
+      ],
+      "cache": false
+    },
+    "test:cov": {
+      "dependsOn": [
+        "@repo/dto#build"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
+      "cache": false
     }
   }
 }
