@@ -30,7 +30,9 @@ describe('GenerateEmailUseCase', () => {
 
     mockS3Service = {
       uploadFile: jest.fn(),
-      getFile: jest.fn().mockResolvedValue(Buffer.from('mock job description pdf')),
+      getFile: jest
+        .fn()
+        .mockResolvedValue(Buffer.from('mock job description pdf')),
     } as unknown as jest.Mocked<S3Service>;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -122,7 +124,10 @@ describe('GenerateEmailUseCase', () => {
     });
 
     it('should extract first name from candidate name', async () => {
-      const dto = { ...candidateFormFixture, candidateName: 'John William Doe' };
+      const dto = {
+        ...candidateFormFixture,
+        candidateName: 'John William Doe',
+      };
 
       await useCase.generate(dto);
 
@@ -170,7 +175,11 @@ describe('GenerateEmailUseCase', () => {
         ...candidateFormFixture,
         travelOptions: [
           { travelMode: TravelModeEnum.CAR, minutesOfRoad: 30, onSiteDays: 2 },
-          { travelMode: TravelModeEnum.PUBLIC, minutesOfRoad: 60, onSiteDays: 3 },
+          {
+            travelMode: TravelModeEnum.PUBLIC,
+            minutesOfRoad: 60,
+            onSiteDays: 3,
+          },
         ],
       };
 
@@ -250,7 +259,10 @@ describe('GenerateEmailUseCase', () => {
     });
 
     it('should handle candidate name with hyphen', async () => {
-      const dto = { ...candidateFormFixture, candidateName: 'Mary-Jane Watson' };
+      const dto = {
+        ...candidateFormFixture,
+        candidateName: 'Mary-Jane Watson',
+      };
 
       await useCase.generate(dto);
 
@@ -259,11 +271,13 @@ describe('GenerateEmailUseCase', () => {
     });
 
     it('should throw an error if GPT call fails', async () => {
-      mockGptService.chat.mockRejectedValue(new Error('GPT service unavailable'));
-
-      await expect(useCase.generate({ ...candidateFormFixture })).rejects.toThrow(
-        'GPT service unavailable',
+      mockGptService.chat.mockRejectedValue(
+        new Error('GPT service unavailable'),
       );
+
+      await expect(
+        useCase.generate({ ...candidateFormFixture }),
+      ).rejects.toThrow('GPT service unavailable');
     });
 
     it('should throw an error if S3 file retrieval fails', async () => {

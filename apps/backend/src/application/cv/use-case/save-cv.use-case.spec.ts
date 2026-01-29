@@ -58,7 +58,9 @@ describe('SaveCvUseCase', () => {
 
       const mockFile = createMockFile();
 
-      await expect(useCase.saveCV(mockFile)).rejects.toThrow('S3 upload failed');
+      await expect(useCase.saveCV(mockFile)).rejects.toThrow(
+        'S3 upload failed',
+      );
     });
 
     it('should handle different file types', async () => {

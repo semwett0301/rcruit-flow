@@ -10,7 +10,9 @@ jest.mock('aws-sdk', () => {
       promise: jest.fn().mockResolvedValue({ Key: 'uploaded-file-key' }),
     }),
     getObject: jest.fn().mockReturnValue({
-      promise: jest.fn().mockResolvedValue({ Body: Buffer.from('file content') }),
+      promise: jest
+        .fn()
+        .mockResolvedValue({ Body: Buffer.from('file content') }),
     }),
   };
 
@@ -50,8 +52,8 @@ describe('S3Service', () => {
     }).compile();
 
     service = module.get<S3Service>(S3Service);
-    mockS3Instance = (AWS.S3 as jest.MockedClass<typeof AWS.S3>).mock
-      .results[0].value;
+    mockS3Instance = (AWS.S3 as jest.MockedClass<typeof AWS.S3>).mock.results[0]
+      .value;
   });
 
   afterEach(() => {

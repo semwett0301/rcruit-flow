@@ -114,8 +114,12 @@ describe('GptService', () => {
         await service.chat(messages);
       } catch (error) {
         expect(error).toBeInstanceOf(HttpException);
-        expect((error as HttpException).getStatus()).toBe(HttpStatus.BAD_GATEWAY);
-        expect((error as HttpException).message).toContain('Rate limit exceeded');
+        expect((error as HttpException).getStatus()).toBe(
+          HttpStatus.BAD_GATEWAY,
+        );
+        expect((error as HttpException).message).toContain(
+          'Rate limit exceeded',
+        );
       }
     });
 

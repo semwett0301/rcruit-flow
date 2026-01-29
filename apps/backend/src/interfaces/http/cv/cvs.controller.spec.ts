@@ -84,7 +84,9 @@ describe('CvsController', () => {
 
   describe('extractCvData', () => {
     it('should extract CV data and return the result', async () => {
-      const result = await controller.extractCvData(extractCvDataRequestFixture);
+      const result = await controller.extractCvData(
+        extractCvDataRequestFixture,
+      );
 
       expect(result).toEqual(extractCvDataResultFixture);
     });

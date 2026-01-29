@@ -29,7 +29,9 @@ describe('ExtractCvContentUseCase', () => {
     } as unknown as jest.Mocked<S3Service>;
 
     mockGptService = {
-      chat: jest.fn().mockResolvedValue(JSON.stringify(extractCvDataResultFixture)),
+      chat: jest
+        .fn()
+        .mockResolvedValue(JSON.stringify(extractCvDataResultFixture)),
     } as unknown as jest.Mocked<GptService>;
 
     const module: TestingModule = await Test.createTestingModule({
