@@ -1,0 +1,66 @@
+/**
+ * Global styles and CSS custom properties for the frontend application
+ */
+
+/* ==========================================================================
+   CSS Custom Properties (Design Tokens)
+   ========================================================================== */
+
+:root {
+  /* CTA Button Colors */
+  --cta-primary: #2563eb;
+  --cta-primary-hover: #1d4ed8;
+  --cta-primary-active: #1e40af;
+  --cta-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+  --cta-shadow-hover: 0 6px 20px 0 rgba(37, 99, 235, 0.5);
+}
+
+/* ==========================================================================
+   CTA Button Utility Classes
+   ========================================================================== */
+
+/**
+ * Primary CTA button with gradient background and hover effects
+ * Usage: <button class="cta-button-primary">Get Started</button>
+ */
+.cta-button-primary {
+  background: linear-gradient(135deg, var(--cta-primary) 0%, var(--cta-primary-hover) 100%);
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 600;
+  padding: 1rem 2.5rem;
+  border-radius: 0.75rem;
+  border: none;
+  box-shadow: var(--cta-shadow);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--cta-shadow-hover);
+  background: linear-gradient(135deg, var(--cta-primary-hover) 0%, var(--cta-primary-active) 100%);
+}
+
+.cta-button-primary:active {
+  transform: translateY(0);
+}
+
+.cta-button-primary:focus-visible {
+  outline: 3px solid var(--cta-primary);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Responsive Styles
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .cta-button-primary {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+  }
+}

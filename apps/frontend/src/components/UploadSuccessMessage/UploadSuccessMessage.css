@@ -1,0 +1,124 @@
+/**
+ * UploadSuccessMessage Component Styles
+ * 
+ * Styles for the success message component displayed after successful file upload.
+ * Features a green gradient background, slide-in animation, and distinct visual appearance.
+ */
+
+/* Main container with gradient background and slide-in animation */
+.upload-success-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border: 1px solid #28a745;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+  margin: 16px 0;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Slide-in animation keyframes */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Success icon container - circular green background */
+.upload-success-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background-color: #28a745;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Success icon SVG styling */
+.upload-success-icon svg {
+  width: 28px;
+  height: 28px;
+  color: white;
+}
+
+/* Content wrapper - takes remaining space */
+.upload-success-content {
+  flex: 1;
+}
+
+/* Title styling - prominent heading */
+.upload-success-title {
+  margin: 0 0 8px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #155724;
+}
+
+/* Description text styling */
+.upload-success-description {
+  margin: 0 0 12px 0;
+  color: #155724;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Next steps section heading */
+.upload-success-next-steps h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #155724;
+}
+
+/* Next steps list container */
+.upload-success-next-steps ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+/* Next steps list items */
+.upload-success-next-steps li {
+  color: #155724;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Dismiss button - minimal styling with hover effect */
+.upload-success-dismiss {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #155724;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+/* Dismiss button hover state */
+.upload-success-dismiss:hover {
+  opacity: 1;
+}
+
+/* Dismiss button focus state for accessibility */
+.upload-success-dismiss:focus {
+  outline: 2px solid #155724;
+  outline-offset: 2px;
+}
+
+/* Dismiss button focus-visible for keyboard navigation */
+.upload-success-dismiss:focus-visible {
+  outline: 2px solid #155724;
+  outline-offset: 2px;
+}

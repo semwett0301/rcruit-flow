@@ -1,0 +1,75 @@
+/**
+ * CopyButton Component Styles
+ * 
+ * Provides styling for a copy-to-clipboard button with visual feedback states
+ * including success, error, disabled, and hover states.
+ */
+
+.copy-button-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.copy-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.copy-button:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.copy-button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Success state - shown after successful copy */
+.copy-button--success {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+/* Error state - shown when copy fails */
+.copy-button--error {
+  background-color: #fef2f2;
+  border-color: #ef4444;
+  color: #dc2626;
+}
+
+/* Disabled state */
+.copy-button--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Icon element within the button */
+.copy-button__icon {
+  font-size: 16px;
+}
+
+/* Text element within the button */
+.copy-button__text {
+  white-space: nowrap;
+}
+
+/* Error message displayed below the button */
+.copy-button__error {
+  font-size: 12px;
+  color: #dc2626;
+  margin-top: 2px;
+}
