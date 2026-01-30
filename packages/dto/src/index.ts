@@ -3,6 +3,7 @@ export * from './cv';
 export * from './email';
 export * from './user';
 export * from './candidate/update-candidate-email.dto';
+export * from './user/update-language-preference.dto';
 export * from './validation/email-generation-validation';
 export * from './validation/email-generation-validator';
 export * from './validation/email-generation.validation';
