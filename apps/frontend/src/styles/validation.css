@@ -1,0 +1,117 @@
+/**
+ * Validation Error Component Styles
+ * 
+ * Styles for form validation error alerts, messages, and related UI components.
+ * Includes error alerts, dismissible notifications, and email generation buttons.
+ */
+
+/* ==========================================================================
+   Validation Error Alert
+   ========================================================================== */
+
+.validation-error-alert {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.validation-error-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.validation-error-icon {
+  font-size: 18px;
+}
+
+.validation-error-dismiss {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #991b1b;
+}
+
+.validation-error-dismiss:hover {
+  opacity: 0.8;
+}
+
+.validation-error-dismiss:focus {
+  outline: 2px solid #991b1b;
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Validation Error List
+   ========================================================================== */
+
+.validation-error-list {
+  margin: 0;
+  padding-left: 24px;
+  color: #991b1b;
+}
+
+.validation-error-item {
+  margin: 4px 0;
+}
+
+/* ==========================================================================
+   Email Generation Container
+   ========================================================================== */
+
+.email-generation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.email-generation-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.email-generation-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.email-generation-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.email-generation-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   Button Variants
+   ========================================================================== */
+
+.button-warning {
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  color: #92400e;
+}
+
+.button-warning:hover:not(:disabled) {
+  background-color: #fde68a;
+}
+
+/* ==========================================================================
+   Validation Hints
+   ========================================================================== */
+
+.validation-hint {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
