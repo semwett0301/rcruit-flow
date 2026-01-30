@@ -5,93 +5,147 @@
  * Includes accessible hidden file input with styled dropzone trigger.
  */
 
-.cv-upload {
+/* Container */
+.cv-upload-container {
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.cv-upload__dropzone {
+/* Dropzone area */
+.cv-upload-dropzone {
   border: 2px dashed #ccc;
   border-radius: 8px;
-  padding: 40px 20px;
+  padding: 40px;
   text-align: center;
   transition: border-color 0.2s, background-color 0.2s;
 }
 
-.cv-upload__dropzone:hover {
+.cv-upload-dropzone:hover {
   border-color: #007bff;
   background-color: #f8f9fa;
 }
 
-/* Drag-over state */
-.cv-upload__dropzone--active {
+/* Drag-over active state */
+.cv-upload-dropzone--active {
   border-color: #007bff;
   background-color: #e7f1ff;
 }
 
 /* Visually hidden but accessible file input */
-.cv-upload__input {
+.cv-upload-input {
   display: none;
 }
 
-.cv-upload__label {
+/* Clickable label */
+.cv-upload-label {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  font-size: 1rem;
+  color: #666;
 }
 
-.cv-upload__icon {
+/* Upload icon */
+.cv-upload-icon {
   font-size: 48px;
+  color: #999;
 }
 
-.cv-upload__text {
+/* Primary text */
+.cv-upload-text {
   font-size: 14px;
   color: #333;
 }
 
-.cv-upload__hint {
+/* Hint/helper text */
+.cv-upload-hint {
   font-size: 12px;
   color: #6c757d;
 }
 
 /* Error state styling */
-.cv-upload__error {
-  margin-top: 12px;
-  padding: 12px;
+.cv-upload-error {
+  padding: 12px 16px;
   background-color: #f8d7da;
   border: 1px solid #f5c6cb;
-  border-radius: 4px;
+  border-radius: 8px;
   color: #721c24;
+  margin-bottom: 16px;
   font-size: 14px;
 }
 
 /* Success state styling */
-.cv-upload__success {
+.cv-upload-success {
   margin-top: 12px;
-  padding: 12px;
+  padding: 12px 16px;
   background-color: #d4edda;
   border: 1px solid #c3e6cb;
-  border-radius: 4px;
+  border-radius: 8px;
   color: #155724;
   font-size: 14px;
 }
 
 /* Disabled state styling */
-.cv-upload--disabled .cv-upload__dropzone {
+.cv-upload-container--disabled .cv-upload-dropzone {
   border-color: #e9ecef;
   background-color: #f8f9fa;
   cursor: not-allowed;
 }
 
-.cv-upload--disabled .cv-upload__label {
+.cv-upload-container--disabled .cv-upload-label {
   cursor: not-allowed;
   opacity: 0.6;
 }
 
 /* Focus state for accessibility */
-.cv-upload__input:focus + .cv-upload__dropzone {
+.cv-upload-input:focus + .cv-upload-dropzone {
   outline: 2px solid #007bff;
   outline-offset: 2px;
+}
+
+/* Loading state */
+.cv-upload-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* File preview */
+.cv-upload-preview {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cv-upload-preview__filename {
+  font-size: 14px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cv-upload-preview__remove {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+}
+
+.cv-upload-preview__remove:hover {
+  text-decoration: underline;
 }
