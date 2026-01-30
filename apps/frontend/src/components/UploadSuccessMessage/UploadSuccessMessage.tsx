@@ -2,26 +2,25 @@
  * UploadSuccessMessage Component
  *
  * A reusable success message component for CV upload confirmation.
- * Displays a success message with optional file name, next steps, and dismiss functionality.
+ * Displays a success message with optional file name, next steps,
+ * processing pending state, and dismiss functionality.
  */
 
-import React, { useEffect, useCallback } from 'react';
+import React from 'react';
 import styles from './UploadSuccessMessage.module.css';
 
 /**
  * Props interface for the UploadSuccessMessage component
  */
 export interface UploadSuccessMessageProps {
-  /** Controls visibility of the success message */
-  isVisible: boolean;
   /** Optional name of the uploaded file to display */
   fileName?: string;
   /** Optional callback function when message is dismissed */
   onDismiss?: () => void;
-  /** Optional list of next steps to display to the user */
-  nextSteps?: string[];
-  /** Optional auto-dismiss timeout in milliseconds (default: no auto-dismiss) */
-  autoDismissTimeout?: number;
+  /** Whether to show the next steps section */
+  showNextSteps?: boolean;
+  /** Whether to show the processing pending message */
+  processingPending?: boolean;
 }
 
 /**
@@ -74,56 +73,33 @@ const CloseIcon: React.FC = () => (
  * @example
  * ```tsx
  * <UploadSuccessMessage
- *   isVisible={showSuccess}
  *   fileName="resume.pdf"
- *   onDismiss={() => setShowSuccess(false)}
- *   nextSteps={[
- *     "We'll review your CV shortly",
- *     "You'll receive an email confirmation"
- *   ]}
- *   autoDismissTimeout={5000}
+ *   onDismiss={() => console.log('dismissed')}
+ *   showNextSteps={true}
+ *   processingPending={false}
  * />
  * ```
  */
 export const UploadSuccessMessage: React.FC<UploadSuccessMessageProps> = ({
-  isVisible,
   fileName,
   onDismiss,
-  nextSteps,
-  autoDismissTimeout,
+  showNextSteps = false,
+  processingPending = false,
 }) => {
   /**
    * Handle dismiss action
    */
-  const handleDismiss = useCallback(() => {
+  const handleDismiss = () => {
     if (onDismiss) {
       onDismiss();
     }
-  }, [onDismiss]);
-
-  /**
-   * Auto-dismiss effect
-   */
-  useEffect(() => {
-    if (isVisible && autoDismissTimeout && onDismiss) {
-      const timer = setTimeout(() => {
-        onDismiss();
-      }, autoDismissTimeout);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible, autoDismissTimeout, onDismiss]);
-
-  // Don't render if not visible
-  if (!isVisible) {
-    return null;
-  }
+  };
 
   return (
     <div
       className={styles.container}
-      role="status"
-      aria-live="polite"
+      role="alert"
+      aria-live="assertive"
       aria-atomic="true"
     >
       <div className={styles.content}>
@@ -148,16 +124,18 @@ export const UploadSuccessMessage: React.FC<UploadSuccessMessageProps> = ({
           </p>
         )}
 
-        {nextSteps && nextSteps.length > 0 && (
+        {processingPending && (
+          <p className={styles.processingMessage}>
+            Your file is being processed. This may take a few moments.
+          </p>
+        )}
+
+        {showNextSteps && (
           <div className={styles.nextStepsContainer}>
             <h4 className={styles.nextStepsTitle}>What happens next:</h4>
-            <ul className={styles.nextStepsList}>
-              {nextSteps.map((step, index) => (
-                <li key={index} className={styles.nextStepItem}>
-                  {step}
-                </li>
-              ))}
-            </ul>
+            <p className={styles.nextStepsText}>
+              Our team will review your CV and get back to you shortly.
+            </p>
           </div>
         )}
       </div>
