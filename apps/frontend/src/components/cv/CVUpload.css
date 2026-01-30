@@ -1,0 +1,75 @@
+/**
+ * CVUpload Component Styles
+ * 
+ * Styles for the CV upload component including file input,
+ * labels, hints, and status messages.
+ */
+
+/* Main container */
+.cv-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Upload button label */
+.cv-upload__label {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.cv-upload__label:hover {
+  background-color: #0056b3;
+}
+
+/* Hidden file input */
+.cv-upload__input {
+  display: none;
+}
+
+/* Hint text below upload button */
+.cv-upload__hint {
+  margin-top: 4px;
+}
+
+/* Error message styling */
+.cv-upload__error {
+  color: #dc3545;
+  font-size: 14px;
+  padding: 8px;
+  background-color: #f8d7da;
+  border-radius: 4px;
+}
+
+/* Success message styling */
+.cv-upload__success {
+  color: #28a745;
+  font-size: 14px;
+}
+
+/* File format hint component */
+.file-format-hint {
+  font-size: 13px;
+  color: #6c757d;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.file-format-hint__label {
+  font-weight: 500;
+}
+
+.file-format-hint__formats {
+  color: #495057;
+}
+
+.file-format-hint__size {
+  color: #868e96;
+}
