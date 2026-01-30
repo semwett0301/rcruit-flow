@@ -1,0 +1,131 @@
+/**
+ * UploadSuccessMessage Component Styles
+ * 
+ * Styles for the success message component displayed after successful file upload.
+ * Features a green gradient background, slide-in animation, and distinct visual appearance.
+ */
+
+/* Main container with gradient background and slide-in animation */
+.upload-success-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border: 1px solid #28a745;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+  margin: 16px 0;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Slide-in animation keyframes */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Success icon container */
+.upload-success-message__icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  background-color: #28a745;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Success icon SVG styling */
+.upload-success-message__icon svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+/* Content wrapper */
+.upload-success-message__content {
+  flex: 1;
+}
+
+/* Title styling */
+.upload-success-message__title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #155724;
+}
+
+/* Main text content */
+.upload-success-message__text {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #155724;
+  line-height: 1.5;
+}
+
+/* Next steps section container */
+.upload-success-message__next-steps {
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 12px;
+  border-radius: 4px;
+}
+
+/* Next steps section title */
+.upload-success-message__next-steps-title {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #155724;
+}
+
+/* Next steps list */
+.upload-success-message__next-steps ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+/* Next steps list items */
+.upload-success-message__next-steps li {
+  font-size: 13px;
+  color: #155724;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+/* Remove margin from last list item */
+.upload-success-message__next-steps li:last-child {
+  margin-bottom: 0;
+}
+
+/* Dismiss button */
+.upload-success-message__dismiss {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #155724;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+/* Dismiss button hover state */
+.upload-success-message__dismiss:hover {
+  opacity: 1;
+}
+
+/* Dismiss button focus state for accessibility */
+.upload-success-message__dismiss:focus {
+  outline: 2px solid #155724;
+  outline-offset: 2px;
+}
