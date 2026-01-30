@@ -1,62 +1,60 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 /**
- * Upload status types representing different states of a file upload.
+ * Interface representing the upload status state.
  */
-export type UploadStatus = 'idle' | 'uploading' | 'success' | 'processing' | 'error';
-
-/**
- * Interface representing the current upload state.
- */
-export interface UploadState {
+export interface UploadStatus {
   /** Current status of the upload */
-  status: UploadStatus;
-  /** Name of the file being uploaded (available in success/processing states) */
+  status: 'idle' | 'uploading' | 'success' | 'error';
+  /** Optional message (typically for error descriptions) */
+  message?: string;
+  /** Name of the file being uploaded */
   fileName?: string;
-  /** Error message (available in error state) */
-  errorMessage?: string;
 }
 
 /**
  * Return type for the useUploadStatus hook.
  */
 export interface UseUploadStatusReturn {
-  /** Current upload state */
-  uploadState: UploadState;
-  /** Set status to 'uploading' */
-  setUploading: () => void;
+  /** Current upload status */
+  uploadStatus: UploadStatus;
   /** Set status to 'success' with the uploaded file name */
   setSuccess: (fileName: string) => void;
-  /** Set status to 'processing' with the file name being processed */
-  setProcessing: (fileName: string) => void;
   /** Set status to 'error' with an error message */
   setError: (message: string) => void;
+  /** Set status to 'uploading' */
+  setUploading: () => void;
   /** Reset to 'idle' state */
   reset: () => void;
 }
 
+/** Auto-dismiss timeout for success state in milliseconds */
+const SUCCESS_AUTO_DISMISS_MS = 5000;
+
 /** Initial idle state */
-const initialState: UploadState = {
+const initialStatus: UploadStatus = {
   status: 'idle',
 };
 
 /**
- * Custom hook to manage upload status states.
+ * Custom hook to manage upload status state including success/error states.
  *
  * Provides a simple interface to track file upload progress through
- * various states: idle, uploading, success, processing, and error.
+ * various states: idle, uploading, success, and error.
+ * 
+ * The success state automatically dismisses after 5 seconds.
  *
- * @returns {UseUploadStatusReturn} Object containing upload state and state setters
+ * @returns {UseUploadStatusReturn} Object containing upload status and state setters
  *
  * @example
  * ```tsx
- * const { uploadState, setUploading, setSuccess, setError, reset } = useUploadStatus();
+ * const { uploadStatus, setUploading, setSuccess, setError, reset } = useUploadStatus();
  *
  * const handleUpload = async (file: File) => {
  *   setUploading();
  *   try {
  *     await uploadFile(file);
- *     setSuccess(file.name);
+ *     setSuccess(file.name); // Will auto-dismiss after 5 seconds
  *   } catch (err) {
  *     setError(err.message);
  *   }
@@ -64,45 +62,82 @@ const initialState: UploadState = {
  * ```
  */
 export function useUploadStatus(): UseUploadStatusReturn {
-  const [uploadState, setUploadState] = useState<UploadState>(initialState);
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>(initialStatus);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const setUploading = useCallback(() => {
-    setUploadState({
-      status: 'uploading',
-    });
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
   }, []);
 
+  /**
+   * Clears any existing auto-dismiss timer.
+   */
+  const clearTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  /**
+   * Sets the upload status to 'uploading'.
+   */
+  const setUploading = useCallback(() => {
+    clearTimer();
+    setUploadStatus({
+      status: 'uploading',
+    });
+  }, [clearTimer]);
+
+  /**
+   * Sets the upload status to 'success' with the file name.
+   * Automatically resets to 'idle' after 5 seconds.
+   * @param fileName - The name of the successfully uploaded file
+   */
   const setSuccess = useCallback((fileName: string) => {
-    setUploadState({
+    clearTimer();
+    setUploadStatus({
       status: 'success',
       fileName,
     });
-  }, []);
 
-  const setProcessing = useCallback((fileName: string) => {
-    setUploadState({
-      status: 'processing',
-      fileName,
-    });
-  }, []);
+    // Auto-dismiss success state after timeout
+    timerRef.current = setTimeout(() => {
+      setUploadStatus(initialStatus);
+      timerRef.current = null;
+    }, SUCCESS_AUTO_DISMISS_MS);
+  }, [clearTimer]);
 
+  /**
+   * Sets the upload status to 'error' with an error message.
+   * @param message - The error message to display
+   */
   const setError = useCallback((message: string) => {
-    setUploadState({
+    clearTimer();
+    setUploadStatus({
       status: 'error',
-      errorMessage: message,
+      message,
     });
-  }, []);
+  }, [clearTimer]);
 
+  /**
+   * Resets the upload status to 'idle'.
+   */
   const reset = useCallback(() => {
-    setUploadState(initialState);
-  }, []);
+    clearTimer();
+    setUploadStatus(initialStatus);
+  }, [clearTimer]);
 
   return {
-    uploadState,
-    setUploading,
+    uploadStatus,
     setSuccess,
-    setProcessing,
     setError,
+    setUploading,
     reset,
   };
 }

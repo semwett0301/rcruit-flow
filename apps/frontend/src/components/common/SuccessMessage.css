@@ -1,0 +1,337 @@
+/**
+ * SuccessMessage Component Styles
+ * 
+ * Styles for displaying success messages with animations,
+ * responsive design, and interactive elements.
+ */
+
+/* ==========================================================================
+   Keyframe Animations
+   ========================================================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes checkmarkPop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ==========================================================================
+   Main Container
+   ========================================================================== */
+
+.success-message {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: fadeIn 0.3s ease-out;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+}
+
+.success-message--with-dismiss {
+  padding-right: 48px;
+}
+
+/* ==========================================================================
+   Icon Styles
+   ========================================================================== */
+
+.success-message-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #28a745;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: bold;
+  animation: checkmarkPop 0.4s ease-out 0.1s both;
+}
+
+.success-message-icon::before {
+  content: "\2713"; /* Unicode checkmark */
+}
+
+.success-message-icon--custom::before {
+  content: none;
+}
+
+/* ==========================================================================
+   Content Styles
+   ========================================================================== */
+
+.success-message-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.success-message-title {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #155724;
+  line-height: 1.4;
+}
+
+.success-message-body {
+  margin: 0;
+  font-size: 14px;
+  color: #155724;
+  line-height: 1.5;
+}
+
+.success-message-body:not(:last-child) {
+  margin-bottom: 12px;
+}
+
+/* ==========================================================================
+   Next Steps Section
+   ========================================================================== */
+
+.success-message-next-steps {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #c3e6cb;
+}
+
+.success-message-next-steps-title {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #155724;
+}
+
+.success-message-next-steps-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  color: #155724;
+  line-height: 1.6;
+}
+
+.success-message-next-steps-list li {
+  margin-bottom: 4px;
+}
+
+.success-message-next-steps-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   Dismiss Button
+   ========================================================================== */
+
+.success-message-dismiss {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  color: #155724;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.success-message-dismiss:hover {
+  background-color: rgba(21, 87, 36, 0.1);
+  color: #0d3d1a;
+}
+
+.success-message-dismiss:focus {
+  outline: 2px solid #28a745;
+  outline-offset: 2px;
+}
+
+.success-message-dismiss:active {
+  background-color: rgba(21, 87, 36, 0.2);
+}
+
+.success-message-dismiss::before {
+  content: "\00D7"; /* Unicode multiplication sign (×) */
+}
+
+/* ==========================================================================
+   Variants
+   ========================================================================== */
+
+.success-message--compact {
+  padding: 12px 16px;
+}
+
+.success-message--compact .success-message-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+}
+
+.success-message--compact .success-message-title {
+  font-size: 14px;
+}
+
+.success-message--compact .success-message-body {
+  font-size: 13px;
+}
+
+/* ==========================================================================
+   Responsive Styles - Mobile (up to 480px)
+   ========================================================================== */
+
+@media screen and (max-width: 480px) {
+  .success-message {
+    padding: 12px 14px;
+    margin: 12px 0;
+    gap: 10px;
+    border-radius: 6px;
+  }
+
+  .success-message--with-dismiss {
+    padding-right: 40px;
+  }
+
+  .success-message-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+
+  .success-message-title {
+    font-size: 14px;
+  }
+
+  .success-message-body {
+    font-size: 13px;
+  }
+
+  .success-message-dismiss {
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+  }
+
+  .success-message-next-steps {
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+
+  .success-message-next-steps-title {
+    font-size: 13px;
+  }
+
+  .success-message-next-steps-list {
+    font-size: 13px;
+    padding-left: 16px;
+  }
+}
+
+/* ==========================================================================
+   Responsive Styles - Tablet (481px to 768px)
+   ========================================================================== */
+
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  .success-message {
+    padding: 14px 18px;
+    margin: 14px 0;
+  }
+
+  .success-message--with-dismiss {
+    padding-right: 44px;
+  }
+
+  .success-message-title {
+    font-size: 15px;
+  }
+
+  .success-message-body {
+    font-size: 14px;
+  }
+}
+
+/* ==========================================================================
+   Responsive Styles - Desktop (769px and above)
+   ========================================================================== */
+
+@media screen and (min-width: 769px) {
+  .success-message {
+    padding: 16px 24px;
+    margin: 16px 0;
+    max-width: 800px;
+  }
+
+  .success-message--centered {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .success-message--full-width {
+    max-width: none;
+  }
+}
+
+/* ==========================================================================
+   Accessibility - Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .success-message {
+    animation: none;
+  }
+
+  .success-message-icon {
+    animation: none;
+  }
+
+  .success-message-dismiss {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   High Contrast Mode Support
+   ========================================================================== */
+
+@media (prefers-contrast: high) {
+  .success-message {
+    border-width: 2px;
+    border-color: #155724;
+  }
+
+  .success-message-dismiss:focus {
+    outline-width: 3px;
+  }
+}
