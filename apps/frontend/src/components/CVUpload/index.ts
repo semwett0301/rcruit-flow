@@ -1,6 +1,6 @@
 /**
- * Barrel export for CVUpload component
+ * Barrel export for CVUpload components
  * Provides clean public API for the CVUpload module
  */
-export { CVUpload, type CVUploadProps } from './CVUpload';
-export { default } from './CVUpload';
+export { CVUpload } from './CVUpload';
+export { CVUploadHelperText } from './CVUploadHelperText';

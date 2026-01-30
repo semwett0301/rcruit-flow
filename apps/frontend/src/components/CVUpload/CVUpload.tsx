@@ -1,85 +1,58 @@
 /**
  * CVUpload Component
  *
- * A file upload component for CV/resume files that integrates with
- * the upload success hook and displays success messages upon completion.
+ * A file upload component for CV/resume files with format validation,
+ * helper text documentation, and success message display.
  */
-import React, { useState, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
+import { validateCVFile, getAcceptAttribute, FileValidationResult } from '../../utils/file-validation';
+import { CVUploadHelperText } from './CVUploadHelperText';
 import { UploadSuccessMessage } from '../UploadSuccessMessage';
 import { useUploadSuccess } from '../../hooks/useUploadSuccess';
 import './CVUpload.css';
 
 export interface CVUploadProps {
+  /** Callback fired when a valid file is selected */
+  onFileSelect?: (file: File) => void;
   /** Callback fired when upload completes successfully */
   onUploadComplete?: (file: File) => void;
-  /** Callback fired when upload encounters an error */
-  onUploadError?: (error: Error) => void;
-  /** Accepted file types for upload */
-  acceptedFileTypes?: string[];
-  /** Maximum file size in megabytes */
-  maxFileSizeMB?: number;
+  /** Callback fired when validation or upload encounters an error */
+  onError?: (error: string) => void;
   /** Optional list of next steps to display after successful upload */
   nextSteps?: string[];
+  /** Whether to auto-upload after file selection (default: true) */
+  autoUpload?: boolean;
 }
 
 /**
- * CVUpload component handles file selection and upload for CV documents.
- * Displays a success message with optional next steps after successful upload.
+ * CVUpload component handles file selection, validation, and upload for CV documents.
+ * Uses centralized file validation utilities and displays format documentation via helper text.
+ * Shows a success message with optional next steps after successful upload.
  */
 export const CVUpload: React.FC<CVUploadProps> = ({
+  onFileSelect,
   onUploadComplete,
-  onUploadError,
-  acceptedFileTypes = ['.pdf', '.doc', '.docx'],
-  maxFileSizeMB = 10,
+  onError,
   nextSteps,
+  autoUpload = true,
 }) => {
-  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { isSuccess, fileName, showSuccess, dismissSuccess, resetSuccess } = useUploadSuccess();
 
   /**
-   * Validates the file before upload
-   * @param file - The file to validate
-   * @returns Error message if invalid, null if valid
-   */
-  const validateFile = useCallback(
-    (file: File): string | null => {
-      // Validate file size
-      if (file.size > maxFileSizeMB * 1024 * 1024) {
-        return `File size exceeds ${maxFileSizeMB}MB limit`;
-      }
-
-      // Validate file type
-      const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
-      if (!acceptedFileTypes.includes(fileExtension)) {
-        return `Invalid file type. Accepted formats: ${acceptedFileTypes.join(', ')}`;
-      }
-
-      return null;
-    },
-    [maxFileSizeMB, acceptedFileTypes]
-  );
-
-  /**
-   * Handles the file upload process including validation and API call
-   * @param file - The file to upload
+   * Handles the file upload process to the API
+   * @param file - The validated file to upload
    */
   const handleFileUpload = useCallback(
     async (file: File) => {
-      // Validate file first
-      const validationError = validateFile(file);
-      if (validationError) {
-        setError(validationError);
-        onUploadError?.(new Error(validationError));
-        return;
-      }
-
       setIsUploading(true);
       setError(null);
       resetSuccess();
 
       try {
-        // Perform actual upload API call
         const formData = new FormData();
         formData.append('cv', file);
 
@@ -97,28 +70,49 @@ export const CVUpload: React.FC<CVUploadProps> = ({
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Upload failed. Please try again.';
         setError(errorMessage);
-        onUploadError?.(err instanceof Error ? err : new Error(errorMessage));
+        onError?.(errorMessage);
       } finally {
         setIsUploading(false);
       }
     },
-    [validateFile, showSuccess, resetSuccess, onUploadComplete, onUploadError]
+    [showSuccess, resetSuccess, onUploadComplete, onError]
   );
 
   /**
-   * Handles file input change event
+   * Handles file input change event with validation
    * @param event - The change event from file input
    */
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
-      if (file) {
+      if (!file) return;
+
+      // Use centralized file validation
+      const validation: FileValidationResult = validateCVFile(file);
+
+      if (!validation.isValid) {
+        const errorMessage = validation.error || 'Invalid file';
+        setError(errorMessage);
+        setSelectedFile(null);
+        onError?.(errorMessage);
+        // Reset input value to allow re-selecting the same file
+        event.target.value = '';
+        return;
+      }
+
+      setError(null);
+      setSelectedFile(file);
+      onFileSelect?.(file);
+
+      // Auto-upload if enabled
+      if (autoUpload) {
         handleFileUpload(file);
       }
+
       // Reset input value to allow re-uploading the same file
       event.target.value = '';
     },
-    [handleFileUpload]
+    [onFileSelect, onError, autoUpload, handleFileUpload]
   );
 
   /**
@@ -126,6 +120,7 @@ export const CVUpload: React.FC<CVUploadProps> = ({
    */
   const handleDismissSuccess = useCallback(() => {
     dismissSuccess();
+    setSelectedFile(null);
   }, [dismissSuccess]);
 
   return (
@@ -140,35 +135,47 @@ export const CVUpload: React.FC<CVUploadProps> = ({
 
       {error && (
         <div className="cv-upload-error" role="alert">
-          {error}
+          <p className="mt-2 text-sm text-red-600">{error}</p>
         </div>
       )}
 
       {!isSuccess && (
-        <div className="cv-upload-dropzone">
-          <input
-            type="file"
-            id="cv-file-input"
-            accept={acceptedFileTypes.join(',')}
-            onChange={handleFileChange}
-            disabled={isUploading}
-            className="cv-upload-input"
-            aria-describedby="cv-upload-hint"
-          />
-          <label htmlFor="cv-file-input" className="cv-upload-label">
-            {isUploading ? (
-              <span>Uploading...</span>
-            ) : (
-              <>
-                <span className="cv-upload-icon">📄</span>
-                <span>Click or drag to upload your CV</span>
-                <span id="cv-upload-hint" className="cv-upload-hint">
-                  Accepted formats: {acceptedFileTypes.join(', ')} (max {maxFileSizeMB}MB)
-                </span>
-              </>
-            )}
+        <>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Upload your CV
           </label>
-        </div>
+
+          <CVUploadHelperText className="mb-3" />
+
+          <div className="cv-upload-dropzone">
+            <input
+              ref={fileInputRef}
+              type="file"
+              id="cv-file-input"
+              accept={getAcceptAttribute()}
+              onChange={handleFileChange}
+              disabled={isUploading}
+              className="cv-upload-input block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              aria-describedby="cv-upload-hint"
+            />
+            <label htmlFor="cv-file-input" className="cv-upload-label">
+              {isUploading ? (
+                <span>Uploading...</span>
+              ) : (
+                <>
+                  <span className="cv-upload-icon">📄</span>
+                  <span>Click or drag to upload your CV</span>
+                </>
+              )}
+            </label>
+          </div>
+
+          {selectedFile && !isUploading && (
+            <p className="mt-2 text-sm text-green-600">
+              Selected: {selectedFile.name}
+            </p>
+          )}
+        </>
       )}
     </div>
   );

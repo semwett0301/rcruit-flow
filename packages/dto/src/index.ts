@@ -9,3 +9,4 @@ export * from './validation/email-generation-validation';
 export * from './validation/email-generation-validator';
 export * from './validation/email-generation.validation';
 export * from './validation/email-generation.validator';
+export * from './constants/file-upload.constants';
