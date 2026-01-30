@@ -1,0 +1,55 @@
+/**
+ * CVUpload Component Styles
+ * 
+ * Styles for the CV/Resume file upload component.
+ * Includes accessible hidden file input with styled button trigger.
+ */
+
+.cv-upload {
+  padding: 20px;
+  text-align: center;
+}
+
+.cv-upload__label {
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* Visually hidden but accessible file input */
+.cv-upload__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.cv-upload__button {
+  display: inline-block;
+  background: #007bff;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.cv-upload__button:hover {
+  background: #0056b3;
+}
+
+/* Disabled state styling */
+.cv-upload__input:disabled + .cv-upload__button {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Focus state for accessibility */
+.cv-upload__input:focus + .cv-upload__button {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
