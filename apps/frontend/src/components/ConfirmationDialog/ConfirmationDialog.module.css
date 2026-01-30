@@ -1,0 +1,51 @@
+/**
+ * Confirmation Dialog Component Styles
+ * 
+ * CSS Module for the ConfirmationDialog component providing
+ * overlay, dialog box, and button styling.
+ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 90%;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.message {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.confirmButton {
+  background: #dc2626;
+  color: white;
+}
+
+.cancelButton {
+  background: #e5e7eb;
+  color: #374151;
+}

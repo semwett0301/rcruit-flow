@@ -1,0 +1,35 @@
+/* CandidateForm styles */
+
+/* Form action buttons container */
+.formActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+/* Reset button - secondary style with transparent background */
+.resetButton {
+  background: transparent;
+  border: 1px solid #6b7280;
+  color: #6b7280;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.resetButton:hover {
+  background: #f3f4f6;
+}
+
+.resetButton:focus {
+  outline: 2px solid #6b7280;
+  outline-offset: 2px;
+}
+
+.resetButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
