@@ -4,3 +4,4 @@
  */
 
 export * from './useUploadStatus';
+export { useEmailGeneration } from './useEmailGeneration';
