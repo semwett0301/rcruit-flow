@@ -9,13 +9,25 @@
  */
 export interface CandidateData {
   /** The candidate's full name */
-  name: string;
+  name?: string;
   /** The candidate's email address */
-  email: string;
+  email?: string;
+  /** The candidate's resume content */
+  resume?: string;
   /** Optional list of skills the candidate possesses */
   skills?: string[];
-  /** Optional description of the candidate's experience */
-  experience?: string;
+}
+
+/**
+ * Represents the data structure for a job description.
+ */
+export interface JobDescription {
+  /** The job title */
+  title?: string;
+  /** The full job description text */
+  description?: string;
+  /** Optional list of job requirements */
+  requirements?: string[];
 }
 
 /**
@@ -24,8 +36,8 @@ export interface CandidateData {
 export interface EmailGenerationInput {
   /** The candidate data, or null if not provided */
   candidateData: CandidateData | null;
-  /** The job description text, or null if not provided */
-  jobDescription: string | null;
+  /** The job description data, or null if not provided */
+  jobDescription: JobDescription | null;
 }
 
 /**
@@ -49,26 +61,23 @@ export interface ValidationResult {
 }
 
 /**
- * Constants for required field identifiers used in validation.
- * These provide consistent field naming across validation logic.
+ * Required fields for candidate data validation.
+ * These fields must be present and non-empty for valid candidate data.
  */
-export const REQUIRED_FIELDS = {
-  /** The candidate data object field */
-  CANDIDATE_DATA: 'candidateData',
-  /** The candidate's name field (nested path) */
-  CANDIDATE_NAME: 'candidateData.name',
-  /** The candidate's email field (nested path) */
-  CANDIDATE_EMAIL: 'candidateData.email',
-  /** The job description field */
-  JOB_DESCRIPTION: 'jobDescription',
-} as const;
+export const REQUIRED_CANDIDATE_FIELDS = ['name', 'email'] as const;
 
 /**
- * Type representing the keys of REQUIRED_FIELDS.
+ * Required fields for job description validation.
+ * These fields must be present and non-empty for valid job description data.
  */
-export type RequiredFieldKey = keyof typeof REQUIRED_FIELDS;
+export const REQUIRED_JOB_FIELDS = ['title', 'description'] as const;
 
 /**
- * Type representing the values of REQUIRED_FIELDS.
+ * Type representing the required candidate field names.
  */
-export type RequiredFieldValue = (typeof REQUIRED_FIELDS)[RequiredFieldKey];
+export type RequiredCandidateField = (typeof REQUIRED_CANDIDATE_FIELDS)[number];
+
+/**
+ * Type representing the required job field names.
+ */
+export type RequiredJobField = (typeof REQUIRED_JOB_FIELDS)[number];

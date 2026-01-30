@@ -1,14 +1,14 @@
 /**
  * DTOs for email generation requests.
- * Contains validation decorators for candidate data and email generation payloads.
+ * Contains validation decorators for candidate data, job description, and email generation payloads.
  */
 import {
   IsNotEmpty,
   IsString,
   IsEmail,
-  ValidateNested,
   IsOptional,
   IsArray,
+  ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -16,22 +16,40 @@ import { Type } from 'class-transformer';
  * DTO for candidate information used in email generation.
  */
 export class CandidateDataDto {
-  @IsNotEmpty({ message: 'Candidate name is required' })
+  @IsNotEmpty({ message: 'Candidate name is required and cannot be empty.' })
   @IsString()
   name: string;
 
-  @IsNotEmpty({ message: 'Candidate email is required' })
-  @IsEmail({}, { message: 'Invalid candidate email format' })
+  @IsNotEmpty({ message: 'Candidate email is required and cannot be empty.' })
+  @IsEmail({}, { message: 'Candidate email must be a valid email address.' })
   email: string;
+
+  @IsOptional()
+  @IsString()
+  resume?: string;
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   skills?: string[];
+}
+
+/**
+ * DTO for job description information used in email generation.
+ */
+export class JobDescriptionDto {
+  @IsNotEmpty({ message: 'Job title is required and cannot be empty.' })
+  @IsString()
+  title: string;
+
+  @IsNotEmpty({ message: 'Job description is required and cannot be empty.' })
+  @IsString()
+  description: string;
 
   @IsOptional()
-  @IsString()
-  experience?: string;
+  @IsArray()
+  @IsString({ each: true })
+  requirements?: string[];
 }
 
 /**
@@ -39,12 +57,13 @@ export class CandidateDataDto {
  * Validates candidate data and job description required for generating personalized emails.
  */
 export class GenerateEmailDto {
-  @IsNotEmpty({ message: 'Candidate data is required for email generation' })
   @ValidateNested()
   @Type(() => CandidateDataDto)
+  @IsNotEmpty({ message: 'Candidate data is required. Please upload or enter candidate information.' })
   candidateData: CandidateDataDto;
 
-  @IsNotEmpty({ message: 'Job description is required for email generation' })
-  @IsString()
-  jobDescription: string;
+  @ValidateNested()
+  @Type(() => JobDescriptionDto)
+  @IsNotEmpty({ message: 'Job description is required. Please enter job details.' })
+  jobDescription: JobDescriptionDto;
 }
