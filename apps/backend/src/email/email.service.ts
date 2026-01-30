@@ -15,7 +15,7 @@ import { validateEmailGenerationInput, formatValidationErrors } from '@rcruit-fl
  */
 export interface GenerateEmailResponse {
   /** The generated email content */
-  email: string;
+  body: string;
   /** The generated email subject */
   subject: string;
 }
@@ -32,24 +32,24 @@ export class EmailService {
    * Generates a recruitment email based on candidate data and job context.
    * Performs business validation beyond DTO validation before generating.
    *
-   * @param input - The data transfer object containing candidate information
-   *                and email generation parameters
-   * @returns Promise resolving to the generated email and subject
+   * @param dto - The data transfer object containing candidate information
+   *              and email generation parameters
+   * @returns Promise resolving to the generated email subject and body
    * @throws BadRequestException if validation fails
    *
    * @example
    * ```typescript
    * const result = await emailService.generateEmail({
    *   candidate: { name: 'John Doe', skills: ['TypeScript'] },
-   *   jobDescription: { title: 'Senior Developer', requirements: [] },
+   *   jobDescription: { title: 'Senior Developer', company: 'TechCorp', requirements: [] },
    * });
    * ```
    */
-  async generateEmail(input: GenerateEmailDto): Promise<GenerateEmailResponse> {
+  async generateEmail(dto: GenerateEmailDto): Promise<GenerateEmailResponse> {
     // Additional business validation beyond DTO validation
     const validationResult = validateEmailGenerationInput({
-      candidate: input.candidate,
-      jobDescription: input.jobDescription,
+      candidate: dto.candidate,
+      jobDescription: dto.jobDescription,
     });
 
     if (!validationResult.isValid) {
@@ -60,17 +60,31 @@ export class EmailService {
       });
     }
 
-    // Email generation logic
-    const email = this.buildEmailContent(input);
-    const subject = this.buildEmailSubject(input);
+    // At this point, validation has already passed
+    const { candidate, jobDescription } = dto;
 
-    return { email, subject };
+    // Email generation logic
+    const subject = this.buildEmailSubject(jobDescription);
+    const body = this.buildEmailContent(candidate, jobDescription);
+
+    return { subject, body };
+  }
+
+  /**
+   * Builds the email subject line based on job information.
+   *
+   * @param jobDescription - The job description containing title and company
+   * @returns The generated email subject line
+   */
+  private buildEmailSubject(jobDescription: GenerateEmailDto['jobDescription']): string {
+    return `Opportunity: ${jobDescription.title} at ${jobDescription.company}`;
   }
 
   /**
    * Builds the email content based on candidate and job information.
    *
-   * @param input - The generation input containing candidate and job data
+   * @param candidate - The candidate information
+   * @param jobDescription - The job description data
    * @returns The generated email body content
    *
    * @remarks
@@ -81,18 +95,20 @@ export class EmailService {
    * - Personalization based on candidate skills and experience
    * - Tone and style customization
    */
-  private buildEmailContent(input: GenerateEmailDto): string {
-    // Placeholder for actual email generation logic
-    return `Dear ${input.candidate.name},\n\nWe have an exciting opportunity for ${input.jobDescription.title}...`;
-  }
+  private buildEmailContent(
+    candidate: GenerateEmailDto['candidate'],
+    jobDescription: GenerateEmailDto['jobDescription'],
+  ): string {
+    const skillsText = candidate.skills?.length
+      ? `\n\nBased on your expertise in ${candidate.skills.join(', ')}, we believe you would be an excellent fit for this role.`
+      : '';
 
-  /**
-   * Builds the email subject line based on job information.
-   *
-   * @param input - The generation input containing job data
-   * @returns The generated email subject line
-   */
-  private buildEmailSubject(input: GenerateEmailDto): string {
-    return `Opportunity: ${input.jobDescription.title}`;
+    return (
+      `Dear ${candidate.name},\n\n` +
+      `We have an exciting opportunity for you as a ${jobDescription.title} at ${jobDescription.company}.` +
+      skillsText +
+      `\n\nWe would love to discuss this opportunity with you further.\n\n` +
+      `Best regards,\nThe Recruitment Team`
+    );
   }
 }

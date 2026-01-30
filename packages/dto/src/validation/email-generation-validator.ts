@@ -16,22 +16,20 @@ import {
 } from './email-generation-validation';
 
 /**
- * Checks if a value is empty, null, undefined, or contains only whitespace.
+ * Validates an email address format using a standard regex pattern.
  *
- * @param value - The value to check
- * @returns true if the value is empty or whitespace-only, false otherwise
+ * @param email - The email address to validate
+ * @returns true if the email format is valid, false otherwise
  */
-const isEmptyOrWhitespace = (value: unknown): boolean => {
-  if (value === null || value === undefined) return true;
-  if (typeof value === 'string') return value.trim().length === 0;
-  if (Array.isArray(value)) return value.length === 0 || value.every(item => isEmptyOrWhitespace(item));
-  return false;
-};
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
 
 /**
  * Validates candidate data for email generation.
  *
- * @param data - The candidate data to validate
+ * @param candidate - The candidate data to validate (can be partial, null, or undefined)
  * @returns Array of validation errors, empty if valid
  *
  * @example
@@ -42,33 +40,40 @@ const isEmptyOrWhitespace = (value: unknown): boolean => {
  * }
  * ```
  */
-export const validateCandidateData = (data: CandidateData | null | undefined): ValidationError[] => {
+export function validateCandidateData(
+  candidate: Partial<CandidateData> | null | undefined
+): ValidationError[] {
   const errors: ValidationError[] = [];
 
-  if (!data) {
-    errors.push({
-      field: 'candidateData',
-      message: 'Candidate data is required. Please upload or enter candidate information.',
-    });
+  if (!candidate) {
+    errors.push({ field: 'candidate', message: 'Candidate data is required' });
     return errors;
   }
 
   for (const field of REQUIRED_CANDIDATE_FIELDS) {
-    if (isEmptyOrWhitespace(data[field])) {
+    const value = candidate[field];
+    if (!value || (typeof value === 'string' && value.trim() === '')) {
       errors.push({
-        field: `candidateData.${field}`,
-        message: `Candidate ${field} is required and cannot be empty.`,
+        field: `candidate.${field}`,
+        message: `Candidate ${field} is required`,
       });
     }
   }
 
+  if (candidate.email && !isValidEmail(candidate.email)) {
+    errors.push({
+      field: 'candidate.email',
+      message: 'Please enter a valid email address',
+    });
+  }
+
   return errors;
-};
+}
 
 /**
  * Validates job description data for email generation.
  *
- * @param data - The job description data to validate
+ * @param job - The job description data to validate (can be partial, null, or undefined)
  * @returns Array of validation errors, empty if valid
  *
  * @example
@@ -79,28 +84,28 @@ export const validateCandidateData = (data: CandidateData | null | undefined): V
  * }
  * ```
  */
-export const validateJobDescription = (data: JobDescription | null | undefined): ValidationError[] => {
+export function validateJobDescription(
+  job: Partial<JobDescription> | null | undefined
+): ValidationError[] {
   const errors: ValidationError[] = [];
 
-  if (!data) {
-    errors.push({
-      field: 'jobDescription',
-      message: 'Job description is required. Please enter job details.',
-    });
+  if (!job) {
+    errors.push({ field: 'jobDescription', message: 'Job description is required' });
     return errors;
   }
 
   for (const field of REQUIRED_JOB_FIELDS) {
-    if (isEmptyOrWhitespace(data[field])) {
+    const value = job[field];
+    if (!value || (typeof value === 'string' && value.trim() === '')) {
       errors.push({
         field: `jobDescription.${field}`,
-        message: `Job ${field} is required and cannot be empty.`,
+        message: `Job ${field} is required`,
       });
     }
   }
 
   return errors;
-};
+}
 
 /**
  * Validates the complete input data required for email generation.
@@ -111,7 +116,7 @@ export const validateJobDescription = (data: JobDescription | null | undefined):
  * @example
  * ```typescript
  * const result = validateEmailGenerationInput({
- *   candidateData: { name: 'John Doe', email: 'john@example.com', skills: ['TypeScript'] },
+ *   candidate: { name: 'John Doe', email: 'john@example.com', skills: ['TypeScript'] },
  *   jobDescription: { title: 'Software Engineer', company: 'Acme Inc', requirements: ['TypeScript'] }
  * });
  *
@@ -120,17 +125,26 @@ export const validateJobDescription = (data: JobDescription | null | undefined):
  * }
  * ```
  */
-export const validateEmailGenerationInput = (input: EmailGenerationInput): ValidationResult => {
-  const errors: ValidationError[] = [
-    ...validateCandidateData(input.candidateData),
-    ...validateJobDescription(input.jobDescription),
-  ];
+export function validateEmailGenerationInput(
+  input: Partial<EmailGenerationInput> | null | undefined
+): ValidationResult {
+  const errors: ValidationError[] = [];
+
+  if (!input) {
+    return {
+      isValid: false,
+      errors: [{ field: 'input', message: 'Email generation input is required' }],
+    };
+  }
+
+  errors.push(...validateCandidateData(input.candidate));
+  errors.push(...validateJobDescription(input.jobDescription));
 
   return {
     isValid: errors.length === 0,
     errors,
   };
-};
+}
 
 /**
  * Formats validation errors into a human-readable string.
@@ -148,11 +162,11 @@ export const validateEmailGenerationInput = (input: EmailGenerationInput): Valid
  *   { field: 'email', message: 'Email is required' }
  * ];
  * console.log(formatValidationErrors(multipleErrors));
- * // "Missing required fields: Name is required; Email is required"
+ * // "• Name is required\n• Email is required"
  * ```
  */
 export function formatValidationErrors(errors: ValidationError[]): string {
   if (errors.length === 0) return '';
   if (errors.length === 1) return errors[0].message;
-  return 'Missing required fields: ' + errors.map((e) => e.message).join('; ');
+  return errors.map((e) => `• ${e.message}`).join('\n');
 }

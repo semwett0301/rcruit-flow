@@ -20,9 +20,13 @@ export class CandidateDataDto {
   @IsNotEmpty({ message: 'Candidate name is required' })
   name: string;
 
-  @IsEmail({}, { message: 'Valid candidate email is required' })
+  @IsEmail({}, { message: 'Please enter a valid email address' })
   @IsNotEmpty({ message: 'Candidate email is required' })
   email: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
 
   @IsOptional()
   @IsArray()
@@ -35,7 +39,7 @@ export class CandidateDataDto {
 
   @IsOptional()
   @IsString()
-  resumeText?: string;
+  resumeUrl?: string;
 }
 
 /**
@@ -45,6 +49,10 @@ export class JobDescriptionDto {
   @IsString()
   @IsNotEmpty({ message: 'Job title is required' })
   title: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Company name is required' })
+  company: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Job description is required' })
@@ -57,7 +65,7 @@ export class JobDescriptionDto {
 
   @IsOptional()
   @IsString()
-  company?: string;
+  location?: string;
 }
 
 /**

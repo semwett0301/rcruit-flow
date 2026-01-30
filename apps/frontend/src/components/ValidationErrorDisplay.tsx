@@ -40,7 +40,7 @@ export const ValidationErrorDisplay: React.FC<ValidationErrorDisplayProps> = ({
 
   return (
     <div
-      className={`validation-errors bg-red-50 border border-red-200 rounded-md p-4 ${className}`}
+      className={`validation-errors bg-red-50 border border-red-200 rounded-md p-4 ${className}`.trim()}
       role="alert"
       aria-live="polite"
     >
@@ -53,7 +53,7 @@ export const ValidationErrorDisplay: React.FC<ValidationErrorDisplayProps> = ({
             key={`${error.field}-${index}`}
             className="text-red-600 text-sm"
           >
-            {error.message}
+            <span className="font-medium">{error.field}:</span> {error.message}
           </li>
         ))}
       </ul>

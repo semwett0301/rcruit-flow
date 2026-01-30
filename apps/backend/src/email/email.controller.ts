@@ -10,12 +10,10 @@ import {
   Body,
   UsePipes,
   ValidationPipe,
-  HttpCode,
-  HttpStatus,
   BadRequestException,
 } from '@nestjs/common';
-import { GenerateEmailDto } from './dto/generate-email.dto';
 import { EmailService } from './email.service';
+import { GenerateEmailDto } from './dto/generate-email.dto';
 
 @Controller('email')
 export class EmailController {
@@ -28,20 +26,31 @@ export class EmailController {
    * @returns The generated email content from the email service
    */
   @Post('generate')
-  @HttpCode(HttpStatus.OK)
   @UsePipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
       exceptionFactory: (errors) => {
-        const messages = errors.map((error) => ({
-          field: error.property,
-          message: Object.values(error.constraints || {}).join(', '),
-        }));
+        const messages = errors.map((error) => {
+          const constraints = error.constraints
+            ? Object.values(error.constraints)
+            : [];
+          if (error.children && error.children.length > 0) {
+            const childMessages = error.children.map((child) => {
+              const childConstraints = child.constraints
+                ? Object.values(child.constraints)
+                : [];
+              return childConstraints.join(', ');
+            });
+            return childMessages.join(', ');
+          }
+          return constraints.join(', ');
+        });
         return new BadRequestException({
+          statusCode: 400,
           message: 'Validation failed',
-          errors: messages,
+          errors: messages.filter((m) => m),
         });
       },
     }),
