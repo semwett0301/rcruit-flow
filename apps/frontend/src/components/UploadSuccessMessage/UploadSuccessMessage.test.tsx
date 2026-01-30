@@ -11,10 +11,10 @@ describe('UploadSuccessMessage', () => {
     render(<UploadSuccessMessage />);
     
     expect(screen.getByText('Upload Successful!')).toBeInTheDocument();
-    expect(screen.getByText(/Your CV has been received and processed successfully/)).toBeInTheDocument();
+    expect(screen.getByText(/Your CV has been successfully received and processed/)).toBeInTheDocument();
   });
 
-  it('displays the uploaded file name when provided', () => {
+  it('displays the file name when provided', () => {
     render(<UploadSuccessMessage fileName="resume.pdf" />);
     
     expect(screen.getByText(/Your CV "resume.pdf" has been/)).toBeInTheDocument();
@@ -40,7 +40,8 @@ describe('UploadSuccessMessage', () => {
     const onDismiss = vi.fn();
     render(<UploadSuccessMessage onDismiss={onDismiss} />);
     
-    fireEvent.click(screen.getByText('Got it'));
+    const dismissButton = screen.getByLabelText('Dismiss message');
+    fireEvent.click(dismissButton);
     
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
@@ -48,10 +49,10 @@ describe('UploadSuccessMessage', () => {
   it('does not render dismiss button when onDismiss is not provided', () => {
     render(<UploadSuccessMessage />);
     
-    expect(screen.queryByText('Got it')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Dismiss message')).not.toBeInTheDocument();
   });
 
-  it('has proper accessibility attributes', () => {
+  it('has correct accessibility attributes', () => {
     render(<UploadSuccessMessage />);
     
     const alert = screen.getByRole('alert');

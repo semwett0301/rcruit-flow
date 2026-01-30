@@ -79,14 +79,22 @@ export const useUploadStatus = (): UseUploadStatusReturn => {
    * Set the upload state to 'uploading' with the given file name
    */
   const setUploading = useCallback((fileName: string) => {
-    setUploadState({ status: 'uploading', fileName, errorMessage: null });
+    setUploadState({
+      status: 'uploading',
+      fileName,
+      errorMessage: null,
+    });
   }, []);
 
   /**
    * Set the upload state to 'success' with the given file name
    */
   const setSuccess = useCallback((fileName: string) => {
-    setUploadState({ status: 'success', fileName, errorMessage: null });
+    setUploadState({
+      status: 'success',
+      fileName,
+      errorMessage: null,
+    });
   }, []);
 
   /**
@@ -94,7 +102,11 @@ export const useUploadStatus = (): UseUploadStatusReturn => {
    * Preserves the current file name
    */
   const setError = useCallback((errorMessage: string) => {
-    setUploadState(prev => ({ ...prev, status: 'error', errorMessage }));
+    setUploadState((prev) => ({
+      ...prev,
+      status: 'error',
+      errorMessage,
+    }));
   }, []);
 
   /**

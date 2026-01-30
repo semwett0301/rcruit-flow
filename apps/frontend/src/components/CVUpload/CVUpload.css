@@ -1,55 +1,97 @@
 /**
  * CVUpload Component Styles
  * 
- * Styles for the CV/Resume file upload component.
- * Includes accessible hidden file input with styled button trigger.
+ * Styles for the CV/Resume file upload component with drag-and-drop support.
+ * Includes accessible hidden file input with styled dropzone trigger.
  */
 
 .cv-upload {
-  padding: 20px;
-  text-align: center;
+  width: 100%;
+  max-width: 500px;
 }
 
-.cv-upload__label {
-  display: inline-block;
-  cursor: pointer;
+.cv-upload__dropzone {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.cv-upload__dropzone:hover {
+  border-color: #007bff;
+  background-color: #f8f9fa;
+}
+
+/* Drag-over state */
+.cv-upload__dropzone--active {
+  border-color: #007bff;
+  background-color: #e7f1ff;
 }
 
 /* Visually hidden but accessible file input */
 .cv-upload__input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
+  display: none;
 }
 
-.cv-upload__button {
-  display: inline-block;
-  background: #007bff;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background 0.2s ease;
+.cv-upload__label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
 }
 
-.cv-upload__button:hover {
-  background: #0056b3;
+.cv-upload__icon {
+  font-size: 48px;
+}
+
+.cv-upload__text {
+  font-size: 14px;
+  color: #333;
+}
+
+.cv-upload__hint {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+/* Error state styling */
+.cv-upload__error {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  color: #721c24;
+  font-size: 14px;
+}
+
+/* Success state styling */
+.cv-upload__success {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+  color: #155724;
+  font-size: 14px;
 }
 
 /* Disabled state styling */
-.cv-upload__input:disabled + .cv-upload__button {
-  background: #6c757d;
+.cv-upload--disabled .cv-upload__dropzone {
+  border-color: #e9ecef;
+  background-color: #f8f9fa;
   cursor: not-allowed;
 }
 
+.cv-upload--disabled .cv-upload__label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* Focus state for accessibility */
-.cv-upload__input:focus + .cv-upload__button {
+.cv-upload__input:focus + .cv-upload__dropzone {
   outline: 2px solid #007bff;
   outline-offset: 2px;
 }

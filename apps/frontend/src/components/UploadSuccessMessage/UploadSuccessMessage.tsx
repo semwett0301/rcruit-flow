@@ -39,6 +39,7 @@ export const UploadSuccessMessage: React.FC<UploadSuccessMessageProps> = ({
   nextSteps = [
     'Your CV will be reviewed by our team',
     'You will receive an email confirmation shortly',
+    'We will contact you if your profile matches our requirements',
   ],
 }) => {
   return (
@@ -46,42 +47,50 @@ export const UploadSuccessMessage: React.FC<UploadSuccessMessageProps> = ({
       <div className="upload-success-message__icon">
         <svg
           viewBox="0 0 24 24"
-          fill="currentColor"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
           width="48"
           height="48"
           aria-hidden="true"
         >
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
       </div>
 
-      <h3 className="upload-success-message__title">Upload Successful!</h3>
+      <div className="upload-success-message__content">
+        <h3 className="upload-success-message__title">Upload Successful!</h3>
 
-      <p className="upload-success-message__text">
-        {fileName
-          ? `Your CV "${fileName}" has been`
-          : 'Your CV has been'}{' '}
-        received and processed successfully.
-      </p>
+        <p className="upload-success-message__text">
+          {fileName
+            ? `Your CV "${fileName}" has been`
+            : 'Your CV has been'}{' '}
+          successfully received and processed.
+        </p>
 
-      {nextSteps.length > 0 && (
-        <div className="upload-success-message__next-steps">
-          <h4>What happens next:</h4>
-          <ul>
-            {nextSteps.map((step, index) => (
-              <li key={index}>{step}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+        {nextSteps.length > 0 && (
+          <div className="upload-success-message__next-steps">
+            <p className="upload-success-message__next-steps-title">
+              What happens next:
+            </p>
+            <ul>
+              {nextSteps.map((step, index) => (
+                <li key={index}>{step}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
 
       {onDismiss && (
         <button
           className="upload-success-message__dismiss"
           onClick={onDismiss}
           type="button"
+          aria-label="Dismiss message"
         >
-          Got it
+          ×
         </button>
       )}
     </div>
