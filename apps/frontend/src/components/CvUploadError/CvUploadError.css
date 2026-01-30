@@ -1,0 +1,103 @@
+/**
+ * CV Upload Error Component Styles
+ * 
+ * Styles for displaying upload error states with retry/dismiss actions.
+ * Uses BEM naming convention for maintainability.
+ */
+
+.cv-upload-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.cv-upload-error__icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.cv-upload-error__content {
+  text-align: center;
+}
+
+.cv-upload-error__title {
+  color: #991b1b;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.cv-upload-error__message {
+  color: #7f1d1d;
+  margin: 0 0 0.5rem 0;
+}
+
+.cv-upload-error__action {
+  color: #374151;
+  font-weight: 500;
+  margin: 0 0 0.5rem 0;
+}
+
+.cv-upload-error__support {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0.5rem 0 0 0;
+}
+
+.cv-upload-error__support a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.cv-upload-error__support a:hover {
+  color: #1d4ed8;
+}
+
+.cv-upload-error__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.cv-upload-error__btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cv-upload-error__btn--retry {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+}
+
+.cv-upload-error__btn--retry:hover {
+  background-color: #1d4ed8;
+}
+
+.cv-upload-error__btn--retry:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.cv-upload-error__btn--dismiss {
+  background-color: transparent;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+.cv-upload-error__btn--dismiss:hover {
+  background-color: #f3f4f6;
+}
+
+.cv-upload-error__btn--dismiss:focus {
+  outline: 2px solid #d1d5db;
+  outline-offset: 2px;
+}
