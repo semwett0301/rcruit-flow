@@ -7,19 +7,22 @@ import { LoadingProvider } from 'providers/LoadingProvider';
 import { NavbarContainer } from 'ui/containers/NavbarContainer';
 import { Navbar } from 'widgets/Navbar';
 import { ContentContainer } from 'ui/containers/ContentContainer';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 const App: React.FC = () => {
   const hasRequest = useAxiosLoader();
 
   return (
-    <LoadingProvider active={hasRequest} spinner>
-      <NavbarContainer>
-        <Navbar />
-      </NavbarContainer>
-      <ContentContainer>
-        <AppRouter />
-      </ContentContainer>
-    </LoadingProvider>
+    <LanguageProvider>
+      <LoadingProvider active={hasRequest} spinner>
+        <NavbarContainer>
+          <Navbar />
+        </NavbarContainer>
+        <ContentContainer>
+          <AppRouter />
+        </ContentContainer>
+      </LoadingProvider>
+    </LanguageProvider>
   );
 };
 
