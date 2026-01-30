@@ -1,6 +1,6 @@
 /**
  * Email Controller
- * 
+ *
  * Handles HTTP requests for email-related operations including
  * email generation with proper validation.
  */
@@ -12,6 +12,7 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { GenerateEmailDto } from './dto/generate-email.dto';
 import { EmailService } from './email.service';
@@ -22,7 +23,7 @@ export class EmailController {
 
   /**
    * Generate an email based on the provided parameters.
-   * 
+   *
    * @param generateEmailDto - The DTO containing email generation parameters
    * @returns The generated email content from the email service
    */
@@ -34,18 +35,14 @@ export class EmailController {
       forbidNonWhitelisted: true,
       transform: true,
       exceptionFactory: (errors) => {
-        const messages = errors.map((error) => {
-          const constraints = Object.values(error.constraints || {});
-          return {
-            field: error.property,
-            message: constraints.join(', '),
-          };
-        });
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
+        const messages = errors.map((error) => ({
+          field: error.property,
+          message: Object.values(error.constraints || {}).join(', '),
+        }));
+        return new BadRequestException({
           message: 'Validation failed',
           errors: messages,
-        };
+        });
       },
     }),
   )

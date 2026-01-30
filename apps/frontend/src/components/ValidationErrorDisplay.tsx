@@ -45,7 +45,7 @@ export const ValidationErrorDisplay: React.FC<ValidationErrorDisplayProps> = ({
       aria-live="polite"
     >
       <h4 className="text-red-800 font-medium mb-2">
-        Please complete the following required fields:
+        Please fix the following errors:
       </h4>
       <ul className="list-disc list-inside space-y-1">
         {errors.map((error, index) => (

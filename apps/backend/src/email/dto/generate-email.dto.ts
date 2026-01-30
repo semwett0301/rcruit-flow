@@ -16,40 +16,48 @@ import { Type } from 'class-transformer';
  * DTO for candidate information used in email generation.
  */
 export class CandidateDataDto {
-  @IsNotEmpty({ message: 'Candidate name is required and cannot be empty.' })
   @IsString()
+  @IsNotEmpty({ message: 'Candidate name is required' })
   name: string;
 
-  @IsNotEmpty({ message: 'Candidate email is required and cannot be empty.' })
-  @IsEmail({}, { message: 'Candidate email must be a valid email address.' })
+  @IsEmail({}, { message: 'Valid candidate email is required' })
+  @IsNotEmpty({ message: 'Candidate email is required' })
   email: string;
-
-  @IsOptional()
-  @IsString()
-  resume?: string;
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   skills?: string[];
+
+  @IsOptional()
+  @IsString()
+  experience?: string;
+
+  @IsOptional()
+  @IsString()
+  resumeText?: string;
 }
 
 /**
  * DTO for job description information used in email generation.
  */
 export class JobDescriptionDto {
-  @IsNotEmpty({ message: 'Job title is required and cannot be empty.' })
   @IsString()
+  @IsNotEmpty({ message: 'Job title is required' })
   title: string;
 
-  @IsNotEmpty({ message: 'Job description is required and cannot be empty.' })
   @IsString()
+  @IsNotEmpty({ message: 'Job description is required' })
   description: string;
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   requirements?: string[];
+
+  @IsOptional()
+  @IsString()
+  company?: string;
 }
 
 /**
@@ -59,11 +67,11 @@ export class JobDescriptionDto {
 export class GenerateEmailDto {
   @ValidateNested()
   @Type(() => CandidateDataDto)
-  @IsNotEmpty({ message: 'Candidate data is required. Please upload or enter candidate information.' })
-  candidateData: CandidateDataDto;
+  @IsNotEmpty({ message: 'Candidate data is required' })
+  candidate: CandidateDataDto;
 
   @ValidateNested()
   @Type(() => JobDescriptionDto)
-  @IsNotEmpty({ message: 'Job description is required. Please enter job details.' })
+  @IsNotEmpty({ message: 'Job description is required' })
   jobDescription: JobDescriptionDto;
 }
