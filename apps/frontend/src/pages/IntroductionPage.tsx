@@ -3,6 +3,7 @@ import { FlowGridContainer } from 'ui/containers/FlowGridContainer';
 import styled from 'styled-components';
 import { extractFontPreset } from 'theme/utils/extractFontPreset';
 import { Button } from 'ui/components/Button';
+import { CTAButton } from '../components/ui/CTAButton';
 import { ChevronRightIcon, LoopIcon } from '@radix-ui/react-icons';
 import { StepsColumn } from 'widgets/StepsColumn';
 import { CvUploadForm } from 'forms/CvUploadForm';
@@ -52,6 +53,24 @@ const BottomBarWrapper = styled.div`
 const StepName = styled.span`
   ${({ theme }) => extractFontPreset('firstHeading')(theme)}
   color: ${({ theme }) => theme.colors.white}
+`;
+
+const ResetButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: ${({ theme }) => theme.colors.gray500 || '#6b7280'};
+  font-size: 0.875rem;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.gray700 || '#374151'};
+  }
 `;
 
 interface IntroductionFormState {
@@ -309,25 +328,27 @@ export const IntroductionPage = () => {
       BottomComponent={
         <BottomBarWrapper>
           {currentStep !== flowSteps.at(-1)!.key && (
-            <Button
+            <CTAButton
               disabled={
                 !introductionFormState[currentConfig.key] &&
                 !currentConfig.enableNext
               }
               onClick={currentConfig.onNext}
+              ariaLabel={t(currentConfig.nextButtonTitle ?? 'common.buttons.next')}
             >
               {t(currentConfig.nextButtonTitle ?? 'common.buttons.next')}{' '}
               <ChevronRightIcon />
-            </Button>
+            </CTAButton>
           )}
         </BottomBarWrapper>
       }
       TopComponent={
         <TopBarWrapper>
           <StepName>{currentConfig.title}</StepName>
-          <Button variant="outline" onClick={onReset}>
+          {/* Secondary action with subdued styling */}
+          <ResetButton onClick={onReset}>
             {t('common.buttons.reset')} <LoopIcon />
-          </Button>
+          </ResetButton>
         </TopBarWrapper>
       }
       LeftComponent={
