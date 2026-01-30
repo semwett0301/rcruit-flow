@@ -1,0 +1,67 @@
+/**
+ * CopyButton Component Styles
+ * 
+ * Provides styling for a copy-to-clipboard button with visual feedback states
+ * including success, error, hover, focus, and disabled states.
+ * 
+ * Uses BEM naming convention for CSS classes.
+ */
+
+.copy-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover state - only when not disabled */
+.copy-button:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+/* Focus state with accessible focus ring */
+.copy-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* Disabled state */
+.copy-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Success state - shown after successful copy */
+.copy-button--success {
+  background-color: #d1fae5;
+  border-color: #10b981;
+  color: #065f46;
+}
+
+/* Error state - shown when copy fails */
+.copy-button--error {
+  background-color: #fee2e2;
+  border-color: #ef4444;
+  color: #991b1b;
+}
+
+/* Icon container */
+.copy-button__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Label text */
+.copy-button__label {
+  white-space: nowrap;
+}

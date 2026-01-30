@@ -1,0 +1,60 @@
+/**
+ * EmailDisplay Component Styles
+ * 
+ * Styles for the email display component including:
+ * - Container with border and rounded corners
+ * - Header section with title and actions
+ * - Content area with scrollable email text
+ * - Loading and empty state styles
+ */
+
+.email-display {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.email-display--loading,
+.email-display--empty {
+  padding: 24px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.email-display__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.email-display__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.email-display__content {
+  padding: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.email-display__text {
+  margin: 0;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: #374151;
+}
+
+.email-display__spinner {
+  color: #6b7280;
+  font-style: italic;
+}
