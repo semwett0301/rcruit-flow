@@ -1,4 +1,4 @@
 /**
  * Barrel export for CvUploadError component
  */
-export { CvUploadError } from './CvUploadError';
+export { CvUploadError, default } from './CvUploadError';

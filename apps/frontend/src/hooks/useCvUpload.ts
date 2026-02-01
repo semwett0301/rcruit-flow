@@ -3,8 +3,8 @@
  * Provides client-side validation, upload state management, and error mapping.
  */
 import { useState, useCallback } from 'react';
-import { CvUploadErrorCode, CvUploadErrorResponse } from '@rcruit-flow/dto';
-import { validateCvFile, mapApiErrorToCode } from '../utils/cv-upload-validator';
+import { CvUploadErrorCode } from '@rcruit-flow/dto';
+import { validateCvFile, mapHttpErrorToCode } from '../utils/cvUploadValidation';
 
 /**
  * Configuration options for the useCvUpload hook.
@@ -40,6 +40,13 @@ const UPLOAD_TIMEOUT_MS = 30000;
 /**
  * Custom hook for handling CV file uploads with validation and error handling.
  *
+ * Features:
+ * - Client-side file validation before upload
+ * - Automatic timeout handling (30 seconds)
+ * - Comprehensive error mapping from HTTP responses
+ * - Upload state management (loading, error states)
+ * - Callbacks for success and error handling
+ *
  * @param options - Configuration options for the upload hook
  * @returns Object containing upload function and state
  *
@@ -57,7 +64,11 @@ const UPLOAD_TIMEOUT_MS = 30000;
  * };
  * ```
  */
-export function useCvUpload(options: UseCvUploadOptions): UseCvUploadReturn {
+export function useCvUpload({
+  uploadEndpoint,
+  onSuccess,
+  onError,
+}: UseCvUploadOptions): UseCvUploadReturn {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<CvUploadErrorCode | null>(null);
 
@@ -86,25 +97,25 @@ export function useCvUpload(options: UseCvUploadOptions): UseCvUploadReturn {
       setError(null);
 
       // Perform client-side validation before upload
-      const validationError = validateCvFile(file);
-      if (validationError) {
-        setError(validationError.code);
-        options.onError?.(validationError.code);
+      const validation = validateCvFile(file);
+      if (!validation.isValid && validation.errorCode) {
+        setError(validation.errorCode);
+        onError?.(validation.errorCode);
         return;
       }
 
       setIsUploading(true);
 
-      try {
-        // Prepare form data for upload
-        const formData = new FormData();
-        formData.append('cv', file);
+      // Prepare form data for upload
+      const formData = new FormData();
+      formData.append('cv', file);
 
+      try {
         // Set up abort controller for timeout handling
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
 
-        const response = await fetch(options.uploadEndpoint, {
+        const response = await fetch(uploadEndpoint, {
           method: 'POST',
           body: formData,
           signal: controller.signal,
@@ -114,30 +125,35 @@ export function useCvUpload(options: UseCvUploadOptions): UseCvUploadReturn {
 
         // Handle non-OK responses
         if (!response.ok) {
-          const errorData: CvUploadErrorResponse = await response.json().catch(() => ({
-            code: CvUploadErrorCode.SERVER_ERROR,
-            message: 'Server error',
-          }));
-
-          const errorCode = errorData.code || CvUploadErrorCode.SERVER_ERROR;
+          const data = await response.json().catch(() => ({}));
+          const errorCode = mapHttpErrorToCode(response.status, data.code);
           setError(errorCode);
-          options.onError?.(errorCode);
+          onError?.(errorCode);
           return;
         }
 
         // Parse successful response and invoke callback
         const data = await response.json();
-        options.onSuccess?.(data);
+        onSuccess?.(data);
       } catch (err) {
         // Map caught errors to appropriate error codes
-        const errorCode = mapApiErrorToCode(err);
+        let errorCode = CvUploadErrorCode.UNKNOWN_ERROR;
+
+        if (err instanceof Error && err.name === 'AbortError') {
+          // Request was aborted due to timeout
+          errorCode = CvUploadErrorCode.NETWORK_TIMEOUT;
+        } else if (err instanceof TypeError) {
+          // Network errors typically throw TypeError
+          errorCode = CvUploadErrorCode.NETWORK_TIMEOUT;
+        }
+
         setError(errorCode);
-        options.onError?.(errorCode);
+        onError?.(errorCode);
       } finally {
         setIsUploading(false);
       }
     },
-    [options]
+    [uploadEndpoint, onSuccess, onError]
   );
 
   return { upload, isUploading, error, clearError, reset };

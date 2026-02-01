@@ -62,6 +62,20 @@ describe('CvUploadError', () => {
       render(<CvUploadError errorCode={CvUploadErrorCode.SERVER_ERROR} />);
       expect(screen.queryByText('Contact Support')).not.toBeInTheDocument();
     });
+
+    it('renders both buttons when both callbacks are provided', () => {
+      const onRetry = vi.fn();
+      const onContactSupport = vi.fn();
+      render(
+        <CvUploadError
+          errorCode={CvUploadErrorCode.SERVER_ERROR}
+          onRetry={onRetry}
+          onContactSupport={onContactSupport}
+        />
+      );
+      expect(screen.getByText('Try Again')).toBeInTheDocument();
+      expect(screen.getByText('Contact Support')).toBeInTheDocument();
+    });
   });
 
   describe('Accessibility', () => {
@@ -74,6 +88,24 @@ describe('CvUploadError', () => {
       render(<CvUploadError errorCode={CvUploadErrorCode.SERVER_ERROR} />);
       const alert = screen.getByRole('alert');
       expect(alert).toBeInTheDocument();
+    });
+
+    it('buttons are keyboard accessible', () => {
+      const onRetry = vi.fn();
+      render(<CvUploadError errorCode={CvUploadErrorCode.SERVER_ERROR} onRetry={onRetry} />);
+      const retryButton = screen.getByText('Try Again');
+      expect(retryButton).toBeEnabled();
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('handles all error codes without crashing', () => {
+      const errorCodes = Object.values(CvUploadErrorCode);
+      errorCodes.forEach((errorCode) => {
+        const { unmount } = render(<CvUploadError errorCode={errorCode} />);
+        expect(screen.getByRole('alert')).toBeInTheDocument();
+        unmount();
+      });
     });
   });
 });

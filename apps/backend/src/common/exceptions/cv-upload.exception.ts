@@ -3,84 +3,67 @@
  * Provides structured error responses for various CV upload failure scenarios.
  */
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { CvUploadErrorCode, CvUploadErrorResponse } from '@rcruit-flow/dto';
+import { CvUploadErrorCode } from '@rcruit-flow/dto';
 
 /**
- * Custom exception class for CV upload related errors.
+ * Base exception class for CV upload related errors.
  * Extends NestJS HttpException to provide structured error responses
- * with specific error codes and details.
+ * with specific error codes and messages.
  */
 export class CvUploadException extends HttpException {
-  constructor(
-    errorResponse: CvUploadErrorResponse,
-    status: HttpStatus = HttpStatus.BAD_REQUEST,
-  ) {
-    super(errorResponse, status);
+  constructor(code: CvUploadErrorCode, message: string, status: HttpStatus) {
+    super({ code, message }, status);
   }
+}
 
-  /**
-   * Creates an exception for invalid file type uploads.
-   * @param currentType - The MIME type or extension of the uploaded file
-   * @returns CvUploadException with INVALID_FILE_TYPE error code
-   */
-  static invalidFileType(currentType: string): CvUploadException {
-    return new CvUploadException({
-      code: CvUploadErrorCode.INVALID_FILE_TYPE,
-      message: 'Invalid file type',
-      details: {
-        allowedTypes: ['.pdf', '.doc', '.docx'],
-        currentType,
-      },
-    });
+/**
+ * Exception thrown when an uploaded file has an invalid type.
+ * Accepted formats are: PDF, DOC, DOCX
+ */
+export class InvalidFileTypeException extends CvUploadException {
+  constructor() {
+    super(
+      CvUploadErrorCode.INVALID_FILE_TYPE,
+      'Invalid file type. Accepted formats: PDF, DOC, DOCX',
+      HttpStatus.BAD_REQUEST,
+    );
   }
+}
 
-  /**
-   * Creates an exception for files exceeding the maximum allowed size.
-   * @param currentSize - The size of the uploaded file in bytes
-   * @param maxSize - The maximum allowed file size in bytes
-   * @returns CvUploadException with FILE_SIZE_EXCEEDED error code
-   */
-  static fileSizeExceeded(
-    currentSize: number,
-    maxSize: number,
-  ): CvUploadException {
-    return new CvUploadException(
-      {
-        code: CvUploadErrorCode.FILE_SIZE_EXCEEDED,
-        message: 'File size exceeded',
-        details: {
-          maxSize,
-          currentSize,
-        },
-      },
+/**
+ * Exception thrown when an uploaded file exceeds the maximum allowed size.
+ */
+export class FileSizeExceededException extends CvUploadException {
+  constructor(maxSizeMB: number) {
+    super(
+      CvUploadErrorCode.FILE_SIZE_EXCEEDED,
+      `File size exceeds maximum allowed size of ${maxSizeMB}MB`,
       HttpStatus.PAYLOAD_TOO_LARGE,
     );
   }
+}
 
-  /**
-   * Creates an exception for corrupted or unreadable files.
-   * @returns CvUploadException with FILE_CORRUPTED error code
-   */
-  static fileCorrupted(): CvUploadException {
-    return new CvUploadException(
-      {
-        code: CvUploadErrorCode.FILE_CORRUPTED,
-        message: 'File is corrupted or unreadable',
-      },
+/**
+ * Exception thrown when an uploaded file appears to be corrupted or unreadable.
+ */
+export class FileCorruptedException extends CvUploadException {
+  constructor() {
+    super(
+      CvUploadErrorCode.FILE_CORRUPTED,
+      'File appears to be corrupted or unreadable',
       HttpStatus.UNPROCESSABLE_ENTITY,
     );
   }
+}
 
-  /**
-   * Creates an exception for internal server errors during file processing.
-   * @returns CvUploadException with SERVER_ERROR error code
-   */
-  static serverError(): CvUploadException {
-    return new CvUploadException(
-      {
-        code: CvUploadErrorCode.SERVER_ERROR,
-        message: 'Internal server error during file processing',
-      },
+/**
+ * Exception thrown when an error occurs during CV processing.
+ */
+export class CvProcessingException extends CvUploadException {
+  constructor() {
+    super(
+      CvUploadErrorCode.SERVER_ERROR,
+      'An error occurred while processing the CV',
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
   }

@@ -2,11 +2,15 @@
  * CV File Validation Pipe
  *
  * A NestJS pipe that validates uploaded CV files against defined constraints.
- * Validates file presence, MIME type, file extension, and file size.
+ * Validates file presence, MIME type, file extension, file size, and file integrity.
  */
 import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
 import { CV_UPLOAD_CONSTRAINTS } from '@rcruit-flow/dto';
-import { CvUploadException } from '../exceptions/cv-upload.exception';
+import {
+  InvalidFileTypeException,
+  FileSizeExceededException,
+  FileCorruptedException,
+} from '../exceptions/cv-upload.exception';
 
 @Injectable()
 export class CvFileValidationPipe implements PipeTransform {
@@ -16,37 +20,34 @@ export class CvFileValidationPipe implements PipeTransform {
    * @param file - The uploaded file from Multer
    * @param metadata - Argument metadata from NestJS
    * @returns The validated file if all checks pass
-   * @throws CvUploadException if validation fails
+   * @throws InvalidFileTypeException if file is missing or has invalid type/extension
+   * @throws FileSizeExceededException if file exceeds maximum allowed size
+   * @throws FileCorruptedException if file is empty or corrupted
    */
   transform(file: Express.Multer.File, metadata: ArgumentMetadata): Express.Multer.File {
     // Check if file exists
     if (!file) {
-      throw CvUploadException.invalidFileType('none');
+      throw new InvalidFileTypeException();
     }
 
-    // Validate file MIME type
-    const allowedMimeTypes = CV_UPLOAD_CONSTRAINTS.ALLOWED_TYPES;
-    if (!allowedMimeTypes.includes(file.mimetype)) {
-      throw CvUploadException.invalidFileType(file.mimetype);
-    }
+    // Validate file type (MIME type or extension)
+    const fileExtension = '.' + file.originalname.split('.').pop()?.toLowerCase();
+    const isValidType =
+      CV_UPLOAD_CONSTRAINTS.ALLOWED_TYPES.includes(file.mimetype) ||
+      CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.includes(fileExtension);
 
-    // Validate file extension
-    const fileNameParts = file.originalname.split('.');
-    const extension = fileNameParts.length > 1
-      ? '.' + fileNameParts.pop()?.toLowerCase()
-      : '';
-
-    if (!extension || !CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.includes(extension)) {
-      throw CvUploadException.invalidFileType(extension || 'unknown');
+    if (!isValidType) {
+      throw new InvalidFileTypeException();
     }
 
     // Validate file size
     if (file.size > CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES) {
-      const fileSizeMB = Math.round((file.size / (1024 * 1024)) * 100) / 100;
-      throw CvUploadException.fileSizeExceeded(
-        fileSizeMB,
-        CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB
-      );
+      throw new FileSizeExceededException(CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB);
+    }
+
+    // Check for empty/corrupted file
+    if (file.size === 0 || !file.buffer || file.buffer.length === 0) {
+      throw new FileCorruptedException();
     }
 
     return file;
