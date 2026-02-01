@@ -15,7 +15,7 @@ export interface UserFriendlyError {
   /** Detailed explanation of what went wrong */
   message: string;
   /** Actionable guidance for the user to resolve the issue */
-  action: string;
+  suggestion: string;
 }
 
 /**
@@ -24,39 +24,54 @@ export interface UserFriendlyError {
  */
 export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, UserFriendlyError> = {
   [CvUploadErrorCode.INVALID_FILE_TYPE]: {
-    title: 'Unsupported File Format',
-    message: `The file you selected is not supported. Please upload a file in one of these formats: ${CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.join(', ').toUpperCase()}.`,
-    action: 'Select a PDF, DOC, or DOCX file and try again.'
+    title: 'Invalid File Type',
+    message: 'The file you selected is not a supported format.',
+    suggestion: `Please upload a file in one of these formats: ${CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.join(', ')}`
   },
-  [CvUploadErrorCode.FILE_SIZE_EXCEEDED]: {
+  [CvUploadErrorCode.FILE_TOO_LARGE]: {
     title: 'File Too Large',
-    message: `The file you selected exceeds the maximum allowed size of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB}MB.`,
-    action: 'Please reduce the file size or choose a smaller file and try again.'
+    message: `Your file exceeds the maximum size limit of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB}MB.`,
+    suggestion: 'Please reduce the file size by compressing images or removing unnecessary content, then try again.'
   },
-  [CvUploadErrorCode.CORRUPTED_FILE]: {
+  [CvUploadErrorCode.FILE_CORRUPTED]: {
     title: 'File Cannot Be Read',
-    message: 'The file appears to be corrupted or damaged and cannot be processed.',
-    action: 'Please try uploading a different copy of your CV or save it in a different format.'
+    message: 'The file appears to be damaged or corrupted.',
+    suggestion: 'Please check that the file opens correctly on your computer, or try exporting it again from the original application.'
+  },
+  [CvUploadErrorCode.PROCESSING_ERROR]: {
+    title: 'Processing Failed',
+    message: 'We encountered an issue while processing your CV.',
+    suggestion: 'Please try saving your CV in a different format (PDF is recommended) and upload again.'
+  },
+  [CvUploadErrorCode.NETWORK_TIMEOUT]: {
+    title: 'Upload Timed Out',
+    message: 'The upload took too long to complete.',
+    suggestion: 'Please check your internet connection and try again. If the problem persists, try uploading a smaller file.'
   },
   [CvUploadErrorCode.SERVER_ERROR]: {
     title: 'Upload Failed',
-    message: 'We encountered an issue while processing your CV. This is not your fault.',
-    action: 'Please try again in a few moments. If the problem persists, contact our support team.'
+    message: 'Something went wrong on our end.',
+    suggestion: 'Please try again in a few moments. If the problem continues, contact our support team for assistance.'
   },
-  [CvUploadErrorCode.NETWORK_ERROR]: {
-    title: 'Connection Problem',
-    message: 'Your CV could not be uploaded due to a network issue.',
-    action: 'Please check your internet connection and try again.'
+  [CvUploadErrorCode.PARTIAL_UPLOAD]: {
+    title: 'Upload Incomplete',
+    message: 'Only part of your file was uploaded.',
+    suggestion: 'Please check your internet connection and try uploading the file again.'
   },
-  [CvUploadErrorCode.PARSING_ERROR]: {
-    title: 'Unable to Process CV',
-    message: 'We were unable to extract information from your CV.',
-    action: 'Please ensure your CV is not password-protected and try again, or upload a different format.'
+  [CvUploadErrorCode.UNSUPPORTED_FORMAT]: {
+    title: 'Format Not Supported',
+    message: 'This file format is not supported.',
+    suggestion: `Please convert your CV to one of these formats: ${CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.join(', ')} and try again.`
+  },
+  [CvUploadErrorCode.EMPTY_FILE]: {
+    title: 'Empty File',
+    message: 'The file you selected appears to be empty.',
+    suggestion: 'Please check that your CV has content and try uploading again.'
   },
   [CvUploadErrorCode.UNKNOWN_ERROR]: {
-    title: 'Something Went Wrong',
-    message: 'An unexpected error occurred while uploading your CV.',
-    action: 'Please try again. If the problem continues, contact support for assistance.'
+    title: 'Upload Failed',
+    message: 'An unexpected error occurred during upload.',
+    suggestion: 'Please try again. If the problem persists, contact our support team.'
   }
 };
 
@@ -64,9 +79,9 @@ export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, UserFriendlyErr
  * Retrieves the user-friendly error message for a given error code.
  * Falls back to UNKNOWN_ERROR if the code is not recognized.
  *
- * @param errorCode - The CV upload error code
+ * @param code - The CV upload error code (can be enum value or string)
  * @returns The corresponding user-friendly error object
  */
-export function getCvUploadErrorMessage(errorCode: CvUploadErrorCode): UserFriendlyError {
-  return CV_UPLOAD_ERROR_MESSAGES[errorCode] ?? CV_UPLOAD_ERROR_MESSAGES[CvUploadErrorCode.UNKNOWN_ERROR];
-}
+export const getErrorMessage = (code: CvUploadErrorCode | string): UserFriendlyError => {
+  return CV_UPLOAD_ERROR_MESSAGES[code as CvUploadErrorCode] || CV_UPLOAD_ERROR_MESSAGES[CvUploadErrorCode.UNKNOWN_ERROR];
+};
