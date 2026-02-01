@@ -5,7 +5,7 @@
  * Validates file presence, MIME type, file extension, file size, and file integrity.
  */
 import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
-import { CV_UPLOAD_CONSTRAINTS } from '@rcruit-flow/dto';
+import { CV_UPLOAD_CONSTRAINTS } from '@recruit-flow/dto';
 import {
   InvalidFileTypeException,
   FileSizeExceededException,

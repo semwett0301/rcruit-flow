@@ -12,8 +12,9 @@ import { CvFileValidationPipe } from '../src/common/pipes/cv-file-validation.pip
 import {
   InvalidFileTypeException,
   FileSizeExceededException,
-  FileCorruptedException,
+  CorruptedFileException,
 } from '../src/common/exceptions/cv-upload.exception';
+import { CV_UPLOAD_CONSTRAINTS } from '@recruit-flow/dto';
 
 describe('CvFileValidationPipe', () => {
   let pipe: CvFileValidationPipe;
@@ -61,7 +62,7 @@ describe('CvFileValidationPipe', () => {
       const file = {
         originalname: 'resume.pdf',
         mimetype: 'application/pdf',
-        size: 10 * 1024 * 1024, // 10MB (assuming this is the limit)
+        size: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES, // Exactly at limit
         buffer: Buffer.from('content'),
       } as Express.Multer.File;
 
@@ -108,14 +109,40 @@ describe('CvFileValidationPipe', () => {
         InvalidFileTypeException,
       );
     });
+
+    it('should throw InvalidFileTypeException for HTML files', () => {
+      const file = {
+        originalname: 'resume.html',
+        mimetype: 'text/html',
+        size: 1024,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      expect(() => pipe.transform(file, { type: 'body' })).toThrow(
+        InvalidFileTypeException,
+      );
+    });
+
+    it('should throw InvalidFileTypeException for ZIP files', () => {
+      const file = {
+        originalname: 'resume.zip',
+        mimetype: 'application/zip',
+        size: 1024,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      expect(() => pipe.transform(file, { type: 'body' })).toThrow(
+        InvalidFileTypeException,
+      );
+    });
   });
 
   describe('file size validation', () => {
-    it('should throw FileSizeExceededException for large files', () => {
+    it('should throw FileSizeExceededException for files exceeding max size', () => {
       const file = {
         originalname: 'resume.pdf',
         mimetype: 'application/pdf',
-        size: 15 * 1024 * 1024, // 15MB
+        size: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES + 1,
         buffer: Buffer.from('content'),
       } as Express.Multer.File;
 
@@ -136,10 +163,23 @@ describe('CvFileValidationPipe', () => {
         FileSizeExceededException,
       );
     });
+
+    it('should throw FileSizeExceededException for DOC files exceeding limit', () => {
+      const file = {
+        originalname: 'resume.doc',
+        mimetype: 'application/msword',
+        size: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES + 1,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      expect(() => pipe.transform(file, { type: 'body' })).toThrow(
+        FileSizeExceededException,
+      );
+    });
   });
 
   describe('file corruption detection', () => {
-    it('should throw FileCorruptedException for empty files', () => {
+    it('should throw CorruptedFileException for empty files', () => {
       const file = {
         originalname: 'resume.pdf',
         mimetype: 'application/pdf',
@@ -148,11 +188,11 @@ describe('CvFileValidationPipe', () => {
       } as Express.Multer.File;
 
       expect(() => pipe.transform(file, { type: 'body' })).toThrow(
-        FileCorruptedException,
+        CorruptedFileException,
       );
     });
 
-    it('should throw FileCorruptedException for file with zero size but non-empty buffer', () => {
+    it('should throw CorruptedFileException for file with zero size but non-empty buffer', () => {
       const file = {
         originalname: 'resume.pdf',
         mimetype: 'application/pdf',
@@ -161,7 +201,20 @@ describe('CvFileValidationPipe', () => {
       } as Express.Multer.File;
 
       expect(() => pipe.transform(file, { type: 'body' })).toThrow(
-        FileCorruptedException,
+        CorruptedFileException,
+      );
+    });
+
+    it('should throw CorruptedFileException for DOC file with zero size', () => {
+      const file = {
+        originalname: 'resume.doc',
+        mimetype: 'application/msword',
+        size: 0,
+        buffer: Buffer.from(''),
+      } as Express.Multer.File;
+
+      expect(() => pipe.transform(file, { type: 'body' })).toThrow(
+        CorruptedFileException,
       );
     });
   });
@@ -175,6 +228,12 @@ describe('CvFileValidationPipe', () => {
 
     it('should throw InvalidFileTypeException when null file provided', () => {
       expect(() => pipe.transform(null as any, { type: 'body' })).toThrow(
+        InvalidFileTypeException,
+      );
+    });
+
+    it('should throw InvalidFileTypeException when empty object provided', () => {
+      expect(() => pipe.transform({} as any, { type: 'body' })).toThrow(
         InvalidFileTypeException,
       );
     });
@@ -212,6 +271,88 @@ describe('CvFileValidationPipe', () => {
       } as Express.Multer.File;
 
       expect(pipe.transform(file, { type: 'body' })).toBe(file);
+    });
+
+    it('should handle file with uppercase extension', () => {
+      const file = {
+        originalname: 'RESUME.PDF',
+        mimetype: 'application/pdf',
+        size: 1024,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      expect(pipe.transform(file, { type: 'body' })).toBe(file);
+    });
+
+    it('should handle file with mixed case extension', () => {
+      const file = {
+        originalname: 'Resume.Pdf',
+        mimetype: 'application/pdf',
+        size: 1024,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      expect(pipe.transform(file, { type: 'body' })).toBe(file);
+    });
+
+    it('should handle file with multiple dots in name', () => {
+      const file = {
+        originalname: 'john.doe.resume.2024.pdf',
+        mimetype: 'application/pdf',
+        size: 1024,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      expect(pipe.transform(file, { type: 'body' })).toBe(file);
+    });
+
+    it('should handle file with spaces in name', () => {
+      const file = {
+        originalname: 'john doe resume.pdf',
+        mimetype: 'application/pdf',
+        size: 1024,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      expect(pipe.transform(file, { type: 'body' })).toBe(file);
+    });
+
+    it('should handle file with very long name', () => {
+      const longName = 'a'.repeat(200) + '.pdf';
+      const file = {
+        originalname: longName,
+        mimetype: 'application/pdf',
+        size: 1024,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      expect(pipe.transform(file, { type: 'body' })).toBe(file);
+    });
+  });
+
+  describe('boundary conditions', () => {
+    it('should pass file just under max size limit', () => {
+      const file = {
+        originalname: 'resume.pdf',
+        mimetype: 'application/pdf',
+        size: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES - 1,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      expect(pipe.transform(file, { type: 'body' })).toBe(file);
+    });
+
+    it('should reject file just over max size limit', () => {
+      const file = {
+        originalname: 'resume.pdf',
+        mimetype: 'application/pdf',
+        size: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES + 1,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      expect(() => pipe.transform(file, { type: 'body' })).toThrow(
+        FileSizeExceededException,
+      );
     });
   });
 });

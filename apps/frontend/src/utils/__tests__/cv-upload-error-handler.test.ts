@@ -4,7 +4,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { handleCvUploadError } from '../cv-upload-error-handler';
-import { CvUploadErrorCode } from '@rcruit-flow/dto';
+import { CvUploadErrorCode } from '@recruit-flow/dto';
 
 describe('handleCvUploadError', () => {
   describe('API error responses with known error codes', () => {

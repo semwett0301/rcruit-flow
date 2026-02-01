@@ -14,7 +14,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { CvUploadErrorCode, CvUploadErrorResponse } from '@rcruit-flow/dto';
+import { CvUploadErrorCode, CvUploadErrorResponse } from '@recruit-flow/dto';
 import { CvUploadException } from '../exceptions/cv-upload.exception';
 
 /**
@@ -95,7 +95,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     // Convert generic HTTP exceptions to CV upload error format if in upload context
     const errorResponse: CvUploadErrorResponse = {
       code: CvUploadErrorCode.SERVER_ERROR,
-      message: 'An error occurred during upload',
+      message: exception.message,
     };
 
     response.status(status).json(errorResponse);
@@ -127,17 +127,32 @@ export class CvUploadCatchAllExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
+    let errorResponse: CvUploadErrorResponse;
+    let status: HttpStatus;
+
+    if (exception instanceof CvUploadException) {
+      status = exception.getStatus();
+      errorResponse = exception.getResponse() as CvUploadErrorResponse;
+    } else if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      errorResponse = {
+        code: CvUploadErrorCode.SERVER_ERROR,
+        message: exception.message,
+      };
+    } else {
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+      errorResponse = {
+        code: CvUploadErrorCode.UNKNOWN_ERROR,
+        message: 'An unexpected error occurred',
+      };
+    }
+
     // Log the actual error for debugging
     this.logger.error(
       'Unexpected CV upload error:',
       exception instanceof Error ? exception.stack : String(exception),
     );
 
-    const errorResponse: CvUploadErrorResponse = {
-      code: CvUploadErrorCode.SERVER_ERROR,
-      message: 'An unexpected error occurred',
-    };
-
-    response.status(HttpStatus.INTERNAL_SERVER_ERROR).json(errorResponse);
+    response.status(status).json(errorResponse);
   }
 }

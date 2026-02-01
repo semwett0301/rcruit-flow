@@ -4,7 +4,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { validateCvFile, mapApiErrorToCode } from '../cv-upload-validator';
-import { CvUploadErrorCode } from '@rcruit-flow/dto';
+import { CvUploadErrorCode } from '@recruit-flow/dto';
 
 describe('validateCvFile', () => {
   it('returns null for valid PDF file', () => {

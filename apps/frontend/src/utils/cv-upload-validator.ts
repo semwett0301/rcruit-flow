@@ -5,7 +5,7 @@
  * Uses shared constraints and error codes from the DTO package for consistency.
  */
 
-import { CvUploadErrorCode, CV_UPLOAD_CONSTRAINTS } from '@rcruit-flow/dto';
+import { CvUploadErrorCode, CV_UPLOAD_CONSTRAINTS } from '@recruit-flow/dto';
 
 /**
  * Result of CV file validation
@@ -37,8 +37,8 @@ export interface ValidationResult {
 export function validateCvFile(file: File): ValidationResult {
   // Check file type
   const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-  const isValidType = CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.includes(fileExtension) ||
-    CV_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES.includes(file.type);
+  const isValidType = CV_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES.includes(file.type) ||
+    CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.includes(fileExtension);
   
   if (!isValidType) {
     return { isValid: false, errorCode: CvUploadErrorCode.INVALID_FILE_TYPE };

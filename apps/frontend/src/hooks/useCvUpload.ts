@@ -3,82 +3,66 @@
  * Provides client-side validation, upload state management, and user-friendly error messages.
  */
 import { useState, useCallback } from 'react';
+import { CvUploadErrorCode } from '@recruit-flow/dto';
+import { validateCvFile } from '../utils/cv-upload-validator';
 import {
-  CvUploadErrorCode,
-  CvUploadErrorResponse,
-  CV_UPLOAD_CONSTRAINTS,
-} from '@rcruit-flow/dto';
-import { getErrorMessage, UserFriendlyError } from '../constants/cv-upload-messages';
+  mapApiErrorToUploadError,
+  getFormattedError,
+  FormattedUploadError,
+} from '../utils/cv-upload-error-handler';
 
 /**
- * Internal state for tracking upload progress and status.
+ * Options for configuring the CV upload hook.
  */
-interface UploadState {
-  /** Whether an upload is currently in progress */
-  isUploading: boolean;
-  /** Upload progress percentage (0-100) */
-  progress: number;
-  /** Current error, if any */
-  error: UserFriendlyError | null;
-  /** Whether the last upload was successful */
-  success: boolean;
-}
-
-/**
- * Result returned from a successful upload.
- */
-interface UploadResult {
-  /** Unique identifier for the uploaded CV */
-  id: string;
-  /** Original filename of the uploaded file */
-  filename: string;
+interface UseCvUploadOptions {
+  /** Callback invoked on successful upload */
+  onSuccess?: (response: unknown) => void;
+  /** Callback invoked when an error occurs */
+  onError?: (error: FormattedUploadError) => void;
+  /** Custom upload endpoint URL (defaults to '/api/cv/upload') */
+  uploadEndpoint?: string;
 }
 
 /**
  * Return type for the useCvUpload hook.
  */
-interface UseCvUploadReturn extends UploadState {
+interface UseCvUploadReturn {
   /** Function to upload a CV file */
-  uploadCv: (file: File) => Promise<UploadResult | null>;
+  upload: (file: File) => Promise<void>;
+  /** Whether an upload is currently in progress */
+  isUploading: boolean;
+  /** Current error, if any */
+  error: FormattedUploadError | null;
   /** Function to clear the current error */
   clearError: () => void;
-  /** Function to reset all state to initial values */
-  reset: () => void;
+  /** Upload progress percentage (0-100) */
+  progress: number;
 }
-
-/**
- * Initial state for the upload hook.
- */
-const INITIAL_STATE: UploadState = {
-  isUploading: false,
-  progress: 0,
-  error: null,
-  success: false,
-};
 
 /**
  * Custom hook for handling CV file uploads with validation and error handling.
  *
  * Features:
  * - Client-side file validation (size, type, empty file checks)
- * - Upload state management (loading, progress, error, success states)
+ * - Upload state management (loading, progress, error states)
  * - User-friendly error messages mapped from error codes
- * - Network error detection
- * - State reset and error clearing utilities
+ * - Configurable callbacks for success and error handling
+ * - Customizable upload endpoint
  *
+ * @param options - Configuration options for the upload hook
  * @returns Object containing upload state and utility functions
  *
  * @example
  * ```tsx
- * const { isUploading, progress, error, success, uploadCv, clearError, reset } = useCvUpload();
+ * const { upload, isUploading, error, clearError, progress } = useCvUpload({
+ *   onSuccess: (response) => console.log('Upload successful:', response),
+ *   onError: (error) => console.error('Upload failed:', error.message),
+ * });
  *
  * const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
  *   const file = e.target.files?.[0];
  *   if (file) {
- *     const result = await uploadCv(file);
- *     if (result) {
- *       console.log('Uploaded CV:', result.id, result.filename);
- *     }
+ *     await upload(file);
  *   }
  * };
  *
@@ -92,43 +76,16 @@ const INITIAL_STATE: UploadState = {
  * )}
  * ```
  */
-export const useCvUpload = (): UseCvUploadReturn => {
-  const [state, setState] = useState<UploadState>(INITIAL_STATE);
+export function useCvUpload(options: UseCvUploadOptions = {}): UseCvUploadReturn {
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<FormattedUploadError | null>(null);
+  const [progress, setProgress] = useState(0);
 
   /**
-   * Validates a file locally before upload.
-   * Checks for empty files, file size limits, and allowed extensions.
-   *
-   * @param file - The file to validate
-   * @returns UserFriendlyError if validation fails, null if valid
+   * Clears the current error state.
    */
-  const validateFileLocally = useCallback((file: File): UserFriendlyError | null => {
-    // Check if file exists
-    if (!file) {
-      return getErrorMessage(CvUploadErrorCode.EMPTY_FILE);
-    }
-
-    // Check for empty file
-    if (file.size === 0) {
-      return getErrorMessage(CvUploadErrorCode.EMPTY_FILE);
-    }
-
-    // Check file size limit
-    if (file.size > CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES) {
-      return getErrorMessage(CvUploadErrorCode.FILE_TOO_LARGE);
-    }
-
-    // Check file extension
-    const filenameParts = file.name.split('.');
-    const extension = filenameParts.length > 1
-      ? '.' + filenameParts.pop()?.toLowerCase()
-      : '';
-
-    if (!extension || !CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.includes(extension)) {
-      return getErrorMessage(CvUploadErrorCode.INVALID_FILE_TYPE);
-    }
-
-    return null;
+  const clearError = useCallback(() => {
+    setError(null);
   }, []);
 
   /**
@@ -136,119 +93,61 @@ export const useCvUpload = (): UseCvUploadReturn => {
    * Performs client-side validation before uploading.
    *
    * @param file - The CV file to upload
-   * @returns UploadResult on success, null on failure
    */
-  const uploadCv = useCallback(
-    async (file: File): Promise<UploadResult | null> => {
-      // Reset state and start upload
-      setState({
-        isUploading: true,
-        progress: 0,
-        error: null,
-        success: false,
-      });
+  const upload = useCallback(
+    async (file: File): Promise<void> => {
+      // Reset state before starting upload
+      setError(null);
+      setProgress(0);
 
       // Perform client-side validation
-      const validationError = validateFileLocally(file);
-      if (validationError) {
-        setState({
-          isUploading: false,
-          progress: 0,
-          error: validationError,
-          success: false,
-        });
-        return null;
+      const validation = validateCvFile(file);
+      if (!validation.isValid && validation.errorCode) {
+        const formattedError = getFormattedError(validation.errorCode);
+        setError(formattedError);
+        options.onError?.(formattedError);
+        return;
       }
+
+      setIsUploading(true);
 
       try {
         // Prepare form data for upload
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('cv', file);
 
-        const response = await fetch('/api/cv/upload', {
+        const response = await fetch(options.uploadEndpoint || '/api/cv/upload', {
           method: 'POST',
           body: formData,
         });
 
         // Handle non-OK responses
         if (!response.ok) {
-          let errorData: CvUploadErrorResponse;
-          try {
-            errorData = await response.json();
-          } catch {
-            // If response is not valid JSON, use unknown error
-            errorData = {
-              code: CvUploadErrorCode.UNKNOWN_ERROR,
-              message: 'An unexpected error occurred',
-            };
-          }
-
-          const userError = getErrorMessage(errorData.code);
-          setState({
-            isUploading: false,
-            progress: 0,
-            error: userError,
-            success: false,
-          });
-          return null;
+          const errorData = await response.json().catch(() => ({}));
+          throw { response: { data: errorData } };
         }
 
         // Parse successful response
-        const result: UploadResult = await response.json();
-        setState({
-          isUploading: false,
-          progress: 100,
-          error: null,
-          success: true,
-        });
-        return result;
-      } catch (error) {
-        // Determine error type
-        let errorCode = CvUploadErrorCode.UNKNOWN_ERROR;
-
-        // Check for network errors
-        if (error instanceof TypeError) {
-          const errorMessage = error.message.toLowerCase();
-          if (
-            errorMessage.includes('network') ||
-            errorMessage.includes('fetch') ||
-            errorMessage.includes('failed to fetch')
-          ) {
-            errorCode = CvUploadErrorCode.NETWORK_TIMEOUT;
-          }
-        }
-
-        const userError = getErrorMessage(errorCode);
-        setState({
-          isUploading: false,
-          progress: 0,
-          error: userError,
-          success: false,
-        });
-        return null;
+        const data = await response.json();
+        setProgress(100);
+        options.onSuccess?.(data);
+      } catch (err) {
+        // Map API error to user-friendly format
+        const formattedError = mapApiErrorToUploadError(err);
+        setError(formattedError);
+        options.onError?.(formattedError);
+      } finally {
+        setIsUploading(false);
       }
     },
-    [validateFileLocally]
+    [options]
   );
 
-  /**
-   * Clears the current error state while preserving other state.
-   */
-  const clearError = useCallback(() => {
-    setState((prev) => ({ ...prev, error: null }));
-  }, []);
-
-  /**
-   * Resets all state to initial values.
-   */
-  const reset = useCallback(() => {
-    setState(INITIAL_STATE);
-  }, []);
-
   return {
-    ...state,
-    uploadCv,
+    upload,
+    isUploading,
+    error,
     clearError,
-    reset,
+    progress,
   };
-};
+}

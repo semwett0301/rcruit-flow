@@ -14,21 +14,15 @@ export enum CvUploadErrorCode {
   /** The uploaded file type is not supported */
   INVALID_FILE_TYPE = 'INVALID_FILE_TYPE',
   /** The uploaded file exceeds the maximum allowed size */
-  FILE_TOO_LARGE = 'FILE_TOO_LARGE',
+  FILE_SIZE_EXCEEDED = 'FILE_SIZE_EXCEEDED',
   /** The uploaded file is corrupted or cannot be read */
-  FILE_CORRUPTED = 'FILE_CORRUPTED',
-  /** An error occurred while processing the upload */
-  PROCESSING_ERROR = 'PROCESSING_ERROR',
-  /** A network timeout occurred during upload */
-  NETWORK_TIMEOUT = 'NETWORK_TIMEOUT',
+  CORRUPTED_FILE = 'CORRUPTED_FILE',
   /** An internal server error occurred during upload processing */
   SERVER_ERROR = 'SERVER_ERROR',
-  /** The file was only partially uploaded */
-  PARTIAL_UPLOAD = 'PARTIAL_UPLOAD',
-  /** The file format is not supported */
-  UNSUPPORTED_FORMAT = 'UNSUPPORTED_FORMAT',
-  /** The uploaded file is empty */
-  EMPTY_FILE = 'EMPTY_FILE',
+  /** A network error occurred during upload */
+  NETWORK_ERROR = 'NETWORK_ERROR',
+  /** An error occurred while parsing the CV content */
+  PARSING_ERROR = 'PARSING_ERROR',
   /** An unknown or unexpected error occurred */
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
@@ -50,6 +44,8 @@ export interface CvUploadErrorDetails {
   receivedSize?: number;
   /** List of allowed file extensions */
   allowedExtensions?: string[];
+  /** Additional context-specific information */
+  [key: string]: unknown;
 }
 
 /**
@@ -62,7 +58,7 @@ export interface CvUploadErrorResponse {
   /** Human-readable error message */
   message: string;
   /** Optional additional details about the error */
-  details?: CvUploadErrorDetails;
+  details?: Record<string, unknown>;
 }
 
 /**
@@ -98,22 +94,16 @@ export type CvUploadConstraints = typeof CV_UPLOAD_CONSTRAINTS;
 export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, string> = {
   [CvUploadErrorCode.INVALID_FILE_TYPE]:
     'Invalid file type. Please upload a PDF, DOC, or DOCX file.',
-  [CvUploadErrorCode.FILE_TOO_LARGE]:
+  [CvUploadErrorCode.FILE_SIZE_EXCEEDED]:
     `File size exceeds the maximum limit of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB}MB.`,
-  [CvUploadErrorCode.FILE_CORRUPTED]:
+  [CvUploadErrorCode.CORRUPTED_FILE]:
     'The file appears to be corrupted or cannot be read.',
-  [CvUploadErrorCode.PROCESSING_ERROR]:
-    'An error occurred while processing your file. Please try again.',
-  [CvUploadErrorCode.NETWORK_TIMEOUT]:
-    'The upload timed out. Please check your connection and try again.',
   [CvUploadErrorCode.SERVER_ERROR]:
     'An error occurred on the server. Please try again later.',
-  [CvUploadErrorCode.PARTIAL_UPLOAD]:
-    'The file was only partially uploaded. Please try again.',
-  [CvUploadErrorCode.UNSUPPORTED_FORMAT]:
-    'The file format is not supported. Please upload a PDF, DOC, or DOCX file.',
-  [CvUploadErrorCode.EMPTY_FILE]:
-    'The uploaded file is empty. Please select a valid file.',
+  [CvUploadErrorCode.NETWORK_ERROR]:
+    'A network error occurred. Please check your connection and try again.',
+  [CvUploadErrorCode.PARSING_ERROR]:
+    'An error occurred while parsing the CV content. Please ensure the file is valid.',
   [CvUploadErrorCode.UNKNOWN_ERROR]:
     'An unexpected error occurred. Please try again.',
 };
@@ -129,7 +119,7 @@ export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, string> = {
 export function createCvUploadError(
   code: CvUploadErrorCode,
   message?: string,
-  details?: CvUploadErrorDetails
+  details?: Record<string, unknown>
 ): CvUploadErrorResponse {
   return {
     code,
@@ -169,12 +159,8 @@ export function validateCvFile(
   fileSize: number,
   mimeType: string
 ): CvUploadErrorCode | null {
-  if (fileSize === 0) {
-    return CvUploadErrorCode.EMPTY_FILE;
-  }
-
   if (fileSize > CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES) {
-    return CvUploadErrorCode.FILE_TOO_LARGE;
+    return CvUploadErrorCode.FILE_SIZE_EXCEEDED;
   }
 
   if (!CV_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES.includes(mimeType)) {
