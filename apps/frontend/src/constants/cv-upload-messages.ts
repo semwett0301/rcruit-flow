@@ -45,13 +45,13 @@ export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, CvUploadErrorMe
   },
   [CvUploadErrorCode.NETWORK_ERROR]: {
     title: 'Connection Problem',
-    message: 'The upload could not be completed due to a network issue.',
+    message: 'We could not upload your CV due to a network issue.',
     action: 'Please check your internet connection and try again.'
   },
   [CvUploadErrorCode.PARSING_ERROR]: {
     title: 'Unable to Process CV',
-    message: 'We were unable to extract information from your CV file.',
-    action: 'Please ensure your CV is not password-protected and try again, or upload a different format.'
+    message: 'We had trouble reading the contents of your CV.',
+    action: 'Please ensure your CV is not password-protected and try again, or upload in a different format.'
   },
   [CvUploadErrorCode.UNKNOWN_ERROR]: {
     title: 'Something Went Wrong',

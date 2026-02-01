@@ -163,7 +163,11 @@ export function validateCvFile(
     return CvUploadErrorCode.FILE_SIZE_EXCEEDED;
   }
 
-  if (!CV_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES.includes(mimeType)) {
+  if (
+    !CV_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES.includes(
+      mimeType as typeof CV_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES[number]
+    )
+  ) {
     return CvUploadErrorCode.INVALID_FILE_TYPE;
   }
 
@@ -181,7 +185,11 @@ export function validateCvFileExtension(
 ): CvUploadErrorCode | null {
   const extension = fileName.toLowerCase().slice(fileName.lastIndexOf('.'));
 
-  if (!CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.includes(extension)) {
+  if (
+    !CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.includes(
+      extension as typeof CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS[number]
+    )
+  ) {
     return CvUploadErrorCode.INVALID_FILE_TYPE;
   }
 

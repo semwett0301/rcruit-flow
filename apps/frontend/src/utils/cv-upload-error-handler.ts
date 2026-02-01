@@ -11,7 +11,7 @@ import { CV_UPLOAD_ERROR_MESSAGES } from '../constants/cv-upload-messages';
 /**
  * Formatted error object for display in the UI
  */
-export interface FormattedUploadError {
+export interface FormattedCvError {
   code: CvUploadErrorCode;
   title: string;
   message: string;
@@ -22,10 +22,16 @@ export interface FormattedUploadError {
  * Maps API errors and network errors to appropriate error codes
  * and returns a formatted error object suitable for display to the user.
  *
+ * Handles the following error types:
+ * - Network errors (fetch failures, timeouts, connection refused)
+ * - Abort errors (request cancellation)
+ * - Structured API errors with CvUploadErrorCode
+ * - HTTP status codes (500+, 413, 415)
+ *
  * @param error - The error to handle (can be any type)
- * @returns FormattedUploadError with code, title, message, and action
+ * @returns FormattedCvError with code, title, message, and action
  */
-export function mapApiErrorToUploadError(error: unknown): FormattedUploadError {
+export function mapApiErrorToCvUploadError(error: unknown): FormattedCvError {
   // Handle network errors (fetch failures)
   if (error instanceof TypeError && error.message.includes('fetch')) {
     return getFormattedError(CvUploadErrorCode.NETWORK_ERROR);
@@ -76,13 +82,13 @@ export function mapApiErrorToUploadError(error: unknown): FormattedUploadError {
 }
 
 /**
- * Formats an error code into a complete FormattedUploadError object
+ * Formats an error code into a complete FormattedCvError object
  * by looking up the error information from the constants.
  *
  * @param code - The CvUploadErrorCode to format
- * @returns FormattedUploadError with all display properties
+ * @returns FormattedCvError with all display properties
  */
-export function getFormattedError(code: CvUploadErrorCode): FormattedUploadError {
+export function getFormattedError(code: CvUploadErrorCode): FormattedCvError {
   const errorInfo = CV_UPLOAD_ERROR_MESSAGES[code];
   return {
     code,
