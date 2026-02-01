@@ -1,10 +1,15 @@
 /**
  * Custom hook for CV file upload with comprehensive error handling.
- * Provides client-side validation, upload state management, and error mapping.
+ * Provides upload state management, retry functionality, and user-friendly error mapping.
  */
 import { useState, useCallback } from 'react';
-import { CvUploadErrorCode, CvUploadErrorResponse } from '@repo/dto';
-import { validateCvFile, mapApiErrorToCode } from '../utils/cv-upload-validator';
+import { CvUploadErrorResponse } from '@repo/dto';
+import {
+  UserFriendlyError,
+  mapCvUploadErrorToUserMessage,
+  mapNetworkErrorToUploadError,
+  mapUnknownErrorToUploadError,
+} from '../utils/cv-upload-error-messages';
 
 /**
  * Configuration options for the useCvUpload hook.
@@ -15,7 +20,7 @@ interface UseCvUploadOptions {
   /** Callback invoked on successful upload */
   onSuccess?: (response: unknown) => void;
   /** Callback invoked when an error occurs */
-  onError?: (errorCode: CvUploadErrorCode) => void;
+  onError?: (error: UserFriendlyError) => void;
 }
 
 /**
@@ -26,79 +31,60 @@ interface UseCvUploadReturn {
   upload: (file: File) => Promise<void>;
   /** Whether an upload is currently in progress */
   isUploading: boolean;
-  /** Current error code, if any */
-  error: CvUploadErrorCode | null;
+  /** Current user-friendly error, if any */
+  error: UserFriendlyError | null;
   /** Function to clear the current error */
   clearError: () => void;
-  /** Function to reset the hook state */
-  reset: () => void;
+  /** Function to retry the last failed upload */
+  retry: () => void;
 }
 
-/** Upload timeout in milliseconds (60 seconds) */
-const UPLOAD_TIMEOUT_MS = 60000;
+/** Upload timeout in milliseconds (30 seconds) */
+const UPLOAD_TIMEOUT_MS = 30000;
 
 /**
- * Custom hook for handling CV file uploads with validation and error handling.
+ * Custom hook for handling CV file uploads with error handling and retry support.
  *
  * @param options - Configuration options for the upload
- * @returns Object containing upload function and state
+ * @returns Object containing upload function, state, and control methods
  *
  * @example
  * ```tsx
- * const { upload, isUploading, error, clearError } = useCvUpload({
+ * const { upload, isUploading, error, clearError, retry } = useCvUpload({
  *   uploadEndpoint: '/api/cv/upload',
  *   onSuccess: (data) => console.log('Uploaded:', data),
- *   onError: (code) => console.error('Error:', code),
+ *   onError: (error) => console.error('Error:', error.message),
  * });
  *
  * const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
  *   const file = e.target.files?.[0];
  *   if (file) upload(file);
  * };
+ *
+ * // Retry last failed upload
+ * const handleRetry = () => retry();
  * ```
  */
-export const useCvUpload = (options: UseCvUploadOptions): UseCvUploadReturn => {
+export function useCvUpload(options: UseCvUploadOptions): UseCvUploadReturn {
   const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState<CvUploadErrorCode | null>(null);
-
-  /**
-   * Clears the current error state.
-   */
-  const clearError = useCallback(() => setError(null), []);
-
-  /**
-   * Resets the hook to its initial state.
-   */
-  const reset = useCallback(() => {
-    setIsUploading(false);
-    setError(null);
-  }, []);
+  const [error, setError] = useState<UserFriendlyError | null>(null);
+  const [lastFile, setLastFile] = useState<File | null>(null);
 
   /**
    * Uploads a CV file to the configured endpoint.
-   * Performs client-side validation before uploading.
    *
    * @param file - The file to upload
    */
   const upload = useCallback(
     async (file: File) => {
-      // Clear any previous error
-      setError(null);
-
-      // Perform client-side validation
-      const validationError = validateCvFile(file);
-      if (validationError) {
-        setError(validationError.code);
-        options.onError?.(validationError.code);
-        return;
-      }
-
       setIsUploading(true);
+      setError(null);
+      setLastFile(file);
+
+      const formData = new FormData();
+      formData.append('cv', file);
 
       try {
-        const formData = new FormData();
-        formData.append('cv', file);
-
         // Set up abort controller for timeout handling
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
@@ -112,25 +98,31 @@ export const useCvUpload = (options: UseCvUploadOptions): UseCvUploadReturn => {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          // Attempt to parse error response, fallback to generic server error
-          const errorData: CvUploadErrorResponse = await response.json().catch(() => ({
-            code: CvUploadErrorCode.SERVER_ERROR,
-            message: 'Server error',
-          }));
-
-          const errorCode = errorData.code || CvUploadErrorCode.SERVER_ERROR;
-          setError(errorCode);
-          options.onError?.(errorCode);
+          // Attempt to parse error response from server
+          const errorData: CvUploadErrorResponse = await response.json();
+          const userError = mapCvUploadErrorToUserMessage(errorData);
+          setError(userError);
+          options.onError?.(userError);
           return;
         }
 
         const data = await response.json();
         options.onSuccess?.(data);
       } catch (err) {
-        // Map network/abort errors to appropriate error codes
-        const errorCode = mapApiErrorToCode(err);
-        setError(errorCode);
-        options.onError?.(errorCode);
+        // Map network/abort errors to user-friendly error messages
+        let errorResponse: CvUploadErrorResponse;
+
+        if (err instanceof Error && err.name === 'AbortError') {
+          // Request was aborted due to timeout
+          errorResponse = mapNetworkErrorToUploadError();
+        } else {
+          // Unknown error (network failure, etc.)
+          errorResponse = mapUnknownErrorToUploadError();
+        }
+
+        const userError = mapCvUploadErrorToUserMessage(errorResponse);
+        setError(userError);
+        options.onError?.(userError);
       } finally {
         setIsUploading(false);
       }
@@ -138,5 +130,22 @@ export const useCvUpload = (options: UseCvUploadOptions): UseCvUploadReturn => {
     [options]
   );
 
-  return { upload, isUploading, error, clearError, reset };
-};
+  /**
+   * Clears the current error state.
+   */
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  /**
+   * Retries the last failed upload.
+   * Does nothing if no previous upload attempt exists.
+   */
+  const retry = useCallback(() => {
+    if (lastFile) {
+      upload(lastFile);
+    }
+  }, [lastFile, upload]);
+
+  return { upload, isUploading, error, clearError, retry };
+}
