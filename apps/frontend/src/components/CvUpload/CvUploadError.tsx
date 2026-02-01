@@ -6,56 +6,54 @@
  * Includes optional retry and dismiss actions for better user experience.
  */
 import React from 'react';
-import { UserFriendlyError } from '../../constants/cv-upload-messages';
+import { UserFriendlyError, SUPPORT_EMAIL } from '../../constants/cvUploadErrors';
 
 /**
  * Props for the CvUploadError component
  */
 interface CvUploadErrorProps {
-  /** The error object containing title, message, and suggestion */
+  /** The error object containing title, message, suggestions, and flags */
   error: UserFriendlyError;
-  /** Optional callback to dismiss the error */
-  onDismiss?: () => void;
   /** Optional callback to retry the failed operation */
   onRetry?: () => void;
+  /** Optional callback to dismiss the error */
+  onDismiss?: () => void;
 }
 
 /**
  * Error display component for CV upload failures.
- * Renders an accessible alert with error details and action buttons.
+ * Renders an accessible alert with error details, suggestions, and action buttons.
  *
  * @param props - Component props
  * @returns JSX element displaying the error
  */
 export const CvUploadError: React.FC<CvUploadErrorProps> = ({
   error,
-  onDismiss,
   onRetry,
+  onDismiss,
 }) => {
   return (
     <div className="cv-upload-error" role="alert" aria-live="polite">
-      <div className="cv-upload-error__icon">
-        <svg
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          aria-hidden="true"
-          width="24"
-          height="24"
-        >
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-        </svg>
+      <div className="cv-upload-error__header">
+        <span className="cv-upload-error__icon" aria-hidden="true">
+          ⚠️
+        </span>
+        <h3 className="cv-upload-error__title">{error.title}</h3>
       </div>
-      <div className="cv-upload-error__content">
-        <h4 className="cv-upload-error__title">{error.title}</h4>
-        <p className="cv-upload-error__message">{error.message}</p>
-        {error.suggestion && (
-          <p className="cv-upload-error__suggestion">
-            <strong>What to do:</strong> {error.suggestion}
-          </p>
-        )}
+
+      <p className="cv-upload-error__message">{error.message}</p>
+
+      <div className="cv-upload-error__suggestions">
+        <p className="cv-upload-error__suggestions-label">What you can do:</p>
+        <ul className="cv-upload-error__suggestions-list">
+          {error.suggestions.map((suggestion, index) => (
+            <li key={index}>{suggestion}</li>
+          ))}
+        </ul>
       </div>
+
       <div className="cv-upload-error__actions">
-        {onRetry && (
+        {error.canRetry && onRetry && (
           <button
             type="button"
             className="cv-upload-error__retry-btn"
@@ -64,17 +62,26 @@ export const CvUploadError: React.FC<CvUploadErrorProps> = ({
             Try Again
           </button>
         )}
+
         {onDismiss && (
           <button
             type="button"
             className="cv-upload-error__dismiss-btn"
             onClick={onDismiss}
-            aria-label="Dismiss error"
           >
             Dismiss
           </button>
         )}
       </div>
+
+      {error.showContactSupport && (
+        <div className="cv-upload-error__support">
+          <p>
+            Still having trouble?{' '}
+            <a href={`mailto:${SUPPORT_EMAIL}`}>Contact Support</a>
+          </p>
+        </div>
+      )}
     </div>
   );
 };

@@ -3,7 +3,6 @@
  * Provides client-side validation, upload state management, and user-friendly error messages.
  */
 import { useState, useCallback } from 'react';
-import { CvUploadErrorCode } from '@recruit-flow/dto';
 import { validateCvFile } from '../utils/cv-upload-validator';
 import {
   mapApiErrorToUploadError,
@@ -35,6 +34,8 @@ interface UseCvUploadReturn {
   error: FormattedUploadError | null;
   /** Function to clear the current error */
   clearError: () => void;
+  /** Function to retry the last failed upload */
+  retry: () => void;
   /** Upload progress percentage (0-100) */
   progress: number;
 }
@@ -47,6 +48,7 @@ interface UseCvUploadReturn {
  * - Upload state management (loading, progress, error states)
  * - User-friendly error messages mapped from error codes
  * - Configurable callbacks for success and error handling
+ * - Retry functionality for failed uploads
  * - Customizable upload endpoint
  *
  * @param options - Configuration options for the upload hook
@@ -54,7 +56,7 @@ interface UseCvUploadReturn {
  *
  * @example
  * ```tsx
- * const { upload, isUploading, error, clearError, progress } = useCvUpload({
+ * const { upload, isUploading, error, clearError, retry, progress } = useCvUpload({
  *   onSuccess: (response) => console.log('Upload successful:', response),
  *   onError: (error) => console.error('Upload failed:', error.message),
  * });
@@ -66,11 +68,12 @@ interface UseCvUploadReturn {
  *   }
  * };
  *
- * // Display error to user
+ * // Display error to user with retry option
  * {error && (
  *   <div>
  *     <p>{error.title}</p>
  *     <p>{error.message}</p>
+ *     <button onClick={retry}>Retry</button>
  *     <button onClick={clearError}>Dismiss</button>
  *   </div>
  * )}
@@ -80,6 +83,7 @@ export function useCvUpload(options: UseCvUploadOptions = {}): UseCvUploadReturn
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<FormattedUploadError | null>(null);
   const [progress, setProgress] = useState(0);
+  const [lastFile, setLastFile] = useState<File | null>(null);
 
   /**
    * Clears the current error state.
@@ -96,6 +100,9 @@ export function useCvUpload(options: UseCvUploadOptions = {}): UseCvUploadReturn
    */
   const upload = useCallback(
     async (file: File): Promise<void> => {
+      // Store file for potential retry
+      setLastFile(file);
+
       // Reset state before starting upload
       setError(null);
       setProgress(0);
@@ -143,11 +150,22 @@ export function useCvUpload(options: UseCvUploadOptions = {}): UseCvUploadReturn
     [options]
   );
 
+  /**
+   * Retries the last failed upload.
+   * Does nothing if no previous upload attempt exists.
+   */
+  const retry = useCallback(() => {
+    if (lastFile) {
+      upload(lastFile);
+    }
+  }, [lastFile, upload]);
+
   return {
     upload,
     isUploading,
     error,
     clearError,
+    retry,
     progress,
   };
 }

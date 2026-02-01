@@ -26,6 +26,19 @@ export enum CvUploadErrorCode {
 }
 
 /**
+ * Additional details that can be included in error responses.
+ * Provides context-specific information for different error types.
+ */
+export interface CvUploadErrorDetails {
+  /** Maximum allowed file size in bytes (for FILE_SIZE_EXCEEDED errors) */
+  maxSize?: number;
+  /** List of allowed MIME types (for INVALID_FILE_TYPE errors) */
+  allowedTypes?: string[];
+  /** Whether the operation can be retried */
+  retryable?: boolean;
+}
+
+/**
  * Standard error response structure for CV upload failures.
  * Provides consistent error information across the application.
  */
@@ -34,8 +47,8 @@ export interface CvUploadErrorResponse {
   code: CvUploadErrorCode;
   /** Human-readable error message suitable for display */
   message: string;
-  /** Optional additional details about the error (e.g., stack trace, validation details) */
-  details?: string;
+  /** Optional additional details about the error */
+  details?: CvUploadErrorDetails;
 }
 
 /**
@@ -44,6 +57,10 @@ export interface CvUploadErrorResponse {
  * and backend processing.
  */
 export const CV_UPLOAD_CONSTRAINTS = {
+  /** Maximum file size in megabytes */
+  MAX_FILE_SIZE_MB: 10,
+  /** Maximum file size in bytes (10 MB) */
+  MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024,
   /** MIME types accepted for CV uploads */
   ALLOWED_TYPES: [
     'application/pdf',
@@ -52,10 +69,6 @@ export const CV_UPLOAD_CONSTRAINTS = {
   ],
   /** File extensions accepted for CV uploads */
   ALLOWED_EXTENSIONS: ['.pdf', '.doc', '.docx'],
-  /** Maximum file size in megabytes */
-  MAX_FILE_SIZE_MB: 10,
-  /** Maximum file size in bytes (10 MB) */
-  MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024,
 } as const;
 
 /**
@@ -71,10 +84,26 @@ export type CvUploadConstraints = typeof CV_UPLOAD_CONSTRAINTS;
 export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, string> = {
   [CvUploadErrorCode.INVALID_FILE_TYPE]: `Invalid file type. Allowed types: ${CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.join(', ')}`,
   [CvUploadErrorCode.FILE_SIZE_EXCEEDED]: `File size exceeds the maximum limit of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB}MB`,
-  [CvUploadErrorCode.FILE_CORRUPTED]: 'The uploaded file appears to be corrupted or cannot be read',
-  [CvUploadErrorCode.SERVER_ERROR]: 'An internal server error occurred. Please try again later',
-  [CvUploadErrorCode.NETWORK_TIMEOUT]: 'The upload request timed out. Please check your connection and try again',
+  [CvUploadErrorCode.FILE_CORRUPTED]:
+    'The uploaded file appears to be corrupted or cannot be read',
+  [CvUploadErrorCode.SERVER_ERROR]:
+    'An internal server error occurred. Please try again later',
+  [CvUploadErrorCode.NETWORK_TIMEOUT]:
+    'The upload request timed out. Please check your connection and try again',
   [CvUploadErrorCode.UNKNOWN_ERROR]: 'An unexpected error occurred. Please try again',
+};
+
+/**
+ * Indicates whether a specific error type is retryable.
+ * Useful for implementing retry logic on the client side.
+ */
+export const CV_UPLOAD_ERROR_RETRYABLE: Record<CvUploadErrorCode, boolean> = {
+  [CvUploadErrorCode.INVALID_FILE_TYPE]: false,
+  [CvUploadErrorCode.FILE_SIZE_EXCEEDED]: false,
+  [CvUploadErrorCode.FILE_CORRUPTED]: false,
+  [CvUploadErrorCode.SERVER_ERROR]: true,
+  [CvUploadErrorCode.NETWORK_TIMEOUT]: true,
+  [CvUploadErrorCode.UNKNOWN_ERROR]: true,
 };
 
 /**
@@ -88,11 +117,53 @@ export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, string> = {
 export function createCvUploadError(
   code: CvUploadErrorCode,
   message?: string,
-  details?: string
+  details?: CvUploadErrorDetails
 ): CvUploadErrorResponse {
   return {
     code,
     message: message ?? CV_UPLOAD_ERROR_MESSAGES[code],
     ...(details && { details }),
   };
+}
+
+/**
+ * Helper function to create an error response for invalid file type.
+ *
+ * @param message - Optional custom message
+ * @returns A CvUploadErrorResponse for invalid file type
+ */
+export function createInvalidFileTypeError(message?: string): CvUploadErrorResponse {
+  return createCvUploadError(CvUploadErrorCode.INVALID_FILE_TYPE, message, {
+    allowedTypes: [...CV_UPLOAD_CONSTRAINTS.ALLOWED_TYPES],
+    retryable: false,
+  });
+}
+
+/**
+ * Helper function to create an error response for file size exceeded.
+ *
+ * @param message - Optional custom message
+ * @returns A CvUploadErrorResponse for file size exceeded
+ */
+export function createFileSizeExceededError(message?: string): CvUploadErrorResponse {
+  return createCvUploadError(CvUploadErrorCode.FILE_SIZE_EXCEEDED, message, {
+    maxSize: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES,
+    retryable: false,
+  });
+}
+
+/**
+ * Type guard to check if an error response is a CV upload error.
+ *
+ * @param error - The error object to check
+ * @returns True if the error is a CvUploadErrorResponse
+ */
+export function isCvUploadErrorResponse(error: unknown): error is CvUploadErrorResponse {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    'message' in error &&
+    Object.values(CvUploadErrorCode).includes((error as CvUploadErrorResponse).code)
+  );
 }

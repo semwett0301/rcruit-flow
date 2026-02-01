@@ -2,7 +2,7 @@
  * CV Controller
  *
  * Handles CV-related HTTP endpoints including file upload functionality.
- * Uses validation pipe to ensure uploaded files meet requirements.
+ * Uses file size limits from shared DTO constraints.
  */
 import {
   Controller,
@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CvService } from './cv.service';
-import { CvFileValidationPipe } from './validators/cv-file.validator';
+import { CV_UPLOAD_CONSTRAINTS } from '@repo/dto';
 
 @Controller('cv')
 export class CvController {
@@ -23,23 +23,22 @@ export class CvController {
   /**
    * Upload a CV file
    *
-   * Accepts a CV file upload, validates it using CvFileValidationPipe,
+   * Accepts a CV file upload with size constraints defined in CV_UPLOAD_CONSTRAINTS,
    * and processes it through the CV service.
    *
-   * @param file - The uploaded CV file (validated by CvFileValidationPipe)
-   * @returns Object containing success status, processed data, and message
+   * @param file - The uploaded CV file
+   * @returns Processed CV data from the service
    */
   @Post('upload')
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FileInterceptor('cv'))
-  async uploadCv(
-    @UploadedFile(CvFileValidationPipe) file: Express.Multer.File,
-  ) {
-    const result = await this.cvService.processUpload(file);
-    return {
-      success: true,
-      data: result,
-      message: 'CV uploaded successfully',
-    };
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: {
+        fileSize: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES,
+      },
+    }),
+  )
+  async uploadCv(@UploadedFile() file: Express.Multer.File) {
+    return this.cvService.uploadCv(file);
   }
 }

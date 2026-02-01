@@ -3,7 +3,7 @@
  * Provides structured error responses with specific error codes for different upload failure scenarios.
  */
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { CvUploadErrorCode, CvUploadErrorResponse } from '@rcruit-flow/dto';
+import { CvUploadErrorCode, CvUploadErrorResponse, CV_UPLOAD_CONSTRAINTS } from '@repo/dto';
 
 /**
  * Custom exception class for CV upload failures.
@@ -11,36 +11,44 @@ import { CvUploadErrorCode, CvUploadErrorResponse } from '@rcruit-flow/dto';
  * with specific error codes and details for client-side handling.
  */
 export class CvUploadException extends HttpException {
-  constructor(errorResponse: CvUploadErrorResponse, status: HttpStatus = HttpStatus.BAD_REQUEST) {
+  constructor(errorResponse: CvUploadErrorResponse, status: HttpStatus) {
     super(errorResponse, status);
   }
 
   /**
    * Creates an exception for invalid file type uploads.
-   * @param currentType - The MIME type of the uploaded file
-   * @param allowedTypes - Array of allowed MIME types
+   * @param mimeType - The MIME type of the uploaded file
    * @returns CvUploadException with INVALID_FILE_TYPE error code
    */
-  static invalidFileType(currentType: string, allowedTypes: string[]): CvUploadException {
-    return new CvUploadException({
-      code: CvUploadErrorCode.INVALID_FILE_TYPE,
-      message: 'Invalid file type',
-      details: { currentType, allowedTypes }
-    });
+  static invalidFileType(mimeType: string): CvUploadException {
+    return new CvUploadException(
+      {
+        code: CvUploadErrorCode.INVALID_FILE_TYPE,
+        message: 'Invalid file type',
+        details: {
+          allowedTypes: CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS
+        }
+      },
+      HttpStatus.BAD_REQUEST
+    );
   }
 
   /**
    * Creates an exception for files exceeding the maximum allowed size.
-   * @param currentSize - The size of the uploaded file in bytes
-   * @param maxSize - The maximum allowed file size in bytes
+   * @param fileSize - The size of the uploaded file in bytes
    * @returns CvUploadException with FILE_SIZE_EXCEEDED error code
    */
-  static fileSizeExceeded(currentSize: number, maxSize: number): CvUploadException {
-    return new CvUploadException({
-      code: CvUploadErrorCode.FILE_SIZE_EXCEEDED,
-      message: 'File size exceeded',
-      details: { currentSize, maxSize }
-    });
+  static fileSizeExceeded(fileSize: number): CvUploadException {
+    return new CvUploadException(
+      {
+        code: CvUploadErrorCode.FILE_SIZE_EXCEEDED,
+        message: 'File size exceeded',
+        details: {
+          maxSize: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB
+        }
+      },
+      HttpStatus.PAYLOAD_TOO_LARGE
+    );
   }
 
   /**
@@ -48,10 +56,14 @@ export class CvUploadException extends HttpException {
    * @returns CvUploadException with FILE_CORRUPTED error code
    */
   static fileCorrupted(): CvUploadException {
-    return new CvUploadException({
-      code: CvUploadErrorCode.FILE_CORRUPTED,
-      message: 'File is corrupted or unreadable'
-    });
+    return new CvUploadException(
+      {
+        code: CvUploadErrorCode.FILE_CORRUPTED,
+        message: 'File appears to be corrupted or unreadable',
+        details: { retryable: false }
+      },
+      HttpStatus.UNPROCESSABLE_ENTITY
+    );
   }
 
   /**
@@ -62,7 +74,8 @@ export class CvUploadException extends HttpException {
     return new CvUploadException(
       {
         code: CvUploadErrorCode.SERVER_ERROR,
-        message: 'Internal server error during file processing'
+        message: 'Server error occurred',
+        details: { retryable: true }
       },
       HttpStatus.INTERNAL_SERVER_ERROR
     );
