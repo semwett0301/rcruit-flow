@@ -17,10 +17,8 @@ export enum CvUploadErrorCode {
   FILE_CORRUPTED = 'FILE_CORRUPTED',
   /** An internal server error occurred during upload processing */
   SERVER_ERROR = 'SERVER_ERROR',
-  /** A network error occurred during file transmission */
-  NETWORK_ERROR = 'NETWORK_ERROR',
   /** The upload operation timed out */
-  UPLOAD_TIMEOUT = 'UPLOAD_TIMEOUT',
+  NETWORK_TIMEOUT = 'NETWORK_TIMEOUT',
   /** An unknown or unexpected error occurred */
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
@@ -33,8 +31,10 @@ export interface CvUploadErrorDetails {
   maxSize?: number;
   /** List of allowed MIME types */
   allowedTypes?: string[];
-  /** Indicates whether the operation can be retried */
-  retryable?: boolean;
+  /** Current file size in bytes (for size exceeded errors) */
+  currentSize?: number;
+  /** Current file MIME type (for invalid type errors) */
+  currentType?: string;
 }
 
 /**
@@ -56,10 +56,8 @@ export interface CvUploadErrorResponse {
  * and backend processing.
  */
 export const CV_UPLOAD_CONSTRAINTS = {
-  /** Maximum file size in megabytes */
-  MAX_FILE_SIZE_MB: 10,
   /** Maximum file size in bytes (10 MB) */
-  MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024,
+  MAX_FILE_SIZE: 10 * 1024 * 1024,
   /** Allowed MIME types for CV uploads */
   ALLOWED_TYPES: [
     'application/pdf',
@@ -82,11 +80,10 @@ export type CvUploadConstraints = typeof CV_UPLOAD_CONSTRAINTS;
  */
 export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, string> = {
   [CvUploadErrorCode.INVALID_FILE_TYPE]: `Invalid file type. Allowed types: ${CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.join(', ')}`,
-  [CvUploadErrorCode.FILE_SIZE_EXCEEDED]: `File size exceeds the maximum limit of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB}MB`,
+  [CvUploadErrorCode.FILE_SIZE_EXCEEDED]: `File size exceeds the maximum limit of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE / (1024 * 1024)}MB`,
   [CvUploadErrorCode.FILE_CORRUPTED]: 'The uploaded file appears to be corrupted or cannot be read',
   [CvUploadErrorCode.SERVER_ERROR]: 'An internal server error occurred. Please try again later',
-  [CvUploadErrorCode.NETWORK_ERROR]: 'A network error occurred. Please check your connection and try again',
-  [CvUploadErrorCode.UPLOAD_TIMEOUT]: 'The upload timed out. Please try again',
+  [CvUploadErrorCode.NETWORK_TIMEOUT]: 'The upload timed out. Please check your connection and try again',
   [CvUploadErrorCode.UNKNOWN_ERROR]: 'An unexpected error occurred. Please try again',
 };
 
@@ -98,8 +95,7 @@ export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, string> = {
 export function isRetryableError(code: CvUploadErrorCode): boolean {
   const retryableCodes: CvUploadErrorCode[] = [
     CvUploadErrorCode.SERVER_ERROR,
-    CvUploadErrorCode.NETWORK_ERROR,
-    CvUploadErrorCode.UPLOAD_TIMEOUT,
+    CvUploadErrorCode.NETWORK_TIMEOUT,
   ];
   return retryableCodes.includes(code);
 }
@@ -119,6 +115,6 @@ export function createCvUploadError(
   return {
     code,
     message: message ?? CV_UPLOAD_ERROR_MESSAGES[code],
-    details: details ?? (isRetryableError(code) ? { retryable: true } : undefined),
+    ...(details && { details }),
   };
 }

@@ -6,7 +6,7 @@
  * how to resolve the issue.
  */
 
-import { CvUploadErrorCode, CV_UPLOAD_CONSTRAINTS } from '@rcruit-flow/dto';
+import { CvUploadErrorCode, CV_UPLOAD_CONSTRAINTS } from '@repo/dto';
 
 /**
  * Error message structure for CV upload failures.
@@ -21,6 +21,17 @@ export interface CvUploadErrorMessage {
 }
 
 /**
+ * Formats a byte value to a human-readable megabyte string.
+ *
+ * @param bytes - The size in bytes to format
+ * @returns A formatted string like "10MB"
+ */
+const formatFileSize = (bytes: number): string => {
+  const mb = bytes / (1024 * 1024);
+  return `${mb.toFixed(0)}MB`;
+};
+
+/**
  * Mapping of CV upload error codes to user-friendly error messages.
  *
  * Each error message includes:
@@ -31,38 +42,33 @@ export interface CvUploadErrorMessage {
 export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, CvUploadErrorMessage> = {
   [CvUploadErrorCode.INVALID_FILE_TYPE]: {
     title: 'Unsupported File Format',
-    message: 'The file you selected is not a supported format. Please upload a PDF, DOC, or DOCX file.',
-    action: 'Select a file with one of the supported formats and try again.',
+    message: `Please upload your CV in one of the following formats: ${CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.join(', ').toUpperCase()}.`,
+    action: 'Convert your file to PDF or Word format and try again.',
   },
   [CvUploadErrorCode.FILE_SIZE_EXCEEDED]: {
     title: 'File Too Large',
-    message: `The file you selected exceeds the maximum size of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB}MB.`,
-    action: 'Please reduce the file size or choose a smaller file and try again.',
+    message: `Your file exceeds the maximum size of ${formatFileSize(CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE)}.`,
+    action: 'Please reduce the file size by compressing images or removing unnecessary content, then try again.',
   },
   [CvUploadErrorCode.FILE_CORRUPTED]: {
-    title: 'File Cannot Be Read',
-    message: 'The file appears to be corrupted or damaged and cannot be processed.',
-    action: 'Please try uploading a different copy of your CV or save it in a different format.',
+    title: 'Unable to Read File',
+    message: 'The file appears to be corrupted or unreadable.',
+    action: 'Please check that your file opens correctly on your device, then try uploading again.',
   },
   [CvUploadErrorCode.SERVER_ERROR]: {
     title: 'Upload Failed',
-    message: 'We encountered an issue processing your CV. This is not your fault.',
+    message: 'We encountered an issue processing your CV.',
     action: 'Please try again in a few moments. If the problem persists, contact our support team.',
   },
-  [CvUploadErrorCode.NETWORK_ERROR]: {
-    title: 'Connection Problem',
-    message: 'Your CV could not be uploaded due to a network issue.',
-    action: 'Please check your internet connection and try again.',
-  },
-  [CvUploadErrorCode.UPLOAD_TIMEOUT]: {
-    title: 'Upload Timed Out',
+  [CvUploadErrorCode.NETWORK_TIMEOUT]: {
+    title: 'Connection Timeout',
     message: 'The upload took too long to complete.',
-    action: 'Please check your internet connection and try uploading again. Consider using a smaller file if the issue persists.',
+    action: 'Please check your internet connection and try again.',
   },
   [CvUploadErrorCode.UNKNOWN_ERROR]: {
     title: 'Something Went Wrong',
-    message: 'An unexpected error occurred while uploading your CV.',
-    action: 'Please try again. If the problem continues, contact our support team for assistance.',
+    message: 'An unexpected error occurred during upload.',
+    action: 'Please try again. If the problem continues, contact support for assistance.',
   },
 };
 
@@ -70,7 +76,7 @@ export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, CvUploadErrorMe
  * Retrieves the error message for a given CV upload error code.
  *
  * @param errorCode - The error code to get the message for
- * @returns The corresponding error message object
+ * @returns The corresponding error message object, or the unknown error message as fallback
  */
 export function getCvUploadErrorMessage(errorCode: CvUploadErrorCode): CvUploadErrorMessage {
   return CV_UPLOAD_ERROR_MESSAGES[errorCode] ?? CV_UPLOAD_ERROR_MESSAGES[CvUploadErrorCode.UNKNOWN_ERROR];
