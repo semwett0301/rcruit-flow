@@ -15,33 +15,51 @@ import {
  * with specific error codes, messages, and constraint details.
  */
 export class CvUploadException extends HttpException {
-  constructor(
-    code: CvUploadErrorCode,
-    message: string,
-    details?: Record<string, unknown>,
-  ) {
+  constructor(code: CvUploadErrorCode, message?: string) {
     const response: CvUploadErrorResponse = {
       code,
-      message,
-      details: {
-        ...details,
-        allowedTypes: CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS,
-        maxSizeBytes: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES,
-        maxSizeMB: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB,
-      },
+      message: message || CvUploadException.getDefaultMessage(code),
+      details: CvUploadException.getDetails(code),
     };
+    super(response, CvUploadException.getHttpStatus(code));
+  }
 
-    const statusMap: Record<CvUploadErrorCode, HttpStatus> = {
-      [CvUploadErrorCode.INVALID_FILE_TYPE]: HttpStatus.BAD_REQUEST,
-      [CvUploadErrorCode.FILE_SIZE_EXCEEDED]: HttpStatus.PAYLOAD_TOO_LARGE,
-      [CvUploadErrorCode.CORRUPTED_FILE]: HttpStatus.UNPROCESSABLE_ENTITY,
-      [CvUploadErrorCode.SERVER_ERROR]: HttpStatus.INTERNAL_SERVER_ERROR,
-      [CvUploadErrorCode.NETWORK_ERROR]: HttpStatus.SERVICE_UNAVAILABLE,
-      [CvUploadErrorCode.PARSING_ERROR]: HttpStatus.UNPROCESSABLE_ENTITY,
-      [CvUploadErrorCode.UNKNOWN_ERROR]: HttpStatus.INTERNAL_SERVER_ERROR,
+  private static getDefaultMessage(code: CvUploadErrorCode): string {
+    const messages: Record<CvUploadErrorCode, string> = {
+      [CvUploadErrorCode.INVALID_FILE_TYPE]: 'Invalid file type',
+      [CvUploadErrorCode.FILE_SIZE_EXCEEDED]: 'File size exceeded',
+      [CvUploadErrorCode.FILE_CORRUPTED]: 'File is corrupted or unreadable',
+      [CvUploadErrorCode.SERVER_ERROR]: 'Server processing error',
+      [CvUploadErrorCode.NETWORK_TIMEOUT]: 'Request timeout',
+      [CvUploadErrorCode.UNKNOWN_ERROR]: 'Unknown error occurred',
     };
+    return messages[code];
+  }
 
-    super(response, statusMap[code]);
+  private static getHttpStatus(code: CvUploadErrorCode): HttpStatus {
+    switch (code) {
+      case CvUploadErrorCode.INVALID_FILE_TYPE:
+      case CvUploadErrorCode.FILE_SIZE_EXCEEDED:
+      case CvUploadErrorCode.FILE_CORRUPTED:
+        return HttpStatus.BAD_REQUEST;
+      case CvUploadErrorCode.NETWORK_TIMEOUT:
+        return HttpStatus.REQUEST_TIMEOUT;
+      default:
+        return HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+  }
+
+  private static getDetails(
+    code: CvUploadErrorCode,
+  ): CvUploadErrorResponse['details'] {
+    return {
+      maxSize: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES,
+      allowedTypes: CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS,
+      retryable: [
+        CvUploadErrorCode.SERVER_ERROR,
+        CvUploadErrorCode.NETWORK_TIMEOUT,
+      ].includes(code),
+    };
   }
 }
 
@@ -49,11 +67,10 @@ export class CvUploadException extends HttpException {
  * Exception thrown when an uploaded file has an invalid/unsupported file type.
  */
 export class InvalidFileTypeException extends CvUploadException {
-  constructor(receivedType: string) {
+  constructor(message?: string) {
     super(
       CvUploadErrorCode.INVALID_FILE_TYPE,
-      'Invalid file type. Please upload a PDF, DOC, or DOCX file.',
-      { receivedType },
+      message || 'Invalid file type. Please upload a PDF, DOC, or DOCX file.',
     );
   }
 }
@@ -62,11 +79,11 @@ export class InvalidFileTypeException extends CvUploadException {
  * Exception thrown when an uploaded file exceeds the maximum allowed size.
  */
 export class FileSizeExceededException extends CvUploadException {
-  constructor(fileSize: number, maxSize: number) {
+  constructor(message?: string) {
     super(
       CvUploadErrorCode.FILE_SIZE_EXCEEDED,
-      `File size (${Math.round(fileSize / 1024 / 1024)}MB) exceeds the maximum allowed size (${Math.round(maxSize / 1024 / 1024)}MB).`,
-      { fileSize, maxSize },
+      message ||
+        `File size exceeds the maximum allowed size of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB}MB.`,
     );
   }
 }
@@ -74,37 +91,24 @@ export class FileSizeExceededException extends CvUploadException {
 /**
  * Exception thrown when an uploaded file appears to be corrupted or unreadable.
  */
-export class CorruptedFileException extends CvUploadException {
-  constructor() {
+export class FileCorruptedException extends CvUploadException {
+  constructor(message?: string) {
     super(
-      CvUploadErrorCode.CORRUPTED_FILE,
-      'The uploaded file appears to be corrupted or unreadable. Please try uploading a different file.',
+      CvUploadErrorCode.FILE_CORRUPTED,
+      message ||
+        'The uploaded file appears to be corrupted or unreadable. Please try uploading a different file.',
     );
   }
 }
 
 /**
- * Exception thrown when CV parsing fails due to content extraction issues.
+ * Exception thrown when a network timeout occurs during file upload.
  */
-export class CvParsingException extends CvUploadException {
-  constructor(reason?: string) {
+export class NetworkTimeoutException extends CvUploadException {
+  constructor(message?: string) {
     super(
-      CvUploadErrorCode.PARSING_ERROR,
-      'Failed to parse CV content. Please ensure the file contains readable text.',
-      reason ? { reason } : undefined,
-    );
-  }
-}
-
-/**
- * Exception thrown when a network error occurs during file upload.
- */
-export class CvNetworkException extends CvUploadException {
-  constructor(reason?: string) {
-    super(
-      CvUploadErrorCode.NETWORK_ERROR,
-      'A network error occurred during upload. Please try again.',
-      reason ? { reason } : undefined,
+      CvUploadErrorCode.NETWORK_TIMEOUT,
+      message || 'Request timed out. Please try again.',
     );
   }
 }
@@ -113,11 +117,22 @@ export class CvNetworkException extends CvUploadException {
  * Exception thrown when an unexpected server error occurs during CV upload.
  */
 export class CvServerException extends CvUploadException {
-  constructor(reason?: string) {
+  constructor(message?: string) {
     super(
       CvUploadErrorCode.SERVER_ERROR,
-      'An unexpected server error occurred. Please try again later.',
-      reason ? { reason } : undefined,
+      message || 'An unexpected server error occurred. Please try again later.',
+    );
+  }
+}
+
+/**
+ * Exception thrown when an unknown error occurs during CV upload.
+ */
+export class CvUnknownException extends CvUploadException {
+  constructor(message?: string) {
+    super(
+      CvUploadErrorCode.UNKNOWN_ERROR,
+      message || 'An unknown error occurred. Please try again.',
     );
   }
 }

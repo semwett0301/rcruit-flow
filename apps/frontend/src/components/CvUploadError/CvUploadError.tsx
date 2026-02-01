@@ -7,7 +7,7 @@
  */
 import React from 'react';
 import { CvUploadErrorCode } from '@rcruit-flow/dto';
-import { CV_UPLOAD_ERROR_MESSAGES, UserFriendlyError } from '../../constants/cv-upload-messages';
+import { getCvUploadErrorMessage, UserFriendlyError } from '../../utils/cv-upload-error-messages';
 import './CvUploadError.css';
 
 interface CvUploadErrorProps {
@@ -19,12 +19,20 @@ interface CvUploadErrorProps {
   onContactSupport?: () => void;
 }
 
+/** Error codes that should show the retry button */
+const RETRYABLE_ERROR_CODES: CvUploadErrorCode[] = [
+  CvUploadErrorCode.SERVER_ERROR,
+  CvUploadErrorCode.NETWORK_TIMEOUT,
+  CvUploadErrorCode.UNKNOWN_ERROR,
+];
+
 /**
  * Displays a user-friendly error message for CV upload failures.
  * 
  * Features:
  * - Accessible error display with ARIA live region
  * - Configurable retry and support action buttons
+ * - Retry button only shown for transient/retryable errors
  * - Graceful fallback for unknown error codes
  * 
  * @param errorCode - The specific error code from the upload attempt
@@ -43,14 +51,13 @@ interface CvUploadErrorProps {
 export const CvUploadError: React.FC<CvUploadErrorProps> = ({
   errorCode,
   onRetry,
-  onContactSupport
+  onContactSupport,
 }) => {
-  // Get error info from messages map, fallback to unknown error if code not found
-  const errorInfo: UserFriendlyError = 
-    CV_UPLOAD_ERROR_MESSAGES[errorCode] || 
-    CV_UPLOAD_ERROR_MESSAGES[CvUploadErrorCode.UNKNOWN_ERROR];
-
-  const hasActions = onRetry || onContactSupport;
+  const error: UserFriendlyError = getCvUploadErrorMessage(errorCode);
+  
+  // Only show retry button for transient errors that might succeed on retry
+  const showRetry = RETRYABLE_ERROR_CODES.includes(errorCode) && onRetry;
+  const hasActions = showRetry || onContactSupport;
 
   return (
     <div 
@@ -63,17 +70,17 @@ export const CvUploadError: React.FC<CvUploadErrorProps> = ({
         ⚠️
       </div>
       <h3 className="cv-upload-error__title">
-        {errorInfo.title}
+        {error.title}
       </h3>
       <p className="cv-upload-error__message">
-        {errorInfo.message}
+        {error.message}
       </p>
       <p className="cv-upload-error__action">
-        {errorInfo.action}
+        {error.action}
       </p>
       {hasActions && (
         <div className="cv-upload-error__buttons">
-          {onRetry && (
+          {showRetry && (
             <button 
               className="cv-upload-error__btn cv-upload-error__btn--primary"
               onClick={onRetry}
