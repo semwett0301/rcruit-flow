@@ -117,3 +117,45 @@ export function createCvUploadError(
     ...(details && { details }),
   };
 }
+
+/**
+ * Type guard to check if an error response is a CV upload error.
+ *
+ * @param error - The error object to check
+ * @returns True if the error is a CvUploadErrorResponse
+ */
+export function isCvUploadError(
+  error: unknown
+): error is CvUploadErrorResponse {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    'message' in error &&
+    Object.values(CvUploadErrorCode).includes(
+      (error as CvUploadErrorResponse).code
+    )
+  );
+}
+
+/**
+ * Validates a file against CV upload constraints.
+ *
+ * @param fileSize - The file size in bytes
+ * @param fileType - The MIME type of the file
+ * @returns The error code if validation fails, or null if valid
+ */
+export function validateCvFile(
+  fileSize: number,
+  fileType: string
+): CvUploadErrorCode | null {
+  if (fileSize > CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES) {
+    return CvUploadErrorCode.FILE_SIZE_EXCEEDED;
+  }
+
+  if (!CV_UPLOAD_CONSTRAINTS.ALLOWED_TYPES.includes(fileType)) {
+    return CvUploadErrorCode.INVALID_FILE_TYPE;
+  }
+
+  return null;
+}
