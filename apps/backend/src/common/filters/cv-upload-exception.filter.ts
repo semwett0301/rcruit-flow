@@ -39,7 +39,7 @@ export class CvUploadExceptionFilter implements ExceptionFilter {
 
   /**
    * Catches and handles exceptions, transforming them into a consistent
-   * error response format with timestamp.
+   * error response format.
    *
    * @param exception - The caught exception
    * @param host - The arguments host containing request/response context
@@ -47,54 +47,44 @@ export class CvUploadExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const timestamp = new Date().toISOString();
+
+    let errorResponse: CvUploadErrorResponse;
+    let status: HttpStatus;
 
     if (exception instanceof CvUploadException) {
       // Handle custom CV upload exceptions
-      const status = exception.getStatus();
-      const errorResponse = exception.getResponse() as {
-        code: CvUploadErrorCode;
-        message: string;
-      };
+      status = exception.getStatus();
+      errorResponse = exception.getResponse() as CvUploadErrorResponse;
 
       this.logger.warn(
         `CV Upload Exception: ${errorResponse.code} - ${errorResponse.message}`,
       );
-
-      response.status(status).json({
-        code: errorResponse.code,
-        message: errorResponse.message,
-        timestamp,
-      });
-      return;
-    }
-
-    if (exception instanceof HttpException) {
+    } else if (exception instanceof HttpException) {
       // Handle standard NestJS HTTP exceptions
-      const status = exception.getStatus();
+      status = exception.getStatus();
+      errorResponse = {
+        code: CvUploadErrorCode.SERVER_ERROR,
+        message: exception.message,
+      };
 
       this.logger.warn(
         `HTTP Exception during CV upload: ${status} - ${exception.message}`,
       );
-
-      response.status(status).json({
+    } else {
+      // Handle unexpected errors
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+      errorResponse = {
         code: CvUploadErrorCode.SERVER_ERROR,
-        message: 'An error occurred while processing your request',
-        timestamp,
-      });
-      return;
+        message: 'An unexpected error occurred',
+      };
+
+      // Log the actual error for debugging
+      this.logger.error(
+        'Unexpected CV upload error:',
+        exception instanceof Error ? exception.stack : String(exception),
+      );
     }
 
-    // Handle unexpected errors
-    this.logger.error(
-      'Unexpected error during CV upload',
-      exception instanceof Error ? exception.stack : String(exception),
-    );
-
-    response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      code: CvUploadErrorCode.SERVER_ERROR,
-      message: 'An unexpected error occurred',
-      timestamp,
-    });
+    response.status(status).json(errorResponse);
   }
 }

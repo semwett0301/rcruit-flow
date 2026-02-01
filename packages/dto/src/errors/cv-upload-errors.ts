@@ -16,11 +16,13 @@ export enum CvUploadErrorCode {
   /** The uploaded file exceeds the maximum allowed size */
   FILE_SIZE_EXCEEDED = 'FILE_SIZE_EXCEEDED',
   /** The uploaded file is corrupted or cannot be read */
-  FILE_CORRUPTED = 'FILE_CORRUPTED',
+  CORRUPTED_FILE = 'CORRUPTED_FILE',
   /** An internal server error occurred during upload processing */
   SERVER_ERROR = 'SERVER_ERROR',
-  /** The upload request timed out due to network issues */
-  NETWORK_TIMEOUT = 'NETWORK_TIMEOUT',
+  /** A network error occurred during upload */
+  NETWORK_ERROR = 'NETWORK_ERROR',
+  /** An error occurred while parsing the CV content */
+  PARSING_ERROR = 'PARSING_ERROR',
   /** An unknown or unexpected error occurred */
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
@@ -34,10 +36,14 @@ export interface CvUploadErrorDetails {
   maxSize?: number;
   /** List of allowed MIME types */
   allowedTypes?: string[];
+  /** List of allowed file extensions */
+  allowedExtensions?: string[];
   /** Actual size of the uploaded file in bytes */
   currentSize?: number;
   /** Actual MIME type of the uploaded file */
   currentType?: string;
+  /** Additional context-specific information */
+  [key: string]: unknown;
 }
 
 /**
@@ -50,7 +56,7 @@ export interface CvUploadErrorResponse {
   /** Human-readable error message */
   message: string;
   /** Optional additional details about the error */
-  details?: CvUploadErrorDetails;
+  details?: Record<string, unknown>;
 }
 
 /**
@@ -64,7 +70,7 @@ export const CV_UPLOAD_CONSTRAINTS = {
   /** Maximum file size in bytes (10 MB) */
   MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024,
   /** Allowed MIME types for CV uploads */
-  ALLOWED_TYPES: [
+  ALLOWED_MIME_TYPES: [
     'application/pdf',
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -88,12 +94,14 @@ export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, string> = {
     'Invalid file type. Please upload a PDF, DOC, or DOCX file.',
   [CvUploadErrorCode.FILE_SIZE_EXCEEDED]:
     `File size exceeds the maximum limit of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB}MB.`,
-  [CvUploadErrorCode.FILE_CORRUPTED]:
+  [CvUploadErrorCode.CORRUPTED_FILE]:
     'The file appears to be corrupted or cannot be read.',
   [CvUploadErrorCode.SERVER_ERROR]:
     'An error occurred while processing your upload. Please try again.',
-  [CvUploadErrorCode.NETWORK_TIMEOUT]:
-    'The upload timed out. Please check your connection and try again.',
+  [CvUploadErrorCode.NETWORK_ERROR]:
+    'A network error occurred. Please check your connection and try again.',
+  [CvUploadErrorCode.PARSING_ERROR]:
+    'Unable to parse the CV content. Please ensure the file is not corrupted.',
   [CvUploadErrorCode.UNKNOWN_ERROR]:
     'An unexpected error occurred. Please try again.',
 };
@@ -109,7 +117,7 @@ export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, string> = {
 export function createCvUploadError(
   code: CvUploadErrorCode,
   message?: string,
-  details?: CvUploadErrorDetails
+  details?: Record<string, unknown>
 ): CvUploadErrorResponse {
   return {
     code,
@@ -142,18 +150,36 @@ export function isCvUploadError(
  * Validates a file against CV upload constraints.
  *
  * @param fileSize - The file size in bytes
- * @param fileType - The MIME type of the file
+ * @param mimeType - The MIME type of the file
  * @returns The error code if validation fails, or null if valid
  */
 export function validateCvFile(
   fileSize: number,
-  fileType: string
+  mimeType: string
 ): CvUploadErrorCode | null {
   if (fileSize > CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES) {
     return CvUploadErrorCode.FILE_SIZE_EXCEEDED;
   }
 
-  if (!CV_UPLOAD_CONSTRAINTS.ALLOWED_TYPES.includes(fileType)) {
+  if (!CV_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES.includes(mimeType)) {
+    return CvUploadErrorCode.INVALID_FILE_TYPE;
+  }
+
+  return null;
+}
+
+/**
+ * Validates a file extension against allowed extensions.
+ *
+ * @param fileName - The name of the file including extension
+ * @returns The error code if validation fails, or null if valid
+ */
+export function validateCvFileExtension(
+  fileName: string
+): CvUploadErrorCode | null {
+  const extension = fileName.toLowerCase().slice(fileName.lastIndexOf('.'));
+  
+  if (!CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.includes(extension)) {
     return CvUploadErrorCode.INVALID_FILE_TYPE;
   }
 

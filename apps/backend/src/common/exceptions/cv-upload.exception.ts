@@ -3,16 +3,36 @@
  * Provides structured error responses for various CV upload failure scenarios.
  */
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { CvUploadErrorCode } from '@rcruit-flow/dto';
+import { CvUploadErrorCode, CvUploadErrorResponse } from '@rcruit-flow/dto';
 
 /**
  * Base exception class for CV upload related errors.
  * Extends NestJS HttpException to provide structured error responses
- * with specific error codes and messages.
+ * with specific error codes, messages, and optional details.
  */
 export class CvUploadException extends HttpException {
-  constructor(code: CvUploadErrorCode, message: string, status: HttpStatus) {
-    super({ code, message }, status);
+  constructor(code: CvUploadErrorCode, message: string, details?: Record<string, unknown>) {
+    const response: CvUploadErrorResponse = { code, message, details };
+    const status = CvUploadException.getHttpStatus(code);
+    super(response, status);
+  }
+
+  /**
+   * Maps error codes to appropriate HTTP status codes.
+   */
+  private static getHttpStatus(code: CvUploadErrorCode): HttpStatus {
+    switch (code) {
+      case CvUploadErrorCode.INVALID_FILE_TYPE:
+        return HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+      case CvUploadErrorCode.FILE_SIZE_EXCEEDED:
+        return HttpStatus.PAYLOAD_TOO_LARGE;
+      case CvUploadErrorCode.CORRUPTED_FILE:
+      case CvUploadErrorCode.PARSING_ERROR:
+        return HttpStatus.UNPROCESSABLE_ENTITY;
+      case CvUploadErrorCode.SERVER_ERROR:
+      default:
+        return HttpStatus.INTERNAL_SERVER_ERROR;
+    }
   }
 }
 
@@ -21,11 +41,11 @@ export class CvUploadException extends HttpException {
  * Accepted formats are: PDF, DOC, DOCX
  */
 export class InvalidFileTypeException extends CvUploadException {
-  constructor() {
+  constructor(receivedType: string) {
     super(
       CvUploadErrorCode.INVALID_FILE_TYPE,
-      'Invalid file type. Accepted formats: PDF, DOC, DOCX',
-      HttpStatus.BAD_REQUEST,
+      'Invalid file type provided',
+      { receivedType }
     );
   }
 }
@@ -34,11 +54,11 @@ export class InvalidFileTypeException extends CvUploadException {
  * Exception thrown when an uploaded file exceeds the maximum allowed size.
  */
 export class FileSizeExceededException extends CvUploadException {
-  constructor(maxSizeMB: number) {
+  constructor(fileSize: number, maxSize: number) {
     super(
       CvUploadErrorCode.FILE_SIZE_EXCEEDED,
-      `File size exceeds maximum allowed size of ${maxSizeMB}MB`,
-      HttpStatus.PAYLOAD_TOO_LARGE,
+      'File size exceeds maximum allowed',
+      { fileSize, maxSize }
     );
   }
 }
@@ -46,25 +66,24 @@ export class FileSizeExceededException extends CvUploadException {
 /**
  * Exception thrown when an uploaded file appears to be corrupted or unreadable.
  */
-export class FileCorruptedException extends CvUploadException {
+export class CorruptedFileException extends CvUploadException {
   constructor() {
     super(
-      CvUploadErrorCode.FILE_CORRUPTED,
-      'File appears to be corrupted or unreadable',
-      HttpStatus.UNPROCESSABLE_ENTITY,
+      CvUploadErrorCode.CORRUPTED_FILE,
+      'File appears to be corrupted or unreadable'
     );
   }
 }
 
 /**
- * Exception thrown when an error occurs during CV processing.
+ * Exception thrown when CV content parsing fails.
  */
-export class CvProcessingException extends CvUploadException {
-  constructor() {
+export class CvParsingException extends CvUploadException {
+  constructor(reason?: string) {
     super(
-      CvUploadErrorCode.SERVER_ERROR,
-      'An error occurred while processing the CV',
-      HttpStatus.INTERNAL_SERVER_ERROR,
+      CvUploadErrorCode.PARSING_ERROR,
+      'Failed to parse CV content',
+      reason ? { reason } : undefined
     );
   }
 }

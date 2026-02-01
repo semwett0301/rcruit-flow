@@ -5,56 +5,56 @@
  * Uses shared constraints and error codes from the DTO package for consistency.
  */
 
-import { CvUploadErrorCode, CV_UPLOAD_CONSTRAINTS, CvUploadErrorResponse } from '@rcruit-flow/dto';
+import { CvUploadErrorCode, CV_UPLOAD_CONSTRAINTS } from '@rcruit-flow/dto';
+
+/**
+ * Result of CV file validation
+ */
+export interface ValidationResult {
+  isValid: boolean;
+  errorCode?: CvUploadErrorCode;
+}
 
 /**
  * Validates a CV file against upload constraints.
  * 
- * Checks both file type (MIME type and extension) and file size.
- * Returns an error response if validation fails, or null if the file is valid.
+ * Checks file type (MIME type and extension), file size, and for empty files.
+ * Returns a ValidationResult indicating whether the file is valid.
  * 
  * @param file - The File object to validate
- * @returns CvUploadErrorResponse if validation fails, null if valid
+ * @returns ValidationResult with isValid flag and optional errorCode
  * 
  * @example
  * ```typescript
- * const error = validateCvFile(selectedFile);
- * if (error) {
- *   showError(error.message);
+ * const result = validateCvFile(selectedFile);
+ * if (!result.isValid) {
+ *   showError(result.errorCode);
  *   return;
  * }
  * // Proceed with upload
  * ```
  */
-export function validateCvFile(file: File): CvUploadErrorResponse | null {
+export function validateCvFile(file: File): ValidationResult {
   // Check file type
-  if (!CV_UPLOAD_CONSTRAINTS.ALLOWED_TYPES.includes(file.type)) {
-    const extension = '.' + file.name.split('.').pop()?.toLowerCase();
-    if (!CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.includes(extension)) {
-      return {
-        code: CvUploadErrorCode.INVALID_FILE_TYPE,
-        message: 'Invalid file type',
-        details: {
-          allowedTypes: CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS,
-          currentType: file.type || extension
-        }
-      };
-    }
+  const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+  const isValidType = CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.includes(fileExtension) ||
+    CV_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES.includes(file.type);
+  
+  if (!isValidType) {
+    return { isValid: false, errorCode: CvUploadErrorCode.INVALID_FILE_TYPE };
   }
-
+  
   // Check file size
   if (file.size > CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES) {
-    return {
-      code: CvUploadErrorCode.FILE_SIZE_EXCEEDED,
-      message: 'File size exceeded',
-      details: {
-        maxSize: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB,
-        currentSize: Math.round(file.size / (1024 * 1024) * 100) / 100
-      }
-    };
+    return { isValid: false, errorCode: CvUploadErrorCode.FILE_SIZE_EXCEEDED };
   }
-
-  return null;
+  
+  // Check for empty file (potential corruption indicator)
+  if (file.size === 0) {
+    return { isValid: false, errorCode: CvUploadErrorCode.CORRUPTED_FILE };
+  }
+  
+  return { isValid: true };
 }
 
 /**

@@ -25,33 +25,38 @@ export interface UserFriendlyError {
 export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, UserFriendlyError> = {
   [CvUploadErrorCode.INVALID_FILE_TYPE]: {
     title: 'Unsupported File Format',
-    message: 'The file you selected is not in a supported format. We accept PDF, DOC, and DOCX files.',
-    action: 'Please save your CV in one of the supported formats and try uploading again.'
+    message: `The file you selected is not supported. Please upload a file in one of these formats: ${CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.join(', ').toUpperCase()}.`,
+    action: 'Select a PDF, DOC, or DOCX file and try again.'
   },
   [CvUploadErrorCode.FILE_SIZE_EXCEEDED]: {
     title: 'File Too Large',
-    message: `Your file exceeds the maximum allowed size of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB}MB.`,
-    action: 'Please reduce the file size by compressing images or removing unnecessary content, then try again.'
+    message: `The file you selected exceeds the maximum allowed size of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB}MB.`,
+    action: 'Please reduce the file size or choose a smaller file and try again.'
   },
-  [CvUploadErrorCode.FILE_CORRUPTED]: {
-    title: 'Unable to Read File',
-    message: "We couldn't read your file. It may be corrupted or damaged.",
-    action: 'Please check that your file opens correctly on your device, or try exporting it again from your document editor.'
+  [CvUploadErrorCode.CORRUPTED_FILE]: {
+    title: 'File Cannot Be Read',
+    message: 'The file appears to be corrupted or damaged and cannot be processed.',
+    action: 'Please try uploading a different copy of your CV or save it in a different format.'
   },
   [CvUploadErrorCode.SERVER_ERROR]: {
     title: 'Upload Failed',
-    message: 'We encountered an issue while processing your CV.',
-    action: 'Please try again in a few moments. If the problem persists, contact our support team for assistance.'
+    message: 'We encountered an issue while processing your CV. This is not your fault.',
+    action: 'Please try again in a few moments. If the problem persists, contact our support team.'
   },
-  [CvUploadErrorCode.NETWORK_TIMEOUT]: {
-    title: 'Connection Timed Out',
-    message: 'The upload took too long to complete. This might be due to a slow internet connection.',
-    action: 'Please check your internet connection and try uploading again.'
+  [CvUploadErrorCode.NETWORK_ERROR]: {
+    title: 'Connection Problem',
+    message: 'Your CV could not be uploaded due to a network issue.',
+    action: 'Please check your internet connection and try again.'
+  },
+  [CvUploadErrorCode.PARSING_ERROR]: {
+    title: 'Unable to Process CV',
+    message: 'We were unable to extract information from your CV.',
+    action: 'Please ensure your CV is not password-protected and try again, or upload a different format.'
   },
   [CvUploadErrorCode.UNKNOWN_ERROR]: {
     title: 'Something Went Wrong',
     message: 'An unexpected error occurred while uploading your CV.',
-    action: 'Please try again. If the issue continues, contact our support team.'
+    action: 'Please try again. If the problem continues, contact support for assistance.'
   }
 };
 
