@@ -28,9 +28,24 @@ describe('validateCvFile', () => {
     expect(result?.code).toBe(CvUploadErrorCode.INVALID_FILE_TYPE);
   });
 
+  it('returns error for text file type', () => {
+    const file = new File(['content'], 'resume.txt', { type: 'text/plain' });
+    
+    const result = validateCvFile(file);
+    expect(result?.code).toBe(CvUploadErrorCode.INVALID_FILE_TYPE);
+  });
+
   it('returns error for file exceeding size limit', () => {
     const file = new File(['content'], 'resume.pdf', { type: 'application/pdf' });
     Object.defineProperty(file, 'size', { value: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE + 1 });
+    
+    const result = validateCvFile(file);
+    expect(result?.code).toBe(CvUploadErrorCode.FILE_SIZE_EXCEEDED);
+  });
+
+  it('returns error for very large file', () => {
+    const file = new File(['content'], 'resume.pdf', { type: 'application/pdf' });
+    Object.defineProperty(file, 'size', { value: 15 * 1024 * 1024 }); // 15MB
     
     const result = validateCvFile(file);
     expect(result?.code).toBe(CvUploadErrorCode.FILE_SIZE_EXCEEDED);
@@ -57,23 +72,28 @@ describe('validateCvFile', () => {
 });
 
 describe('mapApiErrorToCode', () => {
-  it('maps timeout errors correctly', () => {
+  it('maps timeout error correctly', () => {
+    const error = new Error('timeout');
+    error.name = 'AbortError';
+    
+    expect(mapApiErrorToCode(error)).toBe(CvUploadErrorCode.NETWORK_TIMEOUT);
+  });
+
+  it('maps timeout errors with different message correctly', () => {
     const error = new Error('Request timeout');
     error.name = 'AbortError';
     
     expect(mapApiErrorToCode(error)).toBe(CvUploadErrorCode.NETWORK_TIMEOUT);
   });
 
-  it('maps API error responses correctly', () => {
-    const apiError = { code: CvUploadErrorCode.FILE_CORRUPTED };
+  it('maps API error response correctly', () => {
+    const error = { code: CvUploadErrorCode.FILE_CORRUPTED };
     
-    expect(mapApiErrorToCode(apiError)).toBe(CvUploadErrorCode.FILE_CORRUPTED);
+    expect(mapApiErrorToCode(error)).toBe(CvUploadErrorCode.FILE_CORRUPTED);
   });
 
-  it('returns UNKNOWN_ERROR for unrecognized errors', () => {
-    const error = { something: 'else' };
-    
-    expect(mapApiErrorToCode(error)).toBe(CvUploadErrorCode.UNKNOWN_ERROR);
+  it('returns unknown error for unrecognized errors', () => {
+    expect(mapApiErrorToCode({})).toBe(CvUploadErrorCode.UNKNOWN_ERROR);
   });
 
   it('returns UNKNOWN_ERROR for null input', () => {
@@ -89,10 +109,9 @@ describe('mapApiErrorToCode', () => {
     
     const result = mapApiErrorToCode(error);
     // Should map to network-related error or unknown
-    expect([
-      CvUploadErrorCode.NETWORK_TIMEOUT,
-      CvUploadErrorCode.UNKNOWN_ERROR
-    ]).toContain(result);
+    expect([CvUploadErrorCode.NETWORK_TIMEOUT, CvUploadErrorCode.UNKNOWN_ERROR]).toContain(
+      result
+    );
   });
 
   it('preserves valid error codes from API response', () => {
@@ -105,5 +124,16 @@ describe('mapApiErrorToCode', () => {
     const apiError = { code: CvUploadErrorCode.FILE_SIZE_EXCEEDED };
     
     expect(mapApiErrorToCode(apiError)).toBe(CvUploadErrorCode.FILE_SIZE_EXCEEDED);
+  });
+
+  it('returns UNKNOWN_ERROR for error object without code property', () => {
+    const error = { message: 'Something went wrong' };
+    
+    expect(mapApiErrorToCode(error)).toBe(CvUploadErrorCode.UNKNOWN_ERROR);
+  });
+
+  it('returns UNKNOWN_ERROR for primitive values', () => {
+    expect(mapApiErrorToCode('error string')).toBe(CvUploadErrorCode.UNKNOWN_ERROR);
+    expect(mapApiErrorToCode(42)).toBe(CvUploadErrorCode.UNKNOWN_ERROR);
   });
 });

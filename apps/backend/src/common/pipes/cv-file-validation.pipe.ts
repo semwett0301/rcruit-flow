@@ -8,7 +8,7 @@
  * - File integrity (non-empty buffer)
  */
 import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
-import { CV_UPLOAD_CONSTRAINTS } from '@repo/dto';
+import { CV_UPLOAD_CONSTRAINTS } from '@rcruit-flow/dto';
 import { CvUploadException } from '../exceptions/cv-upload.exception';
 
 @Injectable()
@@ -42,10 +42,10 @@ export class CvFileValidationPipe implements PipeTransform {
     }
 
     // Validate file size against maximum allowed size
-    if (file.size > CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE) {
+    if (file.size > CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES) {
       throw CvUploadException.fileSizeExceeded(
-        file.size,
-        CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE,
+        Math.round((file.size / (1024 * 1024)) * 100) / 100,
+        CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB,
       );
     }
 

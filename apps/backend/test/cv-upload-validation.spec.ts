@@ -2,7 +2,6 @@
  * Integration tests for CV upload validation
  * Tests the CvFileValidationPipe for various file validation scenarios
  */
-import { Test, TestingModule } from '@nestjs/testing';
 import { CvFileValidationPipe } from '../src/common/pipes/cv-file-validation.pipe';
 import { CvUploadException } from '../src/common/exceptions/cv-upload.exception';
 import { CvUploadErrorCode, CV_UPLOAD_CONSTRAINTS } from '@repo/dto';
@@ -10,7 +9,7 @@ import { CvUploadErrorCode, CV_UPLOAD_CONSTRAINTS } from '@repo/dto';
 describe('CvFileValidationPipe', () => {
   let pipe: CvFileValidationPipe;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     pipe = new CvFileValidationPipe();
   });
 
@@ -69,7 +68,7 @@ describe('CvFileValidationPipe', () => {
         fail('Should have thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(CvUploadException);
-        const response = (error as CvUploadException).getResponse() as any;
+        const response = (error as CvUploadException).getResponse() as Record<string, unknown>;
         expect(response.code).toBe(CvUploadErrorCode.INVALID_FILE_TYPE);
       }
     });
@@ -86,7 +85,7 @@ describe('CvFileValidationPipe', () => {
         fail('Should have thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(CvUploadException);
-        const response = (error as CvUploadException).getResponse() as any;
+        const response = (error as CvUploadException).getResponse() as Record<string, unknown>;
         expect(response.code).toBe(CvUploadErrorCode.INVALID_FILE_TYPE);
       }
     });
@@ -103,7 +102,24 @@ describe('CvFileValidationPipe', () => {
         fail('Should have thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(CvUploadException);
-        const response = (error as CvUploadException).getResponse() as any;
+        const response = (error as CvUploadException).getResponse() as Record<string, unknown>;
+        expect(response.code).toBe(CvUploadErrorCode.INVALID_FILE_TYPE);
+      }
+    });
+
+    it('should throw for invalid file type (application/javascript)', () => {
+      const file = {
+        mimetype: 'application/javascript',
+        size: 1024,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      try {
+        pipe.transform(file, { type: 'custom' });
+        fail('Should have thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CvUploadException);
+        const response = (error as CvUploadException).getResponse() as Record<string, unknown>;
         expect(response.code).toBe(CvUploadErrorCode.INVALID_FILE_TYPE);
       }
     });
@@ -122,7 +138,7 @@ describe('CvFileValidationPipe', () => {
         fail('Should have thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(CvUploadException);
-        const response = (error as CvUploadException).getResponse() as any;
+        const response = (error as CvUploadException).getResponse() as Record<string, unknown>;
         expect(response.code).toBe(CvUploadErrorCode.FILE_SIZE_EXCEEDED);
       }
     });
@@ -139,8 +155,23 @@ describe('CvFileValidationPipe', () => {
         fail('Should have thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(CvUploadException);
-        const response = (error as CvUploadException).getResponse() as any;
+        const response = (error as CvUploadException).getResponse() as Record<string, unknown>;
         expect(response.code).toBe(CvUploadErrorCode.FILE_SIZE_EXCEEDED);
+      }
+    });
+
+    it('should throw for zero-size file', () => {
+      const file = {
+        mimetype: 'application/pdf',
+        size: 0,
+        buffer: Buffer.from(''),
+      } as Express.Multer.File;
+
+      try {
+        pipe.transform(file, { type: 'custom' });
+        fail('Should have thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CvUploadException);
       }
     });
   });
@@ -158,7 +189,7 @@ describe('CvFileValidationPipe', () => {
         fail('Should have thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(CvUploadException);
-        const response = (error as CvUploadException).getResponse() as any;
+        const response = (error as CvUploadException).getResponse() as Record<string, unknown>;
         expect(response.code).toBe(CvUploadErrorCode.FILE_CORRUPTED);
       }
     });
@@ -175,7 +206,7 @@ describe('CvFileValidationPipe', () => {
         fail('Should have thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(CvUploadException);
-        const response = (error as CvUploadException).getResponse() as any;
+        const response = (error as CvUploadException).getResponse() as Record<string, unknown>;
         expect(response.code).toBe(CvUploadErrorCode.FILE_CORRUPTED);
       }
     });
@@ -192,7 +223,7 @@ describe('CvFileValidationPipe', () => {
         fail('Should have thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(CvUploadException);
-        const response = (error as CvUploadException).getResponse() as any;
+        const response = (error as CvUploadException).getResponse() as Record<string, unknown>;
         expect(response.code).toBe(CvUploadErrorCode.FILE_CORRUPTED);
       }
     });
@@ -211,6 +242,55 @@ describe('CvFileValidationPipe', () => {
     it('should throw for null file', () => {
       try {
         pipe.transform(null as unknown as Express.Multer.File, { type: 'custom' });
+        fail('Should have thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CvUploadException);
+      }
+    });
+  });
+
+  describe('Edge cases', () => {
+    it('should handle file with missing mimetype', () => {
+      const file = {
+        mimetype: undefined,
+        size: 1024,
+        buffer: Buffer.from('content'),
+      } as unknown as Express.Multer.File;
+
+      try {
+        pipe.transform(file, { type: 'custom' });
+        fail('Should have thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CvUploadException);
+      }
+    });
+
+    it('should handle file with empty mimetype', () => {
+      const file = {
+        mimetype: '',
+        size: 1024,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      try {
+        pipe.transform(file, { type: 'custom' });
+        fail('Should have thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(CvUploadException);
+        const response = (error as CvUploadException).getResponse() as Record<string, unknown>;
+        expect(response.code).toBe(CvUploadErrorCode.INVALID_FILE_TYPE);
+      }
+    });
+
+    it('should handle file with negative size', () => {
+      const file = {
+        mimetype: 'application/pdf',
+        size: -1,
+        buffer: Buffer.from('content'),
+      } as Express.Multer.File;
+
+      try {
+        pipe.transform(file, { type: 'custom' });
         fail('Should have thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(CvUploadException);

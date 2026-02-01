@@ -40,6 +40,12 @@
   font-style: italic;
 }
 
+.cv-upload-error__reference {
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin: 0 0 1rem 0;
+}
+
 .cv-upload-error__buttons {
   display: flex;
   gap: 0.75rem;
@@ -51,13 +57,13 @@
   border-radius: 6px;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  border: none;
+  transition: background-color 0.2s ease;
 }
 
 .cv-upload-error__btn--primary {
   background-color: #dc2626;
   color: white;
-  border: none;
 }
 
 .cv-upload-error__btn--primary:hover {
@@ -71,5 +77,5 @@
 }
 
 .cv-upload-error__btn--secondary:hover {
-  background-color: #f3f4f6;
+  background-color: #f9fafb;
 }

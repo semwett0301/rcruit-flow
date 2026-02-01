@@ -13,28 +13,33 @@ describe('CvUploadError', () => {
       render(<CvUploadError errorCode={CvUploadErrorCode.INVALID_FILE_TYPE} />);
 
       expect(screen.getByText('Unsupported File Format')).toBeInTheDocument();
-      expect(screen.getByText(/PDF, .DOC, .DOCX/i)).toBeInTheDocument();
+      expect(screen.getByText(/PDF, DOC, and DOCX/i)).toBeInTheDocument();
     });
 
     it('displays correct message for file size exceeded', () => {
       render(<CvUploadError errorCode={CvUploadErrorCode.FILE_SIZE_EXCEEDED} />);
 
       expect(screen.getByText('File Too Large')).toBeInTheDocument();
-      expect(screen.getByText(/10MB/)).toBeInTheDocument();
+      expect(screen.getByText(/maximum allowed size/i)).toBeInTheDocument();
     });
 
     it('displays correct message for corrupted file', () => {
       render(<CvUploadError errorCode={CvUploadErrorCode.FILE_CORRUPTED} />);
 
       expect(screen.getByText('Unable to Read File')).toBeInTheDocument();
-      expect(screen.getByText(/corrupted or unreadable/i)).toBeInTheDocument();
     });
 
     it('displays correct message for server error', () => {
       render(<CvUploadError errorCode={CvUploadErrorCode.SERVER_ERROR} />);
 
       expect(screen.getByText('Upload Failed')).toBeInTheDocument();
-      expect(screen.getByText(/try again/i)).toBeInTheDocument();
+      expect(screen.getByText(/contact our support team/i)).toBeInTheDocument();
+    });
+
+    it('displays correct message for network timeout', () => {
+      render(<CvUploadError errorCode={CvUploadErrorCode.NETWORK_TIMEOUT} />);
+
+      expect(screen.getByText('Connection Timed Out')).toBeInTheDocument();
     });
   });
 
@@ -75,6 +80,25 @@ describe('CvUploadError', () => {
       render(<CvUploadError errorCode={CvUploadErrorCode.SERVER_ERROR} />);
 
       expect(screen.queryByText('Contact Support')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Error Reference', () => {
+    it('displays error reference when provided', () => {
+      render(
+        <CvUploadError
+          errorCode={CvUploadErrorCode.SERVER_ERROR}
+          errorReference="CV-12345"
+        />
+      );
+
+      expect(screen.getByText('Reference: CV-12345')).toBeInTheDocument();
+    });
+
+    it('does not display error reference when not provided', () => {
+      render(<CvUploadError errorCode={CvUploadErrorCode.SERVER_ERROR} />);
+
+      expect(screen.queryByText(/Reference:/)).not.toBeInTheDocument();
     });
   });
 

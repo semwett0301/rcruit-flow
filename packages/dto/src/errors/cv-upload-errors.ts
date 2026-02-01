@@ -56,16 +56,18 @@ export interface CvUploadErrorResponse {
  * and backend processing.
  */
 export const CV_UPLOAD_CONSTRAINTS = {
+  /** Maximum file size in megabytes */
+  MAX_FILE_SIZE_MB: 10,
   /** Maximum file size in bytes (10 MB) */
-  MAX_FILE_SIZE: 10 * 1024 * 1024,
+  MAX_FILE_SIZE_BYTES: 10 * 1024 * 1024,
   /** Allowed MIME types for CV uploads */
   ALLOWED_TYPES: [
     'application/pdf',
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  ],
+  ] as const,
   /** Allowed file extensions for CV uploads */
-  ALLOWED_EXTENSIONS: ['.pdf', '.doc', '.docx'],
+  ALLOWED_EXTENSIONS: ['.pdf', '.doc', '.docx'] as const,
 } as const;
 
 /**
@@ -80,10 +82,13 @@ export type CvUploadConstraints = typeof CV_UPLOAD_CONSTRAINTS;
  */
 export const CV_UPLOAD_ERROR_MESSAGES: Record<CvUploadErrorCode, string> = {
   [CvUploadErrorCode.INVALID_FILE_TYPE]: `Invalid file type. Allowed types: ${CV_UPLOAD_CONSTRAINTS.ALLOWED_EXTENSIONS.join(', ')}`,
-  [CvUploadErrorCode.FILE_SIZE_EXCEEDED]: `File size exceeds the maximum limit of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE / (1024 * 1024)}MB`,
-  [CvUploadErrorCode.FILE_CORRUPTED]: 'The uploaded file appears to be corrupted or cannot be read',
-  [CvUploadErrorCode.SERVER_ERROR]: 'An internal server error occurred. Please try again later',
-  [CvUploadErrorCode.NETWORK_TIMEOUT]: 'The upload timed out. Please check your connection and try again',
+  [CvUploadErrorCode.FILE_SIZE_EXCEEDED]: `File size exceeds the maximum limit of ${CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB}MB`,
+  [CvUploadErrorCode.FILE_CORRUPTED]:
+    'The uploaded file appears to be corrupted or cannot be read',
+  [CvUploadErrorCode.SERVER_ERROR]:
+    'An internal server error occurred. Please try again later',
+  [CvUploadErrorCode.NETWORK_TIMEOUT]:
+    'The upload timed out. Please check your connection and try again',
   [CvUploadErrorCode.UNKNOWN_ERROR]: 'An unexpected error occurred. Please try again',
 };
 

@@ -7,7 +7,7 @@ import {
   CvUploadErrorCode,
   CV_UPLOAD_CONSTRAINTS,
   CvUploadErrorResponse,
-} from '@repo/dto';
+} from '@rcruit-flow/dto';
 
 /**
  * Validates a CV file against upload constraints.
@@ -16,7 +16,7 @@ import {
  * @param file - The File object to validate
  * @returns CvUploadErrorResponse if validation fails, null if valid
  */
-export const validateCvFile = (file: File): CvUploadErrorResponse | null => {
+export function validateCvFile(file: File): CvUploadErrorResponse | null {
   // Check file type by MIME type first, then by extension as fallback
   if (!CV_UPLOAD_CONSTRAINTS.ALLOWED_TYPES.includes(file.type)) {
     const extension = '.' + file.name.split('.').pop()?.toLowerCase();
@@ -33,19 +33,19 @@ export const validateCvFile = (file: File): CvUploadErrorResponse | null => {
   }
 
   // Check file size against maximum allowed
-  if (file.size > CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE) {
+  if (file.size > CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_BYTES) {
     return {
       code: CvUploadErrorCode.FILE_SIZE_EXCEEDED,
       message: 'File size exceeded',
       details: {
-        maxSize: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE,
-        currentSize: file.size,
+        maxSize: CV_UPLOAD_CONSTRAINTS.MAX_FILE_SIZE_MB,
+        currentSize: Math.round((file.size / (1024 * 1024)) * 100) / 100,
       },
     };
   }
 
   return null;
-};
+}
 
 /**
  * Maps API errors or network errors to appropriate CvUploadErrorCode.
@@ -54,7 +54,7 @@ export const validateCvFile = (file: File): CvUploadErrorResponse | null => {
  * @param error - The error to map (can be Error, API response, or unknown)
  * @returns The corresponding CvUploadErrorCode
  */
-export const mapApiErrorToCode = (error: unknown): CvUploadErrorCode => {
+export function mapApiErrorToCode(error: unknown): CvUploadErrorCode {
   // Handle standard Error objects
   if (error instanceof Error) {
     // Check for timeout/abort errors
@@ -69,16 +69,12 @@ export const mapApiErrorToCode = (error: unknown): CvUploadErrorCode => {
 
   // Check for API error response with code property
   if (typeof error === 'object' && error !== null && 'code' in error) {
-    const apiError = error as { code: string };
-    if (
-      Object.values(CvUploadErrorCode).includes(
-        apiError.code as CvUploadErrorCode
-      )
-    ) {
-      return apiError.code as CvUploadErrorCode;
+    const code = (error as { code: string }).code;
+    if (Object.values(CvUploadErrorCode).includes(code as CvUploadErrorCode)) {
+      return code as CvUploadErrorCode;
     }
   }
 
   // Default to unknown error for unhandled cases
   return CvUploadErrorCode.UNKNOWN_ERROR;
-};
+}
