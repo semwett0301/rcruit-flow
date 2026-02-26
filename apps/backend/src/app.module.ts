@@ -5,6 +5,7 @@ import { DatabaseModule } from 'infrastructure/persistence/database.module';
 import { CvsModule } from 'interfaces/http/cv/cvs.module';
 import { EmailsModule } from './interfaces/http/emails/emails.module';
 import { HealthModule } from './interfaces/http/health/health.module';
+import { PusherModule } from './pusher/pusher.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { HealthModule } from './interfaces/http/health/health.module';
     DatabaseModule,
     HealthModule,
     EmailsModule,
+    PusherModule,
   ],
 })
 export class AppModule {}
