@@ -7,9 +7,11 @@ This document describes the Pusher real-time messaging integration for party inv
 ## Table of Contents
 
 - [Channel Types](#channel-types)
+- [Authentication Flow](#authentication-flow)
 - [Backend Setup](#backend-setup)
 - [Frontend Setup](#frontend-setup)
 - [Event Types](#event-types)
+- [Working Example](#working-example)
 - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 
@@ -19,17 +21,157 @@ This document describes the Pusher real-time messaging integration for party inv
 
 ### Production & Development Channels
 
-| Channel Pattern | Description | Auth Required |
-|----------------|-------------|---------------|
-| `private-user-<user-id>` | User-specific notifications (party invitations) | Yes - user must match |
-| `presence-party-<party-id>` | Party member presence tracking | Yes - must be party member |
-| `private-party-<party-id>` | Party-specific events | Yes - must be party member |
+| Channel Pattern | Description | Auth Required | Use Case |
+|----------------|-------------|---------------|----------|
+| `private-user-<userId>` | User-specific private channel | Yes - user must match | Party invitations, personal notifications |
+| `private-party-<partyId>` | Party-specific private channel | Yes - must be party member | Party updates, member changes |
+| `presence-party-<partyId>` | Party member presence tracking | Yes - must be party member | Online member tracking |
 
 ### Channel Naming Conventions
 
 - **Private channels**: Prefixed with `private-`, require authentication
 - **Presence channels**: Prefixed with `presence-`, require authentication and track online members
 - **Public channels**: No prefix, no authentication required (not used in this app)
+
+---
+
+## Authentication Flow
+
+The Pusher authentication flow ensures that users can only subscribe to channels they have permission to access.
+
+### 1. Client Initialization
+
+The client initializes Pusher with a custom authorizer that calls the backend auth endpoint:
+
+```typescript
+import Pusher from 'pusher-js';
+
+const pusher = new Pusher(PUSHER_APP_KEY, {
+  cluster: PUSHER_CLUSTER,
+  authorizer: (channel) => ({
+    authorize: async (socketId, callback) => {
+      try {
+        const response = await fetch('/pusher/auth', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            socket_id: socketId,
+            channel_name: channel.name,
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Auth failed');
+        }
+        
+        const data = await response.json();
+        callback(null, data);
+      } catch (error) {
+        callback(error as Error, null);
+      }
+    },
+  }),
+});
+```
+
+### 2. Server Authentication Endpoint
+
+**Endpoint:** `POST /pusher/auth`
+
+**Headers:**
+- `Authorization: Bearer <jwt_token>` - Required for user identification
+- `Content-Type: application/json` or `application/x-www-form-urlencoded`
+
+**Request Body (JSON):**
+```json
+{
+  "socket_id": "123456.7890123",
+  "channel_name": "private-user-48873148-efcc-4c01-b8a8-56b55f1143e3"
+}
+```
+
+**Request Body (Form URL-encoded):**
+```
+socket_id=123456.7890123&channel_name=private-user-48873148-efcc-4c01-b8a8-56b55f1143e3
+```
+
+**Success Response (200):**
+```json
+{
+  "auth": "<app_key>:<hmac_sha256_signature>"
+}
+```
+
+**For presence channels (200):**
+```json
+{
+  "auth": "<app_key>:<hmac_sha256_signature>",
+  "channel_data": "{\"user_id\":\"123\",\"user_info\":{\"name\":\"John\"}}"
+}
+```
+
+**Error Response (403):**
+```json
+{
+  "error": "Forbidden",
+  "message": "Not authorized to access this channel"
+}
+```
+
+### 3. Signature Generation
+
+The authentication signature is computed using HMAC-SHA256:
+
+**For private channels:**
+```typescript
+import crypto from 'crypto';
+
+const stringToSign = `${socketId}:${channelName}`;
+const signature = crypto
+  .createHmac('sha256', PUSHER_APP_SECRET)
+  .update(stringToSign)
+  .digest('hex');
+const auth = `${PUSHER_APP_KEY}:${signature}`;
+```
+
+**For presence channels:**
+```typescript
+const channelData = JSON.stringify({
+  user_id: userId,
+  user_info: { username: user.username }
+});
+const stringToSign = `${socketId}:${channelName}:${channelData}`;
+const signature = crypto
+  .createHmac('sha256', PUSHER_APP_SECRET)
+  .update(stringToSign)
+  .digest('hex');
+```
+
+### 4. Authorization Logic
+
+The server validates that the user has permission to access the requested channel:
+
+```typescript
+// For user channels: verify the user ID matches
+if (channelName.startsWith('private-user-')) {
+  const channelUserId = channelName.replace('private-user-', '');
+  if (channelUserId !== authenticatedUser.id) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+}
+
+// For party channels: verify user is a party member
+if (channelName.startsWith('private-party-')) {
+  const partyId = channelName.replace('private-party-', '');
+  const isMember = await checkPartyMembership(authenticatedUser.id, partyId);
+  if (!isMember) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+}
+```
 
 ---
 
@@ -45,59 +187,6 @@ PUSHER_APP_ID=your_app_id
 PUSHER_APP_KEY=your_app_key
 PUSHER_APP_SECRET=your_app_secret
 PUSHER_CLUSTER=us2
-```
-
-### Authentication Endpoint
-
-The auth endpoint is available at `POST /pusher/auth`. This endpoint validates that users can only subscribe to channels they have permission to access.
-
-#### Request Format
-
-```http
-POST /pusher/auth
-Content-Type: application/x-www-form-urlencoded
-Authorization: Bearer <jwt_token>
-
-socket_id=123456.789012&channel_name=private-user-<user-id>
-```
-
-#### Response Format
-
-**Success (200):**
-```json
-{
-  "auth": "<app_key>:<hmac_sha256_signature>"
-}
-```
-
-**For presence channels (200):**
-```json
-{
-  "auth": "<app_key>:<hmac_sha256_signature>",
-  "channel_data": "{\"user_id\":\"123\",\"user_info\":{\"name\":\"John\"}}"
-}
-```
-
-**Error (403):**
-```json
-{
-  "error": "Forbidden",
-  "message": "Not authorized to access this channel"
-}
-```
-
-### Signature Generation
-
-The authentication signature is computed using HMAC-SHA256:
-
-**For private channels:**
-```
-signature = HMAC-SHA256(app_secret, "<socket_id>:<channel_name>")
-```
-
-**For presence channels:**
-```
-signature = HMAC-SHA256(app_secret, "<socket_id>:<channel_name>:<channel_data_json>")
 ```
 
 ### Server-Side Event Triggering
@@ -141,7 +230,7 @@ Add the following to your frontend `.env` file:
 # Pusher Configuration (Client-side)
 VITE_PUSHER_APP_KEY=your_app_key
 VITE_PUSHER_CLUSTER=us2
-VITE_API_URL=http://localhost:3000
+VITE_API_BASE_URL=http://localhost:3000
 ```
 
 ### Installation
@@ -150,70 +239,12 @@ VITE_API_URL=http://localhost:3000
 npm install pusher-js
 ```
 
-### Initialization Example
-
-```typescript
-import Pusher from 'pusher-js';
-
-// Initialize Pusher client
-const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
-  cluster: import.meta.env.VITE_PUSHER_CLUSTER,
-  authorizer: (channel) => ({
-    authorize: async (socketId, callback) => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/pusher/auth`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Bearer ${userAccessToken}`,
-          },
-          body: new URLSearchParams({
-            socket_id: socketId,
-            channel_name: channel.name,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Auth failed');
-        }
-
-        const data = await response.json();
-        callback(null, data);
-      } catch (error) {
-        callback(error as Error, null);
-      }
-    },
-  }),
-});
-
-// Subscribe to user channel
-const channel = pusher.subscribe(`private-user-${userId}`);
-
-// Listen for party invitations
-channel.bind('party-invitation-received', (data: PartyInvitationEvent) => {
-  console.log('Received invitation:', data);
-  // Handle the invitation (show toast, update state, etc.)
-});
-
-// Handle subscription errors
-channel.bind('pusher:subscription_error', (error: any) => {
-  console.error('Subscription error:', error);
-});
-
-// Cleanup on unmount
-function cleanup() {
-  channel.unbind_all();
-  pusher.unsubscribe(`private-user-${userId}`);
-}
-```
-
 ### React Hook Usage
 
 ```tsx
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Pusher from 'pusher-js';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
 
 interface UsePusherOptions {
   onPartyInvitation?: (data: PartyInvitationEvent) => void;
@@ -223,9 +254,16 @@ interface UsePusherOptions {
 export function usePusher(options: UsePusherOptions = {}) {
   const { user, accessToken } = useAuth();
   const pusherRef = useRef<Pusher | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (!user || !accessToken) return;
+
+    // Enable debug logging in development
+    if (import.meta.env.DEV) {
+      Pusher.logToConsole = true;
+    }
 
     // Initialize Pusher
     const pusher = new Pusher(import.meta.env.VITE_PUSHER_APP_KEY, {
@@ -234,14 +272,14 @@ export function usePusher(options: UsePusherOptions = {}) {
         authorize: async (socketId, callback) => {
           try {
             const response = await fetch(
-              `${import.meta.env.VITE_API_URL}/pusher/auth`,
+              `${import.meta.env.VITE_API_BASE_URL}/pusher/auth`,
               {
                 method: 'POST',
                 headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'Content-Type': 'application/json',
                   'Authorization': `Bearer ${accessToken}`,
                 },
-                body: new URLSearchParams({
+                body: JSON.stringify({
                   socket_id: socketId,
                   channel_name: channel.name,
                 }),
@@ -263,6 +301,20 @@ export function usePusher(options: UsePusherOptions = {}) {
 
     pusherRef.current = pusher;
 
+    // Handle connection state changes
+    pusher.connection.bind('connected', () => {
+      setIsConnected(true);
+      setError(null);
+    });
+
+    pusher.connection.bind('disconnected', () => {
+      setIsConnected(false);
+    });
+
+    pusher.connection.bind('error', (err: any) => {
+      setError(err);
+    });
+
     // Subscribe to user channel
     const userChannel = pusher.subscribe(`private-user-${user.id}`);
 
@@ -275,9 +327,10 @@ export function usePusher(options: UsePusherOptions = {}) {
       userChannel.bind('party-updated', options.onPartyUpdate);
     }
 
-    // Handle connection state changes
-    pusher.connection.bind('state_change', (states: any) => {
-      console.log('Pusher connection state:', states.current);
+    // Handle subscription errors
+    userChannel.bind('pusher:subscription_error', (err: any) => {
+      console.error('Subscription error:', err);
+      setError(err);
     });
 
     // Cleanup
@@ -288,7 +341,42 @@ export function usePusher(options: UsePusherOptions = {}) {
     };
   }, [user, accessToken, options.onPartyInvitation, options.onPartyUpdate]);
 
-  return pusherRef.current;
+  return { pusher: pusherRef.current, isConnected, error };
+}
+```
+
+---
+
+## Working Example
+
+### Subscribing to User Channel
+
+Example for User ID: `48873148-efcc-4c01-b8a8-56b55f1143e3`
+
+```typescript
+// Frontend - Using the usePusher hook
+import { usePusher } from '@/hooks/usePusher';
+import { usePartyInvitations } from '@/hooks/usePartyInvitations';
+import { toast } from 'sonner';
+
+function NotificationProvider({ children }) {
+  const { isConnected, error } = usePusher({
+    onPartyInvitation: (invitation) => {
+      toast.info(`You've been invited to ${invitation.partyName}!`, {
+        description: `Invited by ${invitation.invitedBy.username}`,
+        action: {
+          label: 'View',
+          onClick: () => navigate(`/parties/${invitation.partyId}`),
+        },
+      });
+    },
+  });
+
+  if (error) {
+    console.error('Pusher error:', error);
+  }
+
+  return children;
 }
 ```
 
@@ -330,7 +418,7 @@ function App() {
 
 **Event name:** `party-invitation-received`
 
-**Channel:** `private-user-<user-id>`
+**Channel:** `private-user-<userId>`
 
 **Payload:**
 ```typescript
@@ -349,7 +437,7 @@ interface PartyInvitationEvent {
 
 **Event name:** `party-updated`
 
-**Channel:** `private-party-<party-id>`
+**Channel:** `private-party-<partyId>`
 
 **Payload:**
 ```typescript
@@ -365,7 +453,7 @@ interface PartyUpdateEvent {
 
 **Event name:** `pusher:member_added` / `pusher:member_removed`
 
-**Channel:** `presence-party-<party-id>`
+**Channel:** `presence-party-<partyId>`
 
 **Payload:**
 ```typescript
@@ -382,47 +470,38 @@ interface PresenceMember {
 
 ## Testing
 
-### Testing with cURL
+### Using cURL
 
-#### Authenticate a Channel
+#### Authenticate a Channel (JSON body)
 
 ```bash
-# Replace <jwt_token> and <user-id> with actual values
+# Authenticate channel
 curl -X POST http://localhost:3000/pusher/auth \
-  -H "Authorization: Bearer <jwt_token>" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "socket_id=123456.789012&channel_name=private-user-<user-id>"
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_jwt_token>" \
+  -d '{"socket_id": "123456.7890123", "channel_name": "private-user-48873148-efcc-4c01-b8a8-56b55f1143e3"}'
 ```
 
-#### Trigger Event via Pusher API (Server-side)
+#### Authenticate a Channel (Form URL-encoded)
 
 ```bash
-#!/bin/bash
-
-# Configuration
-APP_ID="your_app_id"
-APP_KEY="your_app_key"
-APP_SECRET="your_app_secret"
-CLUSTER="us2"
-
-# Event data
-BODY='{"name":"party-invitation-received","channel":"private-user-123","data":"{\"partyId\":\"abc\",\"partyName\":\"Test Party\"}"}'
-
-# Compute required values
-BODY_MD5=$(echo -n "$BODY" | md5sum | cut -d' ' -f1)
-TIMESTAMP=$(date +%s)
-
-# Build string to sign
-STRING_TO_SIGN="POST\n/apps/${APP_ID}/events\nauth_key=${APP_KEY}&auth_timestamp=${TIMESTAMP}&auth_version=1.0&body_md5=${BODY_MD5}"
-
-# Generate signature
-SIGNATURE=$(echo -ne "$STRING_TO_SIGN" | openssl dgst -sha256 -hmac "$APP_SECRET" | cut -d' ' -f2)
-
-# Make request
-curl -X POST "https://api-${CLUSTER}.pusher.com/apps/${APP_ID}/events?auth_key=${APP_KEY}&auth_timestamp=${TIMESTAMP}&auth_version=1.0&body_md5=${BODY_MD5}&auth_signature=${SIGNATURE}" \
-  -H "Content-Type: application/json" \
-  -d "$BODY"
+curl -X POST http://localhost:3000/pusher/auth \
+  -H "Authorization: Bearer <your_jwt_token>" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "socket_id=123456.789012&channel_name=private-user-48873148-efcc-4c01-b8a8-56b55f1143e3"
 ```
+
+#### Trigger Mock Event (Development Only)
+
+```bash
+curl -X POST http://localhost:3000/pusher/mock-event \
+  -H "Content-Type: application/json" \
+  -d '{"channel": "private-user-48873148-efcc-4c01-b8a8-56b55f1143e3", "event": "party-invitation-received", "data": {"partyId": "test-party", "partyName": "Test Party", "invitedBy": {"id": "user-123", "username": "testuser"}}}'
+```
+
+### Using Bruno
+
+Import the collection from `docs/bruno/pusher-auth.bru`
 
 ### Testing with Pusher Debug Console
 
@@ -467,10 +546,11 @@ describe('Pusher Integration', () => {
 #### "Invalid signature" Error
 
 **Causes:**
-1. String being signed doesn't match exactly: `<socket_id>:<channel_name>`
-2. Extra whitespace or encoding issues in the signature string
-3. Incorrect `PUSHER_APP_SECRET`
-4. Signature is base64-encoded instead of hex-encoded
+1. Verify `PUSHER_APP_SECRET` is correct
+2. Check that `socket_id` format is valid (`\d+\.\d+`)
+3. Ensure `channel_name` starts with `private-` or `presence-`
+4. Verify the string being signed is exactly `socket_id:channel_name`
+5. Signature must be hex-encoded, not base64-encoded
 
 **Solutions:**
 ```typescript
@@ -482,22 +562,31 @@ const signature = crypto
   .digest('hex'); // Must be hex, not base64
 ```
 
+#### 400 Error on Auth Endpoint
+
+1. Check JWT token is valid and not expired
+2. Verify request body is JSON with correct fields (`socket_id`, `channel_name`)
+3. Check user has permission to subscribe to the channel
+4. Ensure Content-Type header matches the body format
+
 #### cURL vs Bruno/Postman Differences
 
-- Ensure `Content-Type: application/x-www-form-urlencoded` for auth requests
-- Body must be URL-encoded for form data
-- For JSON bodies, use `Content-Type: application/json`
-- Verify `body_md5` is computed on the exact body string sent
+- Ensure `Content-Type` header matches your body format
+- For form data: `Content-Type: application/x-www-form-urlencoded`
+- For JSON: `Content-Type: application/json`
+- Verify `body_md5` is computed on the exact body string sent (for Pusher API calls)
 
 #### Connection Issues
 
 **Symptoms:** Connection keeps disconnecting or fails to connect
 
 **Solutions:**
-1. Check that `VITE_PUSHER_CLUSTER` matches your Pusher app's cluster
-2. Verify the app key is correct
-3. Check browser console for CORS errors
-4. Ensure your auth endpoint is accessible
+1. Verify Pusher credentials in environment variables
+2. Check that `VITE_PUSHER_CLUSTER` matches your Pusher app's cluster
+3. Verify the app key is correct
+4. Check browser console for CORS errors
+5. Ensure your auth endpoint is accessible
+6. Check network connectivity to Pusher servers
 
 #### Events Not Received
 

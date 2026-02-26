@@ -45,12 +45,12 @@ export class PusherService {
    * Authenticate a private channel subscription
    *
    * Generates HMAC SHA256 signature for private channel authentication.
-   * Signature format: HMAC SHA256 hex digest of <socket_id>:<channel_name>
+   * Pusher expects signature format: HMAC SHA256 hex digest of "socket_id:channel_name"
    *
    * @param socketId - The socket ID from the Pusher connection
-   * @param channelName - The name of the private channel (e.g., 'private-user-123')
+   * @param channelName - The name of the private channel (must start with 'private-')
    * @returns PusherAuthResponse with auth token in format <app_key>:<signature>
-   * @throws Error if socketId or channelName is missing
+   * @throws Error if socketId or channelName is missing or invalid
    */
   authenticatePrivateChannel(
     socketId: string,
@@ -61,19 +61,41 @@ export class PusherService {
       throw new Error('socketId and channelName are required');
     }
 
-    // Construct the string to sign: socket_id:channel_name
+    // Validate channel name format for private channels
+    if (!channelName.startsWith('private-')) {
+      throw new Error('Invalid channel name: must start with "private-"');
+    }
+
+    // Generate the string to sign: "socket_id:channel_name"
     const stringToSign = `${socketId}:${channelName}`;
 
-    // Generate HMAC SHA256 signature
+    // Create HMAC SHA256 signature
     const signature = crypto
       .createHmac('sha256', this.appSecret)
       .update(stringToSign)
       .digest('hex');
 
-    // Return auth response in Pusher format: <app_key>:<signature>
+    // Return auth string in format: "app_key:signature"
     return {
       auth: `${this.appKey}:${signature}`,
     };
+  }
+
+  /**
+   * Alternative: Use Pusher SDK's built-in authentication
+   *
+   * This method uses the official Pusher SDK's authorizeChannel method
+   * which handles the signature generation internally.
+   *
+   * @param socketId - The socket ID from the Pusher connection
+   * @param channelName - The name of the channel to authorize
+   * @returns Pusher.AuthResponse from the SDK
+   */
+  authenticateWithSDK(
+    socketId: string,
+    channelName: string,
+  ): Pusher.AuthResponse {
+    return this.pusher.authorizeChannel(socketId, channelName);
   }
 
   /**
@@ -129,6 +151,35 @@ export class PusherService {
    * @param data - The data payload to send with the event
    */
   async trigger(channel: string, event: string, data: any): Promise<void> {
+    await this.pusher.trigger(channel, event, data);
+  }
+
+  /**
+   * Trigger an event on a channel (alias for trigger)
+   *
+   * @param channel - The channel name to trigger the event on
+   * @param event - The event name
+   * @param data - The data payload to send with the event
+   */
+  async triggerEvent(channel: string, event: string, data: any): Promise<void> {
+    await this.pusher.trigger(channel, event, data);
+  }
+
+  /**
+   * Trigger event on private-user channel
+   *
+   * Convenience method for sending events to a specific user's private channel.
+   *
+   * @param userId - The user ID to send the event to
+   * @param event - The event name
+   * @param data - The data payload to send with the event
+   */
+  async triggerUserEvent(
+    userId: string,
+    event: string,
+    data: any,
+  ): Promise<void> {
+    const channel = `private-user-${userId}`;
     await this.pusher.trigger(channel, event, data);
   }
 

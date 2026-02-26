@@ -37,6 +37,10 @@ describe('PusherService', () => {
     service = module.get<PusherService>(PusherService);
   });
 
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
   describe('authenticatePrivateChannel', () => {
     it('should generate correct signature for private-user channel', () => {
       const socketId = '123456.789012';
@@ -72,6 +76,21 @@ describe('PusherService', () => {
       expect(result.auth).toBe(`${mockAppKey}:${expectedSignature}`);
     });
 
+    it('should generate correct signature for UUID-based channel names', () => {
+      const socketId = '123456.7890123';
+      const channelName = 'private-user-48873148-efcc-4c01-b8a8-56b55f1143e3';
+
+      const result = service.authenticatePrivateChannel(socketId, channelName);
+
+      const stringToSign = `${socketId}:${channelName}`;
+      const expectedSignature = crypto
+        .createHmac('sha256', mockAppSecret)
+        .update(stringToSign)
+        .digest('hex');
+
+      expect(result.auth).toBe(`${mockAppKey}:${expectedSignature}`);
+    });
+
     it('should throw error when socketId is missing', () => {
       expect(() => {
         service.authenticatePrivateChannel('', 'private-user-123');
@@ -88,6 +107,28 @@ describe('PusherService', () => {
       expect(() => {
         service.authenticatePrivateChannel('', '');
       }).toThrow('socketId and channelName are required');
+    });
+
+    it('should produce different signatures for different channels', () => {
+      const socketId = '123456.789012';
+      const channelName1 = 'private-channel-1';
+      const channelName2 = 'private-channel-2';
+
+      const result1 = service.authenticatePrivateChannel(socketId, channelName1);
+      const result2 = service.authenticatePrivateChannel(socketId, channelName2);
+
+      expect(result1.auth).not.toBe(result2.auth);
+    });
+
+    it('should produce different signatures for different socket IDs on same channel', () => {
+      const socketId1 = '123456.789012';
+      const socketId2 = '654321.210987';
+      const channelName = 'private-test-channel';
+
+      const result1 = service.authenticatePrivateChannel(socketId1, channelName);
+      const result2 = service.authenticatePrivateChannel(socketId2, channelName);
+
+      expect(result1.auth).not.toBe(result2.auth);
     });
   });
 
@@ -187,6 +228,27 @@ describe('PusherService', () => {
       const channelData = JSON.parse(result.channel_data!);
       expect(channelData.user_info).toEqual(userInfo);
     });
+
+    it('should produce different signatures for different users on same channel', () => {
+      const socketId = '123456.789012';
+      const channelName = 'presence-room';
+      const userInfo = { name: 'Test' };
+
+      const result1 = service.authenticatePresenceChannel(
+        socketId,
+        channelName,
+        'user1',
+        userInfo,
+      );
+      const result2 = service.authenticatePresenceChannel(
+        socketId,
+        channelName,
+        'user2',
+        userInfo,
+      );
+
+      expect(result1.auth).not.toBe(result2.auth);
+    });
   });
 
   describe('computeBodyMd5', () => {
@@ -244,6 +306,15 @@ describe('PusherService', () => {
       const result2 = service.computeBodyMd5(body);
 
       expect(result1).toBe(result2);
+    });
+
+    it('should handle special characters in body', () => {
+      const body = JSON.stringify({ message: 'Hello! @#$%^&*() 日本語' });
+      const result = service.computeBodyMd5(body);
+
+      expect(result).toMatch(/^[a-f0-9]{32}$/);
+      const expected = crypto.createHash('md5').update(body).digest('hex');
+      expect(result).toBe(expected);
     });
   });
 });

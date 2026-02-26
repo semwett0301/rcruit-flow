@@ -1,181 +1,230 @@
 /**
- * Integration tests for PusherController
+ * Unit tests for PusherController
  * Tests Pusher authentication endpoints for private and presence channels
  */
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { PusherController } from '../../src/pusher/pusher.controller';
 import { PusherService } from '../../src/pusher/pusher.service';
-import { JwtAuthGuard } from '../../src/auth/guards/jwt-auth.guard';
 
-describe('PusherController (e2e)', () => {
-  let app: INestApplication;
+describe('PusherController', () => {
+  let controller: PusherController;
   let pusherService: PusherService;
 
-  const mockUser = { id: 'user123', email: 'test@example.com' };
+  const mockPusherService = {
+    authenticateWithSDK: jest.fn(),
+    triggerEvent: jest.fn(),
+  };
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [PusherController],
       providers: [
         {
           provide: PusherService,
-          useValue: {
-            authenticatePrivateChannel: jest.fn().mockReturnValue({
-              auth: 'test_key:test_signature',
-            }),
-            authenticatePresenceChannel: jest.fn().mockReturnValue({
-              auth: 'test_key:test_signature',
-              channel_data: JSON.stringify({ user_id: 'user123' }),
-            }),
-          },
+          useValue: mockPusherService,
         },
       ],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useValue({
-        canActivate: (context: any) => {
-          const req = context.switchToHttp().getRequest();
-          req.user = mockUser;
-          return true;
+    }).compile();
+
+    controller = module.get<PusherController>(PusherController);
+    pusherService = module.get<PusherService>(PusherService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('authenticateChannel', () => {
+    const testUserId = '48873148-efcc-4c01-b8a8-56b55f1143e3';
+    const mockRequest = {
+      user: { id: testUserId },
+    } as any;
+
+    it('should authenticate user for their own private channel', () => {
+      const body = {
+        socket_id: '123456.7890123',
+        channel_name: `private-user-${testUserId}`,
+      };
+      const expectedAuth = { auth: 'test-key:test-signature' };
+      mockPusherService.authenticateWithSDK.mockReturnValue(expectedAuth);
+
+      const result = controller.authenticateChannel(body, mockRequest);
+
+      expect(result).toEqual(expectedAuth);
+      expect(mockPusherService.authenticateWithSDK).toHaveBeenCalledWith(
+        body.socket_id,
+        body.channel_name,
+      );
+    });
+
+    it('should throw BadRequestException for missing socket_id', () => {
+      const body = {
+        socket_id: '',
+        channel_name: `private-user-${testUserId}`,
+      };
+
+      expect(() => controller.authenticateChannel(body, mockRequest)).toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should throw BadRequestException for invalid socket_id format', () => {
+      const body = {
+        socket_id: 'invalid-socket-id',
+        channel_name: `private-user-${testUserId}`,
+      };
+
+      expect(() => controller.authenticateChannel(body, mockRequest)).toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should throw UnauthorizedException when subscribing to another user channel', () => {
+      const body = {
+        socket_id: '123456.7890123',
+        channel_name: 'private-user-different-user-id',
+      };
+
+      expect(() => controller.authenticateChannel(body, mockRequest)).toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('should throw BadRequestException for missing channel_name', () => {
+      const body = {
+        socket_id: '123456.7890123',
+        channel_name: '',
+      };
+
+      expect(() => controller.authenticateChannel(body, mockRequest)).toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should authenticate generic private channel (non-user specific)', () => {
+      const body = {
+        socket_id: '123456.7890123',
+        channel_name: 'private-general',
+      };
+      const expectedAuth = { auth: 'test-key:test-signature' };
+      mockPusherService.authenticateWithSDK.mockReturnValue(expectedAuth);
+
+      const result = controller.authenticateChannel(body, mockRequest);
+
+      expect(result).toEqual(expectedAuth);
+      expect(mockPusherService.authenticateWithSDK).toHaveBeenCalledWith(
+        body.socket_id,
+        body.channel_name,
+      );
+    });
+
+    it('should handle socket_id with various valid formats', () => {
+      const body = {
+        socket_id: '1.1',
+        channel_name: `private-user-${testUserId}`,
+      };
+      const expectedAuth = { auth: 'test-key:test-signature' };
+      mockPusherService.authenticateWithSDK.mockReturnValue(expectedAuth);
+
+      const result = controller.authenticateChannel(body, mockRequest);
+
+      expect(result).toEqual(expectedAuth);
+    });
+
+    it('should throw BadRequestException for socket_id without dot separator', () => {
+      const body = {
+        socket_id: '1234567890123',
+        channel_name: `private-user-${testUserId}`,
+      };
+
+      expect(() => controller.authenticateChannel(body, mockRequest)).toThrow(
+        BadRequestException,
+      );
+    });
+  });
+
+  describe('mockEvent', () => {
+    it('should trigger event successfully', async () => {
+      const body = {
+        channel: 'private-user-test',
+        event: 'test-event',
+        data: { message: 'test' },
+      };
+      mockPusherService.triggerEvent.mockResolvedValue(undefined);
+
+      const result = await controller.mockEvent(body);
+
+      expect(result).toEqual({ success: true });
+      expect(mockPusherService.triggerEvent).toHaveBeenCalledWith(
+        body.channel,
+        body.event,
+        body.data,
+      );
+    });
+
+    it('should throw BadRequestException for missing channel', async () => {
+      const body = {
+        channel: '',
+        event: 'test-event',
+        data: {},
+      };
+
+      await expect(controller.mockEvent(body)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should throw BadRequestException for missing event', async () => {
+      const body = {
+        channel: 'private-user-test',
+        event: '',
+        data: {},
+      };
+
+      await expect(controller.mockEvent(body)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should trigger event with empty data object', async () => {
+      const body = {
+        channel: 'private-user-test',
+        event: 'test-event',
+        data: {},
+      };
+      mockPusherService.triggerEvent.mockResolvedValue(undefined);
+
+      const result = await controller.mockEvent(body);
+
+      expect(result).toEqual({ success: true });
+      expect(mockPusherService.triggerEvent).toHaveBeenCalledWith(
+        body.channel,
+        body.event,
+        body.data,
+      );
+    });
+
+    it('should trigger event with complex data payload', async () => {
+      const body = {
+        channel: 'private-user-test',
+        event: 'complex-event',
+        data: {
+          nested: { value: 123 },
+          array: [1, 2, 3],
+          string: 'test',
         },
-      })
-      .compile();
+      };
+      mockPusherService.triggerEvent.mockResolvedValue(undefined);
 
-    app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe());
-    await app.init();
+      const result = await controller.mockEvent(body);
 
-    pusherService = moduleFixture.get<PusherService>(PusherService);
-  });
-
-  afterEach(async () => {
-    await app.close();
-  });
-
-  describe('POST /pusher/auth', () => {
-    describe('Private channel authentication', () => {
-      it('should authenticate private-user channel for correct user', async () => {
-        const response = await request(app.getHttpServer())
-          .post('/pusher/auth')
-          .send({
-            socket_id: '123456.789012',
-            channel_name: 'private-user-user123',
-          })
-          .expect(200);
-
-        expect(response.body.auth).toBeDefined();
-        expect(pusherService.authenticatePrivateChannel).toHaveBeenCalledWith(
-          '123456.789012',
-          'private-user-user123',
-        );
-      });
-
-      it('should reject subscription to another user channel', async () => {
-        await request(app.getHttpServer())
-          .post('/pusher/auth')
-          .send({
-            socket_id: '123456.789012',
-            channel_name: 'private-user-otheruser',
-          })
-          .expect(401);
-      });
-
-      it('should authenticate generic private channel', async () => {
-        const response = await request(app.getHttpServer())
-          .post('/pusher/auth')
-          .send({
-            socket_id: '123456.789012',
-            channel_name: 'private-general',
-          })
-          .expect(200);
-
-        expect(response.body.auth).toBeDefined();
-        expect(pusherService.authenticatePrivateChannel).toHaveBeenCalledWith(
-          '123456.789012',
-          'private-general',
-        );
-      });
-    });
-
-    describe('Presence channel authentication', () => {
-      it('should authenticate presence channel with user data', async () => {
-        const response = await request(app.getHttpServer())
-          .post('/pusher/auth')
-          .send({
-            socket_id: '123456.789012',
-            channel_name: 'presence-room-abc',
-          })
-          .expect(200);
-
-        expect(response.body.auth).toBeDefined();
-        expect(response.body.channel_data).toBeDefined();
-        expect(pusherService.authenticatePresenceChannel).toHaveBeenCalledWith(
-          '123456.789012',
-          'presence-room-abc',
-          expect.objectContaining({ user_id: mockUser.id }),
-        );
-      });
-    });
-
-    describe('Validation errors', () => {
-      it('should reject request without socket_id', async () => {
-        await request(app.getHttpServer())
-          .post('/pusher/auth')
-          .send({
-            channel_name: 'private-user-user123',
-          })
-          .expect(401);
-      });
-
-      it('should reject request without channel_name', async () => {
-        await request(app.getHttpServer())
-          .post('/pusher/auth')
-          .send({
-            socket_id: '123456.789012',
-          })
-          .expect(401);
-      });
-
-      it('should reject request with empty body', async () => {
-        await request(app.getHttpServer())
-          .post('/pusher/auth')
-          .send({})
-          .expect(401);
-      });
-
-      it('should reject request with invalid socket_id format', async () => {
-        await request(app.getHttpServer())
-          .post('/pusher/auth')
-          .send({
-            socket_id: 'invalid',
-            channel_name: 'private-user-user123',
-          })
-          .expect(401);
-      });
-    });
-
-    describe('Channel name validation', () => {
-      it('should reject invalid channel name prefix', async () => {
-        await request(app.getHttpServer())
-          .post('/pusher/auth')
-          .send({
-            socket_id: '123456.789012',
-            channel_name: 'public-channel',
-          })
-          .expect(401);
-      });
-
-      it('should reject empty channel name', async () => {
-        await request(app.getHttpServer())
-          .post('/pusher/auth')
-          .send({
-            socket_id: '123456.789012',
-            channel_name: '',
-          })
-          .expect(401);
-      });
+      expect(result).toEqual({ success: true });
+      expect(mockPusherService.triggerEvent).toHaveBeenCalledWith(
+        body.channel,
+        body.event,
+        body.data,
+      );
     });
   });
 });
